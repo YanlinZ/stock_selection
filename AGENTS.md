@@ -22,19 +22,30 @@
 
 当前处于：
 
-> Phase 1 准备启动：配置页与数据入库阶段
+> Phase 1 开发中：配置页已合入，继续推进数据入库阶段
 
 Phase 0 已完成并合入 `main`。工程底座已经包括 Next.js App Router、TypeScript、Tailwind、Drizzle、Neon Postgres、Vercel 部署、简单密码保护和健康检查。
 
-除非用户明确要求实现代码，否则不要主动开始新增业务功能或接入数据源。优先继续通过提问、总结、更新 PRD 来澄清产品。
+Phase 1 已正式启动，并已完成配置页垂直切片。除非用户明确要求实现代码，否则不要主动扩展 MVP 范围或实现交易分析业务。优先保持 Phase 1 的 harness engineering 边界。
 
-当用户明确要求进入开发时，Phase 1 的重点是配置页与数据入库：
+Phase 1 当前重点是数据入库：
 
-- 实现持仓、关注列表、个人关键加仓价、基础偏好配置。
+- 继续建立 FMP、CoinGecko、FRED 的 provider contract 和 fixture harness。
+- 实现 raw response 保存、normalized data 生成和 ingestion run 状态。
+- 在 UI 中展示基础数据状态。
+- 暂不输出完整交易建议，不实现 Dashboard 交易分析业务。
+
+Phase 1 已完成部分：
+
 - 建立第一版数据库表和 migration。
+- 实现持仓、关注列表、个人关键加仓价配置页。
+- 配置页已支持新增、编辑和软停用。
+
+Phase 1 仍待完成部分：
+
 - 接入 FMP、CoinGecko、FRED 的基础 adapter。
 - 保存 raw response 和 normalized data。
-- 暂不输出完整交易建议，不实现 Dashboard 交易分析业务。
+- 展示 provider 刷新状态、最近更新时间和错误状态。
 
 ## 当前工程状态
 
@@ -49,6 +60,14 @@ Phase 0 验收结果：
 
 注意：`FMP_API_KEY`、`COINGECKO_API_KEY`、`FRED_API_KEY`、`OPENAI_API_KEY` 仍是后续阶段预留，不应因为健康检查中显示为 `false` 就误判 Phase 0 失败。
 
+Phase 1 当前进展：
+
+- `main` 已合并 Phase 1 schema harness。
+- `main` 已合并 Phase 1 配置页 vertical slice。
+- `docs/PRD-v2026.05.11.md` 已记录后续版本的复盘与自我迭代机制，该机制不进入 Phase 1 实现范围。
+- 2026-05-11 已对当前 `DATABASE_URL` 执行 `pnpm db:migrate`，并验证 Phase 1 的 9 张表全部存在。
+- 2026-05-11 已验证 `/settings` 本地页面显示 `可编辑`，不再显示 `需要迁移`。
+
 ## 部署与运维注意
 
 - Vercel Production 必须配置 `DATABASE_URL`、`AUTH_SECRET`、`APP_ACCESS_PASSWORD`。
@@ -56,12 +75,17 @@ Phase 0 验收结果：
 - GitHub PR checks 中可能同时出现 `stock-selection` 和 `stock-selection-w5bi` 两个 Vercel 项目。当前 canonical production 是 `stock-selection`，正式域名是 `stock-selection-pi.vercel.app`。
 - 如果 Vercel 报错 `No Output Directory named "public" found after the Build completed`，优先检查 Vercel Project Settings：Framework Preset 应为 Next.js，Output Directory 不应配置为 `public`。
 - Vercel 修改项目设置或环境变量后，需要 redeploy 才会对已有 commit 生效。
+- 如果 `/settings` 显示 `需要迁移` 或 `数据库未就绪`，优先确认当前 `DATABASE_URL` 是否指向预期数据库，再执行 `pnpm db:migrate`。
 
 ## 主要文档
 
 第一版 PRD 源文件：
 
 - `docs/PRD-v2026.05.10.md`
+
+当前 PRD 增量更新：
+
+- `docs/PRD-v2026.05.11.md`
 
 当前技术开发计划：
 
