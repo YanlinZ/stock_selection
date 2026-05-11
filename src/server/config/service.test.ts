@@ -89,20 +89,101 @@ describe("createConfigService", () => {
     expect(watchlistItem.theme).toBe("fintech");
     expect(preference.value).toEqual({ days: 5 });
   });
+
+  it("updates and deactivates existing configuration records by id", async () => {
+    const fake = createFakeConfigRepository();
+    const service = createConfigService(fake.repository);
+
+    const holding = await service.upsertHolding({
+      symbol: "NET",
+      holdingType: "long_term",
+      positionSize: "small"
+    });
+    const updatedHolding = await service.updateHolding({
+      id: holding.id,
+      holdingType: "short_term",
+      costBasis: "85.5",
+      positionSize: "medium",
+      notes: "Testing an edit path"
+    });
+    const deactivatedHolding = await service.deactivateHolding(holding.id);
+
+    expect(updatedHolding.holdingType).toBe("short_term");
+    expect(updatedHolding.costBasis).toBe("85.5");
+    expect(deactivatedHolding.isActive).toBe(false);
+
+    const watchlistItem = await service.upsertWatchlistItem({
+      symbol: "HOOD",
+      priority: 10
+    });
+    const updatedWatchlistItem = await service.updateWatchlistItem({
+      id: watchlistItem.id,
+      priority: "90",
+      theme: "fintech",
+      notes: "Near alert zone"
+    });
+    const deactivatedWatchlistItem = await service.deactivateWatchlistItem(
+      watchlistItem.id
+    );
+
+    expect(updatedWatchlistItem.priority).toBe(90);
+    expect(updatedWatchlistItem.theme).toBe("fintech");
+    expect(deactivatedWatchlistItem.isActive).toBe(false);
+
+    const keyPriceLevel = await service.upsertKeyPriceLevel({
+      symbol: "BTC",
+      assetType: "crypto",
+      levelType: "long_term_add",
+      price: 60000
+    });
+    const updatedKeyPriceLevel = await service.updateKeyPriceLevel({
+      id: keyPriceLevel.id,
+      levelType: "watch",
+      price: "61000",
+      currency: "usd",
+      notes: "Edited watch level"
+    });
+    const deactivatedKeyPriceLevel = await service.deactivateKeyPriceLevel(
+      keyPriceLevel.id
+    );
+
+    expect(updatedKeyPriceLevel.levelType).toBe("watch");
+    expect(updatedKeyPriceLevel.price).toBe("61000");
+    expect(updatedKeyPriceLevel.currency).toBe("USD");
+    expect(deactivatedKeyPriceLevel.isActive).toBe(false);
+  });
 });
 
 function createFakeConfigRepository() {
   let idSequence = 0;
   const timestamp = new Date("2026-05-11T00:00:00.000Z");
   const instruments = new Map<string, InstrumentRecord>();
-  const holdings = new Map<string, HoldingRecord>();
-  const watchlistItems = new Map<string, WatchlistItemRecord>();
-  const keyPriceLevels = new Map<string, KeyPriceLevelRecord>();
+  const holdings = createRecordStore<HoldingRecord>();
+  const watchlistItems = createRecordStore<WatchlistItemRecord>();
+  const keyPriceLevels = createRecordStore<KeyPriceLevelRecord>();
   const userPreferences = new Map<string, UserPreferenceRecord>();
 
   const nextId = (prefix: string) => `${prefix}_${++idSequence}`;
 
   const repository: ConfigRepository = {
+    async getConfigSnapshot() {
+      return {
+        holdings: [...holdings.values()].map((holding) => ({
+          holding,
+          instrument: requireInstrumentById(holding.instrumentId)
+        })),
+        watchlistItems: [...watchlistItems.values()].map((watchlistItem) => ({
+          watchlistItem,
+          instrument: requireInstrumentById(watchlistItem.instrumentId)
+        })),
+        keyPriceLevels: [...keyPriceLevels.values()].map((keyPriceLevel) => ({
+          keyPriceLevel,
+          instrument: requireInstrumentById(keyPriceLevel.instrumentId)
+        })),
+        userPreferences: [...userPreferences.values()]
+      };
+    },
+
     async upsertInstrument(input) {
       const existing = instruments.get(input.symbol);
       const instrument: InstrumentRecord = {
@@ -192,18 +273,184 @@ function createFakeConfigRepository() {
       userPreferences.set(input.key, preference);
 
       return preference;
+    },
+
+    async updateHolding(input) {
+      const existing = holdings.getById(input.id);
+
+      if (!existing) {
+        throw new Error("Holding not found.");
+      }
+
+      const holding: HoldingRecord = {
+        ...existing,
+        holdingType: input.holdingType,
+        costBasis: input.costBasis,
+        positionSize: input.positionSize,
+        notes: input.notes,
+        isActive: input.isActive,
+        updatedAt: timestamp
+      };
+
+      holdings.set(existing.instrumentId, holding);
+
+      return holding;
+    },
+
+    async updateWatchlistItem(input) {
+      const existing = watchlistItems.getById(input.id);
+
+      if (!existing) {
+        throw new Error("Watchlist item not found.");
+      }
+
+      const watchlistItem: WatchlistItemRecord = {
+        ...existing,
+        priority: input.priority,
+        theme: input.theme,
+        notes: input.notes,
+        isActive: input.isActive,
+        updatedAt: timestamp
+      };
+
+      watchlistItems.set(existing.instrumentId, watchlistItem);
+
+      return watchlistItem;
+    },
+
+    async updateKeyPriceLevel(input) {
+      const existing = keyPriceLevels.getById(input.id);
+
+      if (!existing) {
+        throw new Error("Key price level not found.");
+      }
+
+      const keyPriceLevel: KeyPriceLevelRecord = {
+        ...existing,
+        levelType: input.levelType,
+        price: input.price,
+        currency: input.currency,
+        notes: input.notes,
+        isActive: input.isActive,
+        updatedAt: timestamp
+      };
+
+      keyPriceLevels.deleteById(existing.id);
+      keyPriceLevels.set(
+        `${existing.instrumentId}:${input.levelType}:${input.price}`,
+        keyPriceLevel
+      );
+
+      return keyPriceLevel;
+    },
+
+    async deactivateHolding(id) {
+      const existing = holdings.getById(id);
+
+      if (!existing) {
+        throw new Error("Holding not found.");
+      }
+
+      const holding: HoldingRecord = {
+        ...existing,
+        isActive: false,
+        updatedAt: timestamp
+      };
+
+      holdings.set(existing.instrumentId, holding);
+
+      return holding;
+    },
+
+    async deactivateWatchlistItem(id) {
+      const existing = watchlistItems.getById(id);
+
+      if (!existing) {
+        throw new Error("Watchlist item not found.");
+      }
+
+      const watchlistItem: WatchlistItemRecord = {
+        ...existing,
+        isActive: false,
+        updatedAt: timestamp
+      };
+
+      watchlistItems.set(existing.instrumentId, watchlistItem);
+
+      return watchlistItem;
+    },
+
+    async deactivateKeyPriceLevel(id) {
+      const existing = keyPriceLevels.getById(id);
+
+      if (!existing) {
+        throw new Error("Key price level not found.");
+      }
+
+      const keyPriceLevel: KeyPriceLevelRecord = {
+        ...existing,
+        isActive: false,
+        updatedAt: timestamp
+      };
+
+      keyPriceLevels.set(
+        `${existing.instrumentId}:${existing.levelType}:${existing.price}`,
+        keyPriceLevel
+      );
+
+      return keyPriceLevel;
     }
   };
 
   return {
     repository,
     instruments,
-    holdings,
-    watchlistItems,
-    keyPriceLevels,
+    holdings: holdings.map,
+    watchlistItems: watchlistItems.map,
+    keyPriceLevels: keyPriceLevels.map,
     userPreferences,
     findInstrument(symbol: string) {
       return instruments.get(symbol);
+    }
+  };
+
+  function requireInstrumentById(id: string) {
+    const instrument = [...instruments.values()].find((item) => item.id === id);
+
+    if (!instrument) {
+      throw new Error("Instrument not found.");
+    }
+
+    return instrument;
+  }
+}
+
+function createRecordStore<T extends { id: string }>() {
+  const map = new Map<string, T>();
+
+  return {
+    map,
+    set(key: string, value: T) {
+      map.set(key, value);
+    },
+    values() {
+      return map.values();
+    },
+    get(key: string) {
+      return map.get(key);
+    },
+    getById(id: string) {
+      return [...map.values()].find((value) => value.id === id);
+    },
+    deleteById(id: string) {
+      const entry = [...map.entries()].find(([, value]) => value.id === id);
+
+      if (entry) {
+        map.delete(entry[0]);
+      }
+    },
+    get size() {
+      return map.size;
     }
   };
 }

@@ -80,3 +80,51 @@ export type UpsertUserPreferenceRepositoryInput = {
   key: string;
   value: Record<string, unknown>;
 };
+
+export type HoldingConfigItem = {
+  holding: HoldingRecord;
+  instrument: InstrumentRecord;
+};
+
+export type WatchlistConfigItem = {
+  watchlistItem: WatchlistItemRecord;
+  instrument: InstrumentRecord;
+};
+
+export type KeyPriceLevelConfigItem = {
+  keyPriceLevel: KeyPriceLevelRecord;
+  instrument: InstrumentRecord;
+};
+
+export type ConfigSnapshot = {
+  holdings: HoldingConfigItem[];
+  watchlistItems: WatchlistConfigItem[];
+  keyPriceLevels: KeyPriceLevelConfigItem[];
+  userPreferences: UserPreferenceRecord[];
+};
+
+export type UpdateHoldingRepositoryInput = {
+  id: string;
+  holdingType: HoldingType;
+  costBasis: string | null;
+  positionSize: PositionSize;
+  notes: string | null;
+  isActive: boolean;
+};
+
+export type UpdateWatchlistItemRepositoryInput = {
+  id: string;
+  priority: number;
+  theme: string | null;
+  notes: string | null;
+  isActive: boolean;
+};
+
+export type UpdateKeyPriceLevelRepositoryInput = {
+  id: string;
+  levelType: KeyPriceLevelType;
+  price: string;
+  currency: string;
+  notes: string | null;
+  isActive: boolean;
+};
