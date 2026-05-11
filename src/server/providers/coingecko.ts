@@ -92,12 +92,14 @@ export function createCoinGeckoMarketChartFailure(input: {
   errorMessage: string;
   fetchedAt?: string;
   interval?: "daily" | "hourly";
+  payload?: unknown;
   responseStatus?: number | null;
   symbol: string;
 }) {
   return createProviderFailure<DailyMarketDataPoint>({
     errorMessage: input.errorMessage,
     fetchedAt: input.fetchedAt,
+    payload: input.payload,
     request: createCoinGeckoMarketChartRequest(input),
     responseStatus: input.responseStatus
   });

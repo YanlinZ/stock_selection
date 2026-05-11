@@ -88,6 +88,7 @@ export function createFmpHistoricalPricesFailure(input: {
   errorMessage: string;
   fetchedAt?: string;
   from?: string;
+  payload?: unknown;
   responseStatus?: number | null;
   symbol: string;
   to?: string;
@@ -95,6 +96,7 @@ export function createFmpHistoricalPricesFailure(input: {
   return createProviderFailure<DailyMarketDataPoint>({
     errorMessage: input.errorMessage,
     fetchedAt: input.fetchedAt,
+    payload: input.payload,
     request: createFmpHistoricalPricesRequest(input),
     responseStatus: input.responseStatus
   });

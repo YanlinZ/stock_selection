@@ -84,12 +84,14 @@ export function createFredSeriesObservationsFailure(input: {
   fetchedAt?: string;
   observationEnd?: string;
   observationStart?: string;
+  payload?: unknown;
   responseStatus?: number | null;
   seriesId: string;
 }) {
   return createProviderFailure<MacroObservationPoint>({
     errorMessage: input.errorMessage,
     fetchedAt: input.fetchedAt,
+    payload: input.payload,
     request: createFredSeriesObservationsRequest(input),
     responseStatus: input.responseStatus
   });

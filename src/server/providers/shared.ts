@@ -82,6 +82,7 @@ export function createRawResponse<TPayload>(input: {
 export function createProviderFailure<TPoint>(input: {
   errorMessage: string;
   fetchedAt?: string;
+  payload?: unknown;
   request: ProviderRequestDescriptor;
   responseStatus?: number | null;
 }): ProviderDataResponse<TPoint> {
@@ -90,7 +91,7 @@ export function createProviderFailure<TPoint>(input: {
     rawResponse: createRawResponse({
       errorMessage: input.errorMessage,
       fetchedAt: input.fetchedAt,
-      payload: null,
+      payload: input.payload ?? null,
       request: input.request,
       responseStatus: input.responseStatus ?? null
     }),
