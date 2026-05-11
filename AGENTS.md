@@ -30,7 +30,7 @@ Phase 1 已正式启动，并已完成配置页垂直切片。除非用户明确
 
 Phase 1 当前重点是数据入库：
 
-- 继续建立 FMP、CoinGecko、FRED 的 provider contract 和 fixture harness。
+- 基于已合入的 FMP、CoinGecko、FRED provider contract 和 fixture harness，继续实现 ingestion harness。
 - 实现 raw response 保存、normalized data 生成和 ingestion run 状态。
 - 在 UI 中展示基础数据状态。
 - 暂不输出完整交易建议，不实现 Dashboard 交易分析业务。
@@ -40,11 +40,12 @@ Phase 1 已完成部分：
 - 建立第一版数据库表和 migration。
 - 实现持仓、关注列表、个人关键加仓价配置页。
 - 配置页已支持新增、编辑和软停用。
+- 建立 FMP、CoinGecko、FRED provider contract、fixture harness 和 fake provider 离线测试。
 
 Phase 1 仍待完成部分：
 
-- 接入 FMP、CoinGecko、FRED 的基础 adapter。
-- 保存 raw response 和 normalized data。
+- 实现 ingestion harness：保存 raw response、写入 normalized data、记录 ingestion run 状态并控制重复刷新。
+- 接入 FMP、CoinGecko、FRED 的真实 API 读取路径。
 - 展示 provider 刷新状态、最近更新时间和错误状态。
 
 ## 当前工程状态
@@ -64,6 +65,8 @@ Phase 1 当前进展：
 
 - `main` 已合并 Phase 1 schema harness。
 - `main` 已合并 Phase 1 配置页 vertical slice。
+- `main` 已合并 Phase 1 provider contract：FMP、CoinGecko、FRED adapter 契约、normalizer、fake provider 和 fixture tests。
+- 该 provider contract 只建立离线可测契约，不包含真实 API 调用、secret 读取、DB 写入或交易建议。
 - `docs/PRD-v2026.05.11.md` 已记录后续版本的复盘与自我迭代机制，该机制不进入 Phase 1 实现范围。
 - 2026-05-11 已对当前 `DATABASE_URL` 执行 `pnpm db:migrate`，并验证 Phase 1 的 9 张表全部存在。
 - 2026-05-11 已验证 `/settings` 本地页面显示 `可编辑`，不再显示 `需要迁移`。
