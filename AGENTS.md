@@ -22,11 +22,40 @@
 
 当前处于：
 
-> Phase 0：可部署优先的技术地基阶段
+> Phase 1 准备启动：配置页与数据入库阶段
 
-除非用户明确要求实现代码，否则不要主动开始搭建应用、选择框架、写业务代码或接入数据源。优先继续通过提问、总结、更新 PRD 来澄清产品。
+Phase 0 已完成并合入 `main`。工程底座已经包括 Next.js App Router、TypeScript、Tailwind、Drizzle、Neon Postgres、Vercel 部署、简单密码保护和健康检查。
 
-当用户明确要求进入开发时，Phase 0 的重点是先搭建可部署、可迁移、可多设备开发的工程地基，不实现交易分析业务。
+除非用户明确要求实现代码，否则不要主动开始新增业务功能或接入数据源。优先继续通过提问、总结、更新 PRD 来澄清产品。
+
+当用户明确要求进入开发时，Phase 1 的重点是配置页与数据入库：
+
+- 实现持仓、关注列表、个人关键加仓价、基础偏好配置。
+- 建立第一版数据库表和 migration。
+- 接入 FMP、CoinGecko、FRED 的基础 adapter。
+- 保存 raw response 和 normalized data。
+- 暂不输出完整交易建议，不实现 Dashboard 交易分析业务。
+
+## 当前工程状态
+
+Phase 0 验收结果：
+
+- `main` 已合并 Phase 0 工程初始化。
+- Vercel Production 已部署成功。
+- 正式访问地址：`https://stock-selection-pi.vercel.app`
+- 线上 `/api/health` 已验证为 `status: ok`。
+- Neon Postgres 连接已验证可用。
+- Production 环境已配置 `DATABASE_URL`、`AUTH_SECRET`、`APP_ACCESS_PASSWORD`。
+
+注意：`FMP_API_KEY`、`COINGECKO_API_KEY`、`FRED_API_KEY`、`OPENAI_API_KEY` 仍是后续阶段预留，不应因为健康检查中显示为 `false` 就误判 Phase 0 失败。
+
+## 部署与运维注意
+
+- Vercel Production 必须配置 `DATABASE_URL`、`AUTH_SECRET`、`APP_ACCESS_PASSWORD`。
+- 如果缺少 `AUTH_SECRET` 或 `APP_ACCESS_PASSWORD`，Vercel build 可能仍然成功，但 `/api/health` 会返回 `503 degraded`。
+- GitHub PR checks 中可能同时出现 `stock-selection` 和 `stock-selection-w5bi` 两个 Vercel 项目。当前 canonical production 是 `stock-selection`，正式域名是 `stock-selection-pi.vercel.app`。
+- 如果 Vercel 报错 `No Output Directory named "public" found after the Build completed`，优先检查 Vercel Project Settings：Framework Preset 应为 Next.js，Output Directory 不应配置为 `public`。
+- Vercel 修改项目设置或环境变量后，需要 redeploy 才会对已有 commit 生效。
 
 ## 主要文档
 
@@ -36,7 +65,7 @@
 
 当前技术开发计划：
 
-- `docs/TECH-PLAN-v2026.05.10.md`
+- `docs/TECH-PLAN-v2026.05.11.md`
 
 后续如产生新版 PRD，请使用新的日期版本号创建新文件：
 
