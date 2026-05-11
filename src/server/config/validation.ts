@@ -49,6 +49,8 @@ const positiveNumberSchema = z.preprocess(
   z.coerce.number().finite().positive()
 );
 
+const idSchema = z.string().trim().min(1);
+
 export const instrumentInputSchema = z.object({
   symbol: symbolSchema,
   name: optionalShortTextSchema,
@@ -106,8 +108,41 @@ export const userPreferenceInputSchema = z.object({
   value: z.record(z.string(), z.unknown())
 });
 
+export const holdingUpdateInputSchema = z.object({
+  id: idSchema,
+  holdingType: z.enum(holdingTypes),
+  costBasis: optionalPositiveNumberSchema,
+  positionSize: z.enum(positionSizes),
+  notes: optionalTextSchema,
+  isActive: z.boolean().default(true)
+});
+
+export const watchlistItemUpdateInputSchema = z.object({
+  id: idSchema,
+  priority: z.coerce.number().int().min(0).max(100),
+  theme: optionalShortTextSchema,
+  notes: optionalTextSchema,
+  isActive: z.boolean().default(true)
+});
+
+export const keyPriceLevelUpdateInputSchema = z.object({
+  id: idSchema,
+  levelType: z.enum(keyPriceLevelTypes),
+  price: positiveNumberSchema,
+  currency: currencySchema,
+  notes: optionalTextSchema,
+  isActive: z.boolean().default(true)
+});
+
+export const configRecordIdSchema = idSchema;
+
 export type InstrumentInput = z.input<typeof instrumentInputSchema>;
 export type HoldingInput = z.input<typeof holdingInputSchema>;
 export type WatchlistItemInput = z.input<typeof watchlistItemInputSchema>;
 export type KeyPriceLevelInput = z.input<typeof keyPriceLevelInputSchema>;
 export type UserPreferenceInput = z.input<typeof userPreferenceInputSchema>;
+export type HoldingUpdateInput = z.input<typeof holdingUpdateInputSchema>;
+export type WatchlistItemUpdateInput = z.input<
+  typeof watchlistItemUpdateInputSchema
+>;
+export type KeyPriceLevelUpdateInput = z.input<typeof keyPriceLevelUpdateInputSchema>;

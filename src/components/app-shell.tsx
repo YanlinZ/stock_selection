@@ -1,4 +1,4 @@
-import { BarChart3, HeartPulse, LogOut } from "lucide-react";
+import { BarChart3, HeartPulse, LogOut, Settings } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span>stock_selection</span>
           </Link>
           <nav className="flex items-center gap-2">
+            <Button asChild size="sm" variant="ghost">
+              <Link href="/settings">
+                <Settings className="h-4 w-4" aria-hidden="true" />
+                Settings
+              </Link>
+            </Button>
             <Button asChild size="sm" variant="ghost">
               <Link href="/health">
                 <HeartPulse className="h-4 w-4" aria-hidden="true" />

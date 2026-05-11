@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 
 import { getDb } from "@/db/client";
 import {
@@ -18,6 +18,10 @@ import type {
   UpsertKeyPriceLevelRepositoryInput,
   UpsertUserPreferenceRepositoryInput,
   UpsertWatchlistItemRepositoryInput,
+  ConfigSnapshot,
+  UpdateHoldingRepositoryInput,
+  UpdateKeyPriceLevelRepositoryInput,
+  UpdateWatchlistItemRepositoryInput,
   UserPreferenceRecord,
   WatchlistItemRecord
 } from "./types";
@@ -25,6 +29,7 @@ import type {
 type Db = ReturnType<typeof getDb>;
 
 export type ConfigRepository = {
+  getConfigSnapshot(): Promise<ConfigSnapshot>;
   upsertInstrument(input: UpsertInstrumentRepositoryInput): Promise<InstrumentRecord>;
   upsertHolding(input: UpsertHoldingRepositoryInput): Promise<HoldingRecord>;
   upsertWatchlistItem(
@@ -36,10 +41,61 @@ export type ConfigRepository = {
   upsertUserPreference(
     input: UpsertUserPreferenceRepositoryInput
   ): Promise<UserPreferenceRecord>;
+  updateHolding(input: UpdateHoldingRepositoryInput): Promise<HoldingRecord>;
+  updateWatchlistItem(
+    input: UpdateWatchlistItemRepositoryInput
+  ): Promise<WatchlistItemRecord>;
+  updateKeyPriceLevel(
+    input: UpdateKeyPriceLevelRepositoryInput
+  ): Promise<KeyPriceLevelRecord>;
+  deactivateHolding(id: string): Promise<HoldingRecord>;
+  deactivateWatchlistItem(id: string): Promise<WatchlistItemRecord>;
+  deactivateKeyPriceLevel(id: string): Promise<KeyPriceLevelRecord>;
 };
 
 export function createConfigRepository(db: Db = getDb()): ConfigRepository {
   return {
+    async getConfigSnapshot() {
+      const [holdingRows, watchlistRows, keyPriceLevelRows, preferences] =
+        await Promise.all([
+          db
+            .select({
+              holding: holdings,
+              instrument: instruments
+            })
+            .from(holdings)
+            .innerJoin(instruments, eq(holdings.instrumentId, instruments.id))
+            .where(eq(holdings.isActive, true))
+            .orderBy(asc(instruments.symbol)),
+          db
+            .select({
+              watchlistItem: watchlistItems,
+              instrument: instruments
+            })
+            .from(watchlistItems)
+            .innerJoin(instruments, eq(watchlistItems.instrumentId, instruments.id))
+            .where(eq(watchlistItems.isActive, true))
+            .orderBy(asc(watchlistItems.priority), asc(instruments.symbol)),
+          db
+            .select({
+              keyPriceLevel: keyPriceLevels,
+              instrument: instruments
+            })
+            .from(keyPriceLevels)
+            .innerJoin(instruments, eq(keyPriceLevels.instrumentId, instruments.id))
+            .where(eq(keyPriceLevels.isActive, true))
+            .orderBy(asc(instruments.symbol), asc(keyPriceLevels.levelType)),
+          db.select().from(userPreferences).orderBy(asc(userPreferences.key))
+        ]);
+
+      return {
+        holdings: holdingRows,
+        watchlistItems: watchlistRows,
+        keyPriceLevels: keyPriceLevelRows,
+        userPreferences: preferences
+      };
+    },
+
     async upsertInstrument(input) {
       const now = new Date();
       const [instrument] = await db
@@ -172,6 +228,95 @@ export function createConfigRepository(db: Db = getDb()): ConfigRepository {
         .returning();
 
       return requireRow(preference, "User preference upsert returned no row.");
+    },
+
+    async updateHolding(input) {
+      const [holding] = await db
+        .update(holdings)
+        .set({
+          holdingType: input.holdingType,
+          costBasis: input.costBasis,
+          positionSize: input.positionSize,
+          notes: input.notes,
+          isActive: input.isActive,
+          updatedAt: new Date()
+        })
+        .where(eq(holdings.id, input.id))
+        .returning();
+
+      return requireRow(holding, "Holding update returned no row.");
+    },
+
+    async updateWatchlistItem(input) {
+      const [watchlistItem] = await db
+        .update(watchlistItems)
+        .set({
+          priority: input.priority,
+          theme: input.theme,
+          notes: input.notes,
+          isActive: input.isActive,
+          updatedAt: new Date()
+        })
+        .where(eq(watchlistItems.id, input.id))
+        .returning();
+
+      return requireRow(watchlistItem, "Watchlist item update returned no row.");
+    },
+
+    async updateKeyPriceLevel(input) {
+      const [keyPriceLevel] = await db
+        .update(keyPriceLevels)
+        .set({
+          levelType: input.levelType,
+          price: input.price,
+          currency: input.currency,
+          notes: input.notes,
+          isActive: input.isActive,
+          updatedAt: new Date()
+        })
+        .where(eq(keyPriceLevels.id, input.id))
+        .returning();
+
+      return requireRow(keyPriceLevel, "Key price level update returned no row.");
+    },
+
+    async deactivateHolding(id) {
+      const [holding] = await db
+        .update(holdings)
+        .set({
+          isActive: false,
+          updatedAt: new Date()
+        })
+        .where(eq(holdings.id, id))
+        .returning();
+
+      return requireRow(holding, "Holding deactivate returned no row.");
+    },
+
+    async deactivateWatchlistItem(id) {
+      const [watchlistItem] = await db
+        .update(watchlistItems)
+        .set({
+          isActive: false,
+          updatedAt: new Date()
+        })
+        .where(eq(watchlistItems.id, id))
+        .returning();
+
+      return requireRow(watchlistItem, "Watchlist item deactivate returned no row.");
+    },
+
+    async deactivateKeyPriceLevel(id) {
+      const [keyPriceLevel] = await db
+        .update(keyPriceLevels)
+        .set({
+          isActive: false,
+          updatedAt: new Date()
+        })
+        .where(eq(keyPriceLevels.id, id))
+        .returning();
+
+      return requireRow(keyPriceLevel, "Key price level deactivate returned no row.");
     }
   };
 }
