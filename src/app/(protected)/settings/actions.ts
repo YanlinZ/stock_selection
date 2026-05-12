@@ -1,8 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-
 import { createConfigService } from "@/server/config/service";
 import {
   assetTypes,
@@ -17,7 +15,6 @@ export async function refreshAllDataAction() {
 
   revalidatePath("/settings");
   revalidatePath("/health");
-  redirect("/settings");
 }
 
 export async function addHoldingAction(formData: FormData) {
@@ -32,7 +29,6 @@ export async function addHoldingAction(formData: FormData) {
   });
 
   revalidatePath("/settings");
-  redirect("/settings");
 }
 
 export async function updateHoldingAction(formData: FormData) {
@@ -45,14 +41,12 @@ export async function updateHoldingAction(formData: FormData) {
   });
 
   revalidatePath("/settings");
-  redirect("/settings");
 }
 
 export async function deactivateHoldingAction(formData: FormData) {
   await createConfigService().deactivateHolding(readString(formData, "id"));
 
   revalidatePath("/settings");
-  redirect("/settings");
 }
 
 export async function addWatchlistItemAction(formData: FormData) {
@@ -66,7 +60,6 @@ export async function addWatchlistItemAction(formData: FormData) {
   });
 
   revalidatePath("/settings");
-  redirect("/settings");
 }
 
 export async function updateWatchlistItemAction(formData: FormData) {
@@ -78,14 +71,12 @@ export async function updateWatchlistItemAction(formData: FormData) {
   });
 
   revalidatePath("/settings");
-  redirect("/settings");
 }
 
 export async function deactivateWatchlistItemAction(formData: FormData) {
   await createConfigService().deactivateWatchlistItem(readString(formData, "id"));
 
   revalidatePath("/settings");
-  redirect("/settings");
 }
 
 export async function addKeyPriceLevelAction(formData: FormData) {
@@ -105,7 +96,6 @@ export async function addKeyPriceLevelAction(formData: FormData) {
   });
 
   revalidatePath("/settings");
-  redirect("/settings");
 }
 
 export async function updateKeyPriceLevelAction(formData: FormData) {
@@ -123,14 +113,12 @@ export async function updateKeyPriceLevelAction(formData: FormData) {
   });
 
   revalidatePath("/settings");
-  redirect("/settings");
 }
 
 export async function deactivateKeyPriceLevelAction(formData: FormData) {
   await createConfigService().deactivateKeyPriceLevel(readString(formData, "id"));
 
   revalidatePath("/settings");
-  redirect("/settings");
 }
 
 export async function updateUserPreferencesAction(formData: FormData) {
@@ -155,7 +143,6 @@ export async function updateUserPreferencesAction(formData: FormData) {
   });
 
   revalidatePath("/settings");
-  redirect("/settings");
 }
 
 function readString(formData: FormData, key: string) {
