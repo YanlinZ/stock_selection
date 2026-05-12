@@ -1,6 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+
+import { ACCESS_COOKIE_NAME, isValidAccessToken } from "@/lib/auth/session";
 import { createConfigService } from "@/server/config/service";
 import {
   assetTypes,
@@ -11,6 +14,8 @@ import {
 import { createIngestionService } from "@/server/ingestion/service";
 
 export async function refreshAllDataAction() {
+  await requireSettingsActionAuth();
+
   await createIngestionService().refreshAll({ requestedBy: "manual" });
 
   revalidatePath("/settings");
@@ -18,6 +23,8 @@ export async function refreshAllDataAction() {
 }
 
 export async function addHoldingAction(formData: FormData) {
+  await requireSettingsActionAuth();
+
   await createConfigService().upsertHolding({
     symbol: readString(formData, "symbol"),
     name: readOptionalString(formData, "name"),
@@ -32,6 +39,8 @@ export async function addHoldingAction(formData: FormData) {
 }
 
 export async function updateHoldingAction(formData: FormData) {
+  await requireSettingsActionAuth();
+
   await createConfigService().updateHolding({
     id: readString(formData, "id"),
     holdingType: readEnum(formData, "holdingType", holdingTypes, "long_term"),
@@ -44,12 +53,16 @@ export async function updateHoldingAction(formData: FormData) {
 }
 
 export async function deactivateHoldingAction(formData: FormData) {
+  await requireSettingsActionAuth();
+
   await createConfigService().deactivateHolding(readString(formData, "id"));
 
   revalidatePath("/settings");
 }
 
 export async function addWatchlistItemAction(formData: FormData) {
+  await requireSettingsActionAuth();
+
   await createConfigService().upsertWatchlistItem({
     symbol: readString(formData, "symbol"),
     name: readOptionalString(formData, "name"),
@@ -63,6 +76,8 @@ export async function addWatchlistItemAction(formData: FormData) {
 }
 
 export async function updateWatchlistItemAction(formData: FormData) {
+  await requireSettingsActionAuth();
+
   await createConfigService().updateWatchlistItem({
     id: readString(formData, "id"),
     priority: readOptionalString(formData, "priority") ?? "0",
@@ -74,12 +89,16 @@ export async function updateWatchlistItemAction(formData: FormData) {
 }
 
 export async function deactivateWatchlistItemAction(formData: FormData) {
+  await requireSettingsActionAuth();
+
   await createConfigService().deactivateWatchlistItem(readString(formData, "id"));
 
   revalidatePath("/settings");
 }
 
 export async function addKeyPriceLevelAction(formData: FormData) {
+  await requireSettingsActionAuth();
+
   await createConfigService().upsertKeyPriceLevel({
     symbol: readString(formData, "symbol"),
     name: readOptionalString(formData, "name"),
@@ -99,6 +118,8 @@ export async function addKeyPriceLevelAction(formData: FormData) {
 }
 
 export async function updateKeyPriceLevelAction(formData: FormData) {
+  await requireSettingsActionAuth();
+
   await createConfigService().updateKeyPriceLevel({
     id: readString(formData, "id"),
     currency: readOptionalString(formData, "currency") ?? "USD",
@@ -116,12 +137,16 @@ export async function updateKeyPriceLevelAction(formData: FormData) {
 }
 
 export async function deactivateKeyPriceLevelAction(formData: FormData) {
+  await requireSettingsActionAuth();
+
   await createConfigService().deactivateKeyPriceLevel(readString(formData, "id"));
 
   revalidatePath("/settings");
 }
 
 export async function updateUserPreferencesAction(formData: FormData) {
+  await requireSettingsActionAuth();
+
   await createConfigService().upsertUserPreference({
     key: "basic_preferences",
     value: {
@@ -143,6 +168,15 @@ export async function updateUserPreferencesAction(formData: FormData) {
   });
 
   revalidatePath("/settings");
+}
+
+async function requireSettingsActionAuth() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(ACCESS_COOKIE_NAME)?.value;
+
+  if (!(await isValidAccessToken(token))) {
+    throw new Error("Unauthorized settings action.");
+  }
 }
 
 function readString(formData: FormData, key: string) {
