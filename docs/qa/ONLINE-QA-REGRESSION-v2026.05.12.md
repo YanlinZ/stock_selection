@@ -344,7 +344,7 @@
 后续每次修复后必须优先回归：
 
 - Settings 保存/停用后不能跳回登录。
+- Settings 任意 server action 提交后不能出现 `This page couldn’t load`。
 - 移动端退出入口必须可见。
 - `/dashboard` 不能是默认 404，除非产品文档明确暂不提供且有合理占位。
 - 未登录访问受保护路径，登录后应回原路径。
-

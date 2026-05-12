@@ -15,6 +15,10 @@ export async function proxy(request: NextRequest) {
     );
   }
 
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return NextResponse.next();
+  }
+
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-stock-selection-path", nextPath);
 
