@@ -22,31 +22,31 @@
 
 当前处于：
 
-> Phase 1 开发中：配置页已合入，继续推进数据入库阶段
+> Phase 1 已完成：Phase 2 Dashboard v1 准备中
 
 Phase 0 已完成并合入 `main`。工程底座已经包括 Next.js App Router、TypeScript、Tailwind、Drizzle、Neon Postgres、Vercel 部署、简单密码保护和健康检查。
 
-Phase 1 已正式启动，并已完成配置页垂直切片。除非用户明确要求实现代码，否则不要主动扩展 MVP 范围或实现交易分析业务。优先保持 Phase 1 的 harness engineering 边界。
-
-Phase 1 当前重点是数据入库：
-
-- 基于已合入的 FMP、CoinGecko、FRED provider contract 和 fixture harness，继续实现 ingestion harness。
-- 实现 raw response 保存、normalized data 生成和 ingestion run 状态。
-- 在 UI 中展示基础数据状态。
-- 暂不输出完整交易建议，不实现 Dashboard 交易分析业务。
+Phase 1 已完成配置页与数据入库 harness。这里的 `harness` 遵守 AI coding agent 语境下的 Harness Engineering 定义：围绕 agent 和代码库建立上下文、约束、工具、契约、测试、状态可观测性和反馈循环，让 AI 生成和维护的系统可验证、可追踪、可重跑、可解释失败原因。项目统一定义见 `docs/engineering/HARNESS-ENGINEERING.md`。除非用户明确要求实现代码，否则不要主动扩展 MVP 范围或实现交易分析业务。下一阶段应进入 Phase 2 Dashboard v1，但仍需保持 MVP 克制，不提前实现 Phase 3 的新闻/财报深度理解或 AI 解释层。
 
 Phase 1 已完成部分：
 
 - 建立第一版数据库表和 migration。
 - 实现持仓、关注列表、个人关键加仓价配置页。
 - 配置页已支持新增、编辑和软停用。
-- 建立 FMP、CoinGecko、FRED provider contract、fixture harness 和 fake provider 离线测试。
-
-Phase 1 仍待完成部分：
-
+- 建立 FMP、CoinGecko、FRED provider contract、fixture/fake provider 和离线测试，作为 Phase 1 provider harness。
 - 实现 ingestion harness：保存 raw response、写入 normalized data、记录 ingestion run 状态并控制重复刷新。
 - 接入 FMP、CoinGecko、FRED 的真实 API 读取路径。
-- 展示 provider 刷新状态、最近更新时间和错误状态。
+- 在配置页展示 provider 刷新状态、最近更新时间、stale/错误状态。
+- Vercel Production 已配置 `FMP_API_KEY`、`COINGECKO_API_KEY`、`FRED_API_KEY`。
+- 2026-05-12 UTC 已完成 Production redeploy 和手动刷新 smoke：`/api/health` 为 `status: ok`，provider key 检查为 true，刷新批次成功写入 normalized data。
+
+Phase 2 当前重点：
+
+- 基于 Phase 1 normalized data 实现 Dashboard v1。
+- 实现今日总判断、宏观状态、持仓状态、技术位与行动建议。
+- 实现 8/21/50/200 日均线、前高前低、成交量变化、关键价位接近判断。
+- 实现宏观双评分和恐慌反弹模式。
+- 暂不接 AI 摘要，不做新闻/财报深度理解，不做自动定时任务。
 
 ## 当前工程状态
 
@@ -59,50 +59,69 @@ Phase 0 验收结果：
 - Neon Postgres 连接已验证可用。
 - Production 环境已配置 `DATABASE_URL`、`AUTH_SECRET`、`APP_ACCESS_PASSWORD`。
 
-注意：`FMP_API_KEY`、`COINGECKO_API_KEY`、`FRED_API_KEY`、`OPENAI_API_KEY` 仍是后续阶段预留，不应因为健康检查中显示为 `false` 就误判 Phase 0 失败。
+注意：`FMP_API_KEY`、`COINGECKO_API_KEY`、`FRED_API_KEY` 是 Phase 1 真实数据刷新依赖；`OPENAI_API_KEY` 仍是后续 AI 阶段预留，不应因为健康检查中显示为 `false` 就误判当前阶段失败。
 
 Phase 1 当前进展：
 
 - `main` 已合并 Phase 1 schema harness。
 - `main` 已合并 Phase 1 配置页 vertical slice。
 - `main` 已合并 Phase 1 provider contract：FMP、CoinGecko、FRED adapter 契约、normalizer、fake provider 和 fixture tests。
-- 该 provider contract 只建立离线可测契约，不包含真实 API 调用、secret 读取、DB 写入或交易建议。
-- `docs/PRD-v2026.05.11.md` 已记录后续版本的复盘与自我迭代机制，该机制不进入 Phase 1 实现范围。
+- `main` 已合并 Phase 1 ingestion：真实 provider、raw response 保存、normalized data upsert、ingestion run 状态和配置页数据状态 UI。
+- Phase 1 不包含交易建议、完整 Dashboard、AI 摘要、新闻/财报深度理解或自动定时任务。
+- `docs/prd/PRD-v2026.05.11.md` 已记录后续版本的复盘与自我迭代机制，该机制不进入 Phase 1 实现范围。
 - 2026-05-11 已对当前 `DATABASE_URL` 执行 `pnpm db:migrate`，并验证 Phase 1 的 9 张表全部存在。
 - 2026-05-11 已验证 `/settings` 本地页面显示 `可编辑`，不再显示 `需要迁移`。
+- 2026-05-12 UTC 已运行 `pnpm check`，typecheck、lint、7 个测试文件、25 个测试通过。
+- 2026-05-12 UTC 已配置 Production provider API keys 并 redeploy；线上 `/api/health` 显示 `FMP_API_KEY`、`COINGECKO_API_KEY`、`FRED_API_KEY` 为 `true`，`OPENAI_API_KEY` 仍未配置且不属于 Phase 1 依赖。
+- 2026-05-12 UTC 已在 Production `/settings` 手动刷新数据，批次结果为 `3/3 成功，0 失败，89 行入库`。当时 Production 配置中没有 active crypto 标的，因此 CoinGecko key 已配置但未被刷新计划使用；本地已用同一 key 验证 CoinGecko 官方 API 可返回 BTC 数据。
 
 ## 部署与运维注意
 
 - Vercel Production 必须配置 `DATABASE_URL`、`AUTH_SECRET`、`APP_ACCESS_PASSWORD`。
+- Phase 1 真实数据刷新还必须配置 `FMP_API_KEY`、`COINGECKO_API_KEY`、`FRED_API_KEY`。
 - 如果缺少 `AUTH_SECRET` 或 `APP_ACCESS_PASSWORD`，Vercel build 可能仍然成功，但 `/api/health` 会返回 `503 degraded`。
 - GitHub PR checks 中可能同时出现 `stock-selection` 和 `stock-selection-w5bi` 两个 Vercel 项目。当前 canonical production 是 `stock-selection`，正式域名是 `stock-selection-pi.vercel.app`。
 - 如果 Vercel 报错 `No Output Directory named "public" found after the Build completed`，优先检查 Vercel Project Settings：Framework Preset 应为 Next.js，Output Directory 不应配置为 `public`。
 - Vercel 修改项目设置或环境变量后，需要 redeploy 才会对已有 commit 生效。
 - 如果 `/settings` 显示 `需要迁移` 或 `数据库未就绪`，优先确认当前 `DATABASE_URL` 是否指向预期数据库，再执行 `pnpm db:migrate`。
+- 如果 `/settings` 中某个 provider 显示 `未运行`，先检查当前配置是否存在会触发该 provider 的 active 标的。例如 CoinGecko 只会在 active crypto 标的进入刷新计划时运行。
+
+## Harness Engineering 定义
+
+项目采用 AI coding agent 语境下的 Harness Engineering，而不是仅指传统测试夹具。
+
+本项目中，harness 指围绕 AI agent 和代码库建立的外层控制系统，包括：
+
+- Feedforward guides：`AGENTS.md`、PRD、技术计划、领域边界、命名和架构约束。
+- Feedback sensors：typecheck、lint、unit tests、fixture tests、provider contract tests、production smoke、code review agent。
+- 可观测和可追踪性：raw response、normalized data、ingestion run、数据状态 UI、错误状态。
+- 可重跑和可解释性：fake provider、fixture、幂等 upsert、明确失败来源。
+
+2026-05-12 已澄清：早期文档中 “harness” 多用于 Phase 1 数据源和入库夹具，这是 Harness Engineering 在当前项目的一个具体落地，不是完整定义。后续文档应尽量使用更精确的短语，例如 `provider harness`、`ingestion harness`、`review harness`、`Dashboard data harness`。
 
 ## 主要文档
 
 第一版 PRD 源文件：
 
-- `docs/PRD-v2026.05.10.md`
+- `docs/prd/PRD-v2026.05.10.md`
 
 当前 PRD 增量更新：
 
-- `docs/PRD-v2026.05.11.md`
+- `docs/prd/PRD-v2026.05.11.md`
 
 当前技术开发计划：
 
-- `docs/TECH-PLAN-v2026.05.11.md`
+- `docs/tech/TECH-PLAN-v2026.05.12.md`
 
 后续如产生新版 PRD，请使用新的日期版本号创建新文件：
 
-- `docs/PRD-vYYYY.MM.DD.md`
+- `docs/prd/PRD-vYYYY.MM.DD.md`
 
 新版 PRD 应尽量说明相对上一版的关键变化。除非用户明确要求，不要覆盖旧版 PRD。
 
 后续如产生新版技术开发计划，请使用新的日期版本号创建新文件：
 
-- `docs/TECH-PLAN-vYYYY.MM.DD.md`
+- `docs/tech/TECH-PLAN-vYYYY.MM.DD.md`
 
 新版技术计划应尽量说明相对上一版的关键变化。除非用户明确要求，不要覆盖旧版技术计划。
 
@@ -120,7 +139,7 @@ Phase 1 当前进展：
 
 当用户要求使用 code review agent、review agent、独立审查或 PR review 时，对应 agent 必须先阅读并遵守：
 
-- `docs/CODE-REVIEW-AGENT.md`
+- `docs/process/CODE-REVIEW-AGENT.md`
 
 主 agent 在以下场景应默认拉起 Code Review Agent 进行独立 review：
 
@@ -134,7 +153,7 @@ Phase 1 当前进展：
 - 主 agent 完成实现、自测和 PR 后，拉起 Code Review Agent review。
 - Code Review Agent 只审查，不主动改代码。
 - 如发现 blocking issue，主 agent 修复后再请求复审。
-- 如用户已授权自动合并，Code Review Agent 必须按 `docs/CODE-REVIEW-AGENT.md` 的 Approve / Merge Protocol 等待 checks 全部通过后，才可 approve 并 merge。
+- 如用户已授权自动合并，Code Review Agent 必须按 `docs/process/CODE-REVIEW-AGENT.md` 的 Approve / Merge Protocol 等待 checks 全部通过后，才可 approve 并 merge。
 
 ## 产品原则
 
