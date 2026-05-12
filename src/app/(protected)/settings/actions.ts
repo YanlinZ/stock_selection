@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { createConfigService } from "@/server/config/service";
 import {
@@ -16,6 +17,7 @@ export async function refreshAllDataAction() {
 
   revalidatePath("/settings");
   revalidatePath("/health");
+  redirect("/settings");
 }
 
 export async function addHoldingAction(formData: FormData) {
@@ -30,6 +32,7 @@ export async function addHoldingAction(formData: FormData) {
   });
 
   revalidatePath("/settings");
+  redirect("/settings");
 }
 
 export async function updateHoldingAction(formData: FormData) {
@@ -42,12 +45,14 @@ export async function updateHoldingAction(formData: FormData) {
   });
 
   revalidatePath("/settings");
+  redirect("/settings");
 }
 
 export async function deactivateHoldingAction(formData: FormData) {
   await createConfigService().deactivateHolding(readString(formData, "id"));
 
   revalidatePath("/settings");
+  redirect("/settings");
 }
 
 export async function addWatchlistItemAction(formData: FormData) {
@@ -61,6 +66,7 @@ export async function addWatchlistItemAction(formData: FormData) {
   });
 
   revalidatePath("/settings");
+  redirect("/settings");
 }
 
 export async function updateWatchlistItemAction(formData: FormData) {
@@ -72,12 +78,14 @@ export async function updateWatchlistItemAction(formData: FormData) {
   });
 
   revalidatePath("/settings");
+  redirect("/settings");
 }
 
 export async function deactivateWatchlistItemAction(formData: FormData) {
   await createConfigService().deactivateWatchlistItem(readString(formData, "id"));
 
   revalidatePath("/settings");
+  redirect("/settings");
 }
 
 export async function addKeyPriceLevelAction(formData: FormData) {
@@ -97,6 +105,7 @@ export async function addKeyPriceLevelAction(formData: FormData) {
   });
 
   revalidatePath("/settings");
+  redirect("/settings");
 }
 
 export async function updateKeyPriceLevelAction(formData: FormData) {
@@ -114,12 +123,39 @@ export async function updateKeyPriceLevelAction(formData: FormData) {
   });
 
   revalidatePath("/settings");
+  redirect("/settings");
 }
 
 export async function deactivateKeyPriceLevelAction(formData: FormData) {
   await createConfigService().deactivateKeyPriceLevel(readString(formData, "id"));
 
   revalidatePath("/settings");
+  redirect("/settings");
+}
+
+export async function updateUserPreferencesAction(formData: FormData) {
+  await createConfigService().upsertUserPreference({
+    key: "basic_preferences",
+    value: {
+      primaryStyle: readEnum(
+        formData,
+        "primaryStyle",
+        ["long_term_with_rebound", "long_term", "balanced"] as const,
+        "long_term_with_rebound"
+      ),
+      shortTermWindowDays: readNumberInRange(formData, "shortTermWindowDays", 1, 5),
+      maxExtendedOpportunities: readNumberInRange(
+        formData,
+        "maxExtendedOpportunities",
+        0,
+        1
+      ),
+      excludedThemes: readOptionalString(formData, "excludedThemes") ?? ""
+    }
+  });
+
+  revalidatePath("/settings");
+  redirect("/settings");
 }
 
 function readString(formData: FormData, key: string) {
@@ -143,4 +179,19 @@ function readEnum<TValues extends readonly string[]>(
   const value = readString(formData, key);
 
   return values.includes(value) ? (value as TValues[number]) : fallback;
+}
+
+function readNumberInRange(
+  formData: FormData,
+  key: string,
+  min: number,
+  max: number
+) {
+  const numberValue = Number(readString(formData, key));
+
+  if (!Number.isFinite(numberValue)) {
+    return min;
+  }
+
+  return Math.min(max, Math.max(min, Math.trunc(numberValue)));
 }

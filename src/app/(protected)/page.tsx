@@ -1,4 +1,11 @@
-import { Activity, Database, KeyRound, Server, ShieldCheck } from "lucide-react";
+import {
+  Activity,
+  BarChart3,
+  Database,
+  KeyRound,
+  Server,
+  ShieldCheck
+} from "lucide-react";
 import Link from "next/link";
 
 import { AppShell } from "@/components/app-shell";
@@ -16,19 +23,24 @@ export default async function HomePage() {
 
   const items = [
     {
-      label: "Next.js App Router",
-      value: "ready",
+      label: "配置页与数据入库",
+      value: "Phase 1 complete",
       icon: Server
     },
     {
-      label: "Tailwind / shadcn style",
-      value: "ready",
+      label: "Provider harness",
+      value: providerStatusLabel(health),
       icon: Activity
     },
     {
       label: "Password gate",
       value: health.checks.env.APP_ACCESS_PASSWORD ? "configured" : "missing",
       icon: ShieldCheck
+    },
+    {
+      label: "Dashboard v1",
+      value: "Phase 2 preparing",
+      icon: BarChart3
     },
     {
       label: "Drizzle / Neon",
@@ -43,8 +55,10 @@ export default async function HomePage() {
         <Card>
           <CardHeader className="flex flex-row items-start justify-between gap-4">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Phase 0</p>
-              <CardTitle className="mt-2 text-2xl">工程地基</CardTitle>
+              <p className="text-sm font-medium text-muted-foreground">Phase 2</p>
+              <CardTitle className="mt-2 text-2xl">
+                Dashboard v1 准备阶段
+              </CardTitle>
             </div>
             <Badge variant={health.status === "ok" ? "default" : "warning"}>
               {health.status === "ok" ? "就绪" : "待配置"}
@@ -66,7 +80,7 @@ export default async function HomePage() {
                       </span>
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold">{item.label}</p>
-                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                        <p className="text-xs uppercase text-muted-foreground">
                           {item.value}
                         </p>
                       </div>
@@ -94,6 +108,18 @@ export default async function HomePage() {
             />
             <Link
               className="inline-flex h-9 items-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+              href="/dashboard"
+            >
+              查看 Dashboard
+            </Link>
+            <Link
+              className="inline-flex h-9 items-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+              href="/settings"
+            >
+              配置与刷新
+            </Link>
+            <Link
+              className="inline-flex h-9 items-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition hover:opacity-90"
               href="/health"
             >
               查看健康检查
@@ -103,6 +129,16 @@ export default async function HomePage() {
       </section>
     </AppShell>
   );
+}
+
+function providerStatusLabel(health: Awaited<ReturnType<typeof collectHealth>>) {
+  const configuredCount = [
+    health.checks.env.FMP_API_KEY,
+    health.checks.env.COINGECKO_API_KEY,
+    health.checks.env.FRED_API_KEY
+  ].filter(Boolean).length;
+
+  return `${configuredCount}/3 configured`;
 }
 
 function StatusLine({ label, ready }: { label: string; ready: boolean }) {
