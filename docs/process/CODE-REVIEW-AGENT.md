@@ -6,7 +6,7 @@
 
 当用户要求使用 code review agent、review agent、独立审查或 PR review 时，该 agent 默认只做代码审查，不主动修改代码。
 
-Code Review Agent 必须继续遵守 harness engineering 方法论，审查重点不是“代码看起来能跑”，而是确认变更是否仍然可验证、可追踪、可重跑、可解释失败原因。
+Code Review Agent 必须继续遵守 Harness Engineering 方法论。项目统一定义见 `docs/engineering/HARNESS-ENGINEERING.md`。审查重点不是“代码看起来能跑”，而是确认变更是否仍然可验证、可追踪、可重跑、可解释失败原因。
 
 ## 审查前必读顺序
 

@@ -2,11 +2,11 @@
 
 版本：v2026.05.11
 
-相对 `docs/TECH-PLAN-v2026.05.10.md` 的关键变化：
+相对 `docs/tech/TECH-PLAN-v2026.05.10.md` 的关键变化：
 
 - 记录 Phase 0 已完成并合入 `main`。
 - 将当前阶段推进到 Phase 1：配置页与数据入库。
-- 明确 Phase 1 采用 harness engineering 方法论。
+- 明确 Phase 1 采用 Harness Engineering 方法论，并在 2026-05-12 将项目内定义与 AI coding agent 语境下的最佳实践对齐。
 - 补充 Phase 1 的边界、成功定义、数据契约与推荐实施顺序。
 
 ## 1. 当前阶段
@@ -175,9 +175,13 @@ Vercel 注意事项：
 
 ## 6. Harness Engineering 方法论
 
-Phase 1 采用 harness engineering 作为核心工程方法。
+Phase 1 采用 Harness Engineering 作为核心工程方法。
 
-这里的 harness 指围绕数据源、入库、标准化、状态展示建立可验证的工程夹具和契约，使系统在真实 API 不稳定、限流、返回结构变化或本地无网络时仍可测试、可解释、可迭代。
+2026-05-12 定义澄清：这里的 `harness` 与 AI coding agent 语境下的 Harness Engineering 一致，不是仅指传统测试夹具。完整项目定义见 `docs/engineering/HARNESS-ENGINEERING.md`。
+
+在本项目中，Harness Engineering 指围绕 AI agent 和代码库建立 feedforward guides 与 feedback sensors：通过上下文、约束、工具、契约、测试、可观测性和反馈循环，让 agent 产出的系统可验证、可追踪、可重跑、可解释失败原因。
+
+Phase 1 的数据入库 harness 是该方法论在当前阶段的具体落地：围绕数据源、入库、标准化、状态展示建立可验证的工程夹具和契约，使系统在真实 API 不稳定、限流、返回结构变化或本地无网络时仍可测试、可解释、可迭代。
 
 Phase 1 的 harness 原则：
 
