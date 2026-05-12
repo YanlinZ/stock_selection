@@ -155,6 +155,26 @@ Phase 1 当前进展：
 - 如发现 blocking issue，主 agent 修复后再请求复审。
 - 如用户已授权自动合并，Code Review Agent 必须按 `docs/process/CODE-REVIEW-AGENT.md` 的 Approve / Merge Protocol 等待 checks 全部通过后，才可 approve 并 merge。
 
+## QA Test Agent
+
+当用户要求线上测试、浏览器测试、QA、UI/UX 测试、回归测试，或明确要求“只测试不改代码”时，主 agent 应默认拉起 QA Test Agent 进行独立测试。
+
+QA Test Agent 必须先阅读并遵守：
+
+- `docs/process/QA-AGENT.md`
+- 现有 QA 回归测试文档，例如 `docs/qa/ONLINE-QA-REGRESSION-v2026.05.12.md`
+
+默认流程：
+
+- 主 agent 先确认测试目标、环境和当前 phase 边界。
+- QA Test Agent 只测试，不改代码，不擅自修改长期生产配置。
+- 如测试需要登录密码，只能从 `.env.local` 读取，不得泄露密码、cookie、API key、token、数据库连接串或任何 secret。
+- QA Test Agent 必须覆盖真实用户闭环，尤其是配置页新增后的保存、停用、刷新数据等 server action 表单提交路径。
+- 如果浏览器自动化受限，QA Test Agent 必须明确标记未覆盖项，不能用 API 或 HTML 只读结果替代真实点击闭环。
+- QA Test Agent 输出的问题必须按 P0/P1/P2/P3 排序，并包含复现步骤、实际结果、期望结果、影响、建议修复方向和回归测试点。
+- 每次发现新的线上回归风险，应沉淀到 `docs/qa/` 下的测试文档。
+- 若 QA 发现 blocking issue，主 agent 修复后应再次拉起 QA Test Agent 或按 QA 回归文档复测。
+
 ## 产品原则
 
 开发或设计时必须遵守以下原则：
