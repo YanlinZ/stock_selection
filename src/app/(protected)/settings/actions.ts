@@ -9,6 +9,14 @@ import {
   keyPriceLevelTypes,
   positionSizes
 } from "@/server/config/types";
+import { createIngestionService } from "@/server/ingestion/service";
+
+export async function refreshAllDataAction() {
+  await createIngestionService().refreshAll({ requestedBy: "manual" });
+
+  revalidatePath("/settings");
+  revalidatePath("/health");
+}
 
 export async function addHoldingAction(formData: FormData) {
   await createConfigService().upsertHolding({

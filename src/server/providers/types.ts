@@ -60,6 +60,7 @@ export type DailyMarketDataRequest = {
   startDate?: string;
   endDate?: string;
   currency?: string;
+  providerMetadata?: Record<string, unknown>;
 };
 
 export type MacroObservationRequest = {
@@ -67,6 +68,7 @@ export type MacroObservationRequest = {
   startDate?: string;
   endDate?: string;
   unit?: string;
+  providerMetadata?: Record<string, unknown>;
 };
 
 export type DailyMarketDataProvider = {

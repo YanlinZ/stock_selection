@@ -1,4 +1,14 @@
-import { Database, Plus, Save, Settings, Trash2 } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Clock3,
+  Database,
+  Plus,
+  RefreshCw,
+  Save,
+  Settings,
+  Trash2
+} from "lucide-react";
 import * as React from "react";
 
 import { AppShell } from "@/components/app-shell";
@@ -15,6 +25,11 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { createConfigService } from "@/server/config/service";
 import type { ConfigSnapshot } from "@/server/config/types";
+import { createIngestionService } from "@/server/ingestion/service";
+import type {
+  DataProviderState,
+  DataStatusSnapshot
+} from "@/server/ingestion/types";
 
 import {
   addHoldingAction,
@@ -23,6 +38,7 @@ import {
   deactivateHoldingAction,
   deactivateKeyPriceLevelAction,
   deactivateWatchlistItemAction,
+  refreshAllDataAction,
   updateHoldingAction,
   updateKeyPriceLevelAction,
   updateWatchlistItemAction
@@ -68,7 +84,10 @@ const levelTypeOptions = [
 ] as const;
 
 export default async function SettingsPage() {
-  const { snapshot, error } = await getConfigSnapshot();
+  const [{ snapshot, error }, dataStatus] = await Promise.all([
+    getConfigSnapshot(),
+    getDataStatusSnapshot()
+  ]);
 
   return (
     <AppShell>
@@ -100,6 +119,11 @@ export default async function SettingsPage() {
           </Card>
         ) : null}
 
+        <DataStatusSection
+          error={dataStatus.error}
+          snapshot={dataStatus.snapshot}
+        />
+
         <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
           <HoldingsSection snapshot={snapshot} />
           <WatchlistSection snapshot={snapshot} />
@@ -123,6 +147,129 @@ async function getConfigSnapshot() {
       error: "配置数据表暂不可用，请确认 Phase 1 数据库迁移已应用。"
     };
   }
+}
+
+async function getDataStatusSnapshot(): Promise<{
+  error: string | null;
+  snapshot: DataStatusSnapshot | null;
+}> {
+  try {
+    return {
+      error: null,
+      snapshot: await createIngestionService().getDataStatus()
+    };
+  } catch {
+    return {
+      error: "数据刷新状态暂不可用，请确认 Phase 1 数据库迁移已应用。",
+      snapshot: null
+    };
+  }
+}
+
+function DataStatusSection({
+  error,
+  snapshot
+}: {
+  error: string | null;
+  snapshot: DataStatusSnapshot | null;
+}) {
+  const batchStatus = snapshot?.batchRun?.status ?? "idle";
+  const BatchIcon = batchStatus === "success" ? CheckCircle2 : Clock3;
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+        <div>
+          <CardTitle className="flex items-center gap-2">
+            <RefreshCw className="h-4 w-4" aria-hidden="true" />
+            数据刷新
+          </CardTitle>
+          <p className="mt-2 text-sm text-muted-foreground">
+            FMP、CoinGecko、FRED 基础数据入库状态
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant={batchStatus === "success" ? "default" : "secondary"}>
+            {formatRunStatus(batchStatus)}
+          </Badge>
+          <form action={refreshAllDataAction}>
+            <Button size="sm" type="submit">
+              <RefreshCw className="h-4 w-4" aria-hidden="true" />
+              刷新数据
+            </Button>
+          </form>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {error ? (
+          <div className="flex items-start gap-3 rounded-md border border-border bg-muted px-3 py-3 text-sm text-muted-foreground">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+            <span>{error}</span>
+          </div>
+        ) : null}
+
+        {snapshot?.batchRun ? (
+          <div className="flex flex-col gap-2 rounded-md border border-border bg-background px-3 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2">
+              <BatchIcon className="h-4 w-4" aria-hidden="true" />
+              <span>最近一次刷新</span>
+            </div>
+            <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+              <span>{formatDateTime(snapshot.batchRun.startedAt)}</span>
+              <span>{formatRefreshSummary(snapshot.batchRun.summary)}</span>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="grid gap-3 lg:grid-cols-3">
+          {(snapshot?.providers ?? []).map((provider) => (
+            <div
+              className="rounded-md border border-border bg-background p-4"
+              key={provider.provider}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-semibold">{formatProviderName(provider.provider)}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {getProviderEnvLabel(provider.provider)}
+                  </p>
+                </div>
+                <Badge variant={provider.state === "ok" ? "default" : "warning"}>
+                  {formatProviderState(provider.state)}
+                </Badge>
+              </div>
+
+              <dl className="mt-4 space-y-2 text-sm">
+                <StatusMetric
+                  label="数据日期"
+                  value={provider.latestDataDate ?? "无"}
+                />
+                <StatusMetric
+                  label="最近抓取"
+                  value={formatDateTime(provider.latestFetchedAt)}
+                />
+                <StatusMetric label="入库行数" value={String(provider.rowCount)} />
+                <StatusMetric
+                  label="最近 run"
+                  value={
+                    provider.latestRun
+                      ? formatRunStatus(provider.latestRun.status)
+                      : "未运行"
+                  }
+                />
+              </dl>
+
+              {provider.errorMessage ? (
+                <p className="mt-3 rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+                  {provider.errorMessage}
+                </p>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 function HoldingsSection({ snapshot }: { snapshot: ConfigSnapshot }) {
@@ -551,4 +698,98 @@ function formatLevelType(value: string) {
 
 function formatPrice(value: string, currency: string) {
   return `${Number(value).toLocaleString("en-US")} ${currency}`;
+}
+
+function StatusMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="max-w-40 truncate font-mono text-xs">{value}</dd>
+    </div>
+  );
+}
+
+function formatProviderName(provider: string) {
+  const labels: Record<string, string> = {
+    coingecko: "CoinGecko",
+    fmp: "FMP",
+    fred: "FRED"
+  };
+
+  return labels[provider] ?? provider;
+}
+
+function getProviderEnvLabel(provider: string) {
+  const isConfigured =
+    provider === "fmp"
+      ? Boolean(process.env.FMP_API_KEY)
+      : provider === "coingecko"
+        ? Boolean(process.env.COINGECKO_API_KEY)
+        : provider === "fred"
+          ? Boolean(process.env.FRED_API_KEY)
+          : false;
+
+  return isConfigured ? "API key 已配置" : "API key 未配置";
+}
+
+function formatProviderState(state: DataProviderState) {
+  const labels: Record<DataProviderState, string> = {
+    empty: "无数据",
+    error: "失败",
+    idle: "未运行",
+    ok: "可用",
+    running: "运行中",
+    stale: "过期"
+  };
+
+  return labels[state];
+}
+
+function formatRunStatus(status: string) {
+  const labels: Record<string, string> = {
+    failed: "失败",
+    idle: "未运行",
+    partial_success: "部分成功",
+    pending: "等待中",
+    running: "运行中",
+    success: "成功"
+  };
+
+  return labels[status] ?? status;
+}
+
+function formatDateTime(value: Date | string | null) {
+  if (!value) {
+    return "无";
+  }
+
+  const date = typeof value === "string" ? new Date(value) : value;
+
+  if (Number.isNaN(date.getTime())) {
+    return "无";
+  }
+
+  return new Intl.DateTimeFormat("zh-CN", {
+    dateStyle: "short",
+    timeStyle: "short"
+  }).format(date);
+}
+
+function formatRefreshSummary(summary: Record<string, unknown>) {
+  const totalTargets = readSummaryNumber(summary, "totalTargets");
+  const successfulTargets = readSummaryNumber(summary, "successfulTargets");
+  const failedTargets = readSummaryNumber(summary, "failedTargets");
+  const pointsWritten = readSummaryNumber(summary, "pointsWritten");
+
+  if (totalTargets === null) {
+    return "暂无摘要";
+  }
+
+  return `${successfulTargets ?? 0}/${totalTargets} 成功，${failedTargets ?? 0} 失败，${pointsWritten ?? 0} 行入库`;
+}
+
+function readSummaryNumber(summary: Record<string, unknown>, key: string) {
+  const value = summary[key];
+
+  return typeof value === "number" ? value : null;
 }

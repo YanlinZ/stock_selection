@@ -3,4 +3,5 @@ export * from "./errors";
 export * from "./fake";
 export * from "./fmp";
 export * from "./fred";
+export * from "./real";
 export * from "./types";
