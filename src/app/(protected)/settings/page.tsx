@@ -12,6 +12,7 @@ import {
 import * as React from "react";
 
 import { AppShell } from "@/components/app-shell";
+import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,6 +42,7 @@ import {
   refreshAllDataAction,
   updateHoldingAction,
   updateKeyPriceLevelAction,
+  updateUserPreferencesAction,
   updateWatchlistItemAction
 } from "./actions";
 
@@ -82,6 +84,24 @@ const levelTypeOptions = [
   ["resistance", "压力"],
   ["risk", "风险"]
 ] as const;
+
+const primaryStyleOptions = [
+  ["long_term_with_rebound", "长期持仓 + 短线反弹"],
+  ["long_term", "长期持仓"],
+  ["balanced", "长期/短线平衡"]
+] as const;
+
+const maxExtendedOpportunityOptions = [
+  ["0", "0"],
+  ["1", "1"]
+] as const;
+
+const defaultBasicPreferences = {
+  primaryStyle: "long_term_with_rebound",
+  shortTermWindowDays: 5,
+  maxExtendedOpportunities: 1,
+  excludedThemes: "生物医药、MEME、纯情绪炒作"
+};
 
 export default async function SettingsPage() {
   const [{ snapshot, error }, dataStatus] = await Promise.all([
@@ -130,6 +150,8 @@ export default async function SettingsPage() {
         </section>
 
         <KeyPriceLevelsSection snapshot={snapshot} />
+
+        <PreferencesSection snapshot={snapshot} />
       </div>
     </AppShell>
   );
@@ -291,6 +313,7 @@ function HoldingsSection({ snapshot }: { snapshot: ConfigSnapshot }) {
           <TextField
             inputMode="decimal"
             label="成本价"
+            min="0"
             name="costBasis"
             placeholder="300"
             step="any"
@@ -352,6 +375,7 @@ function HoldingsSection({ snapshot }: { snapshot: ConfigSnapshot }) {
                     defaultValue={holding.costBasis ?? ""}
                     inputMode="decimal"
                     label="成本价"
+                    min="0"
                     name="costBasis"
                     step="any"
                     type="number"
@@ -370,15 +394,15 @@ function HoldingsSection({ snapshot }: { snapshot: ConfigSnapshot }) {
                 </form>
                 <form action={deactivateHoldingAction} className="mt-2">
                   <input name="id" type="hidden" value={holding.id} />
-                  <Button
+                  <ConfirmSubmitButton
                     className="text-destructive"
+                    confirmMessage={`确认停用 ${instrument.symbol} 持仓吗？`}
                     size="sm"
-                    type="submit"
                     variant="ghost"
                   >
                     <Trash2 className="h-4 w-4" aria-hidden="true" />
                     停用
-                  </Button>
+                  </ConfirmSubmitButton>
                 </form>
               </div>
             ))
@@ -404,7 +428,10 @@ function WatchlistSection({ snapshot }: { snapshot: ConfigSnapshot }) {
             defaultValue="0"
             inputMode="numeric"
             label="优先级"
+            max="100"
+            min="0"
             name="priority"
+            step="1"
             type="number"
           />
           <TextField label="主题" name="theme" placeholder="fintech" />
@@ -444,7 +471,10 @@ function WatchlistSection({ snapshot }: { snapshot: ConfigSnapshot }) {
                     defaultValue={watchlistItem.priority}
                     inputMode="numeric"
                     label="优先级"
+                    max="100"
+                    min="0"
                     name="priority"
+                    step="1"
                     type="number"
                   />
                   <TextField
@@ -468,15 +498,15 @@ function WatchlistSection({ snapshot }: { snapshot: ConfigSnapshot }) {
                 </form>
                 <form action={deactivateWatchlistItemAction} className="mt-2">
                   <input name="id" type="hidden" value={watchlistItem.id} />
-                  <Button
+                  <ConfirmSubmitButton
                     className="text-destructive"
+                    confirmMessage={`确认停用 ${instrument.symbol} 关注标的吗？`}
                     size="sm"
-                    type="submit"
                     variant="ghost"
                   >
                     <Trash2 className="h-4 w-4" aria-hidden="true" />
                     停用
-                  </Button>
+                  </ConfirmSubmitButton>
                 </form>
               </div>
             ))
@@ -505,6 +535,7 @@ function KeyPriceLevelsSection({ snapshot }: { snapshot: ConfigSnapshot }) {
           <TextField
             inputMode="decimal"
             label="价格"
+            min="0"
             name="price"
             placeholder="60000"
             required
@@ -558,6 +589,7 @@ function KeyPriceLevelsSection({ snapshot }: { snapshot: ConfigSnapshot }) {
                     defaultValue={keyPriceLevel.price}
                     inputMode="decimal"
                     label="价格"
+                    min="0"
                     name="price"
                     step="any"
                     type="number"
@@ -581,15 +613,17 @@ function KeyPriceLevelsSection({ snapshot }: { snapshot: ConfigSnapshot }) {
                 </form>
                 <form action={deactivateKeyPriceLevelAction} className="mt-2">
                   <input name="id" type="hidden" value={keyPriceLevel.id} />
-                  <Button
+                  <ConfirmSubmitButton
                     className="text-destructive"
+                    confirmMessage={`确认停用 ${instrument.symbol} ${formatLevelType(
+                      keyPriceLevel.levelType
+                    )} 价位吗？`}
                     size="sm"
-                    type="submit"
                     variant="ghost"
                   >
                     <Trash2 className="h-4 w-4" aria-hidden="true" />
                     停用
-                  </Button>
+                  </ConfirmSubmitButton>
                 </form>
               </div>
             ))
@@ -598,6 +632,126 @@ function KeyPriceLevelsSection({ snapshot }: { snapshot: ConfigSnapshot }) {
       </CardContent>
     </Card>
   );
+}
+
+function PreferencesSection({ snapshot }: { snapshot: ConfigSnapshot }) {
+  const preferences = getBasicPreferences(snapshot);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>基础偏好</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form
+          action={updateUserPreferencesAction}
+          className="grid gap-3 md:grid-cols-4"
+        >
+          <SelectField
+            defaultValue={preferences.primaryStyle}
+            label="交易风格"
+            name="primaryStyle"
+            options={primaryStyleOptions}
+          />
+          <TextField
+            defaultValue={preferences.shortTermWindowDays}
+            inputMode="numeric"
+            label="短线观察天数"
+            max="5"
+            min="1"
+            name="shortTermWindowDays"
+            step="1"
+            type="number"
+          />
+          <SelectField
+            defaultValue={String(preferences.maxExtendedOpportunities)}
+            label="扩展机会上限"
+            name="maxExtendedOpportunities"
+            options={maxExtendedOpportunityOptions}
+          />
+          <div className="md:col-span-4">
+            <TextAreaField
+              defaultValue={preferences.excludedThemes}
+              label="硬排除主题"
+              name="excludedThemes"
+            />
+          </div>
+          <div className="md:col-span-4">
+            <Button size="sm" type="submit">
+              <Save className="h-4 w-4" aria-hidden="true" />
+              保存偏好
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+function getBasicPreferences(snapshot: ConfigSnapshot) {
+  const storedValue = snapshot.userPreferences.find(
+    (preference) => preference.key === "basic_preferences"
+  )?.value;
+  const value = isRecord(storedValue) ? storedValue : {};
+
+  return {
+    primaryStyle: readPreferenceOption(
+      value.primaryStyle,
+      primaryStyleOptions,
+      defaultBasicPreferences.primaryStyle
+    ),
+    shortTermWindowDays: readPreferenceNumber(
+      value.shortTermWindowDays,
+      defaultBasicPreferences.shortTermWindowDays,
+      1,
+      5
+    ),
+    maxExtendedOpportunities: readPreferenceNumber(
+      value.maxExtendedOpportunities,
+      defaultBasicPreferences.maxExtendedOpportunities,
+      0,
+      1
+    ),
+    excludedThemes:
+      typeof value.excludedThemes === "string"
+        ? value.excludedThemes
+        : defaultBasicPreferences.excludedThemes
+  };
+}
+
+function readPreferenceOption<TOptions extends readonly (readonly [string, string])[]>(
+  value: unknown,
+  options: TOptions,
+  fallback: string
+) {
+  return typeof value === "string" &&
+    options.some(([optionValue]) => optionValue === value)
+    ? value
+    : fallback;
+}
+
+function readPreferenceNumber(
+  value: unknown,
+  fallback: number,
+  min: number,
+  max: number
+) {
+  const numberValue =
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? Number(value)
+        : NaN;
+
+  if (!Number.isFinite(numberValue)) {
+    return fallback;
+  }
+
+  return Math.min(max, Math.max(min, Math.trunc(numberValue)));
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function TextField({

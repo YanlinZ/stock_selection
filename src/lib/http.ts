@@ -5,3 +5,20 @@ export function sanitizeNextPath(value: string) {
 
   return value;
 }
+
+export function createLoginPath(nextPath = "/", error?: string) {
+  const params = new URLSearchParams();
+  const sanitizedNextPath = sanitizeNextPath(nextPath);
+
+  if (error) {
+    params.set("error", error);
+  }
+
+  if (sanitizedNextPath !== "/") {
+    params.set("next", sanitizedNextPath);
+  }
+
+  const query = params.toString();
+
+  return query ? `/login?${query}` : "/login";
+}

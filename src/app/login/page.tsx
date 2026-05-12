@@ -16,6 +16,7 @@ type LoginPageProps = {
 };
 
 const ERROR_COPY: Record<string, string> = {
+  "auth-required": "请先登录，登录后会回到刚才的页面。",
   "invalid-password": "密码不正确。",
   "missing-config": "缺少 AUTH_SECRET 或 APP_ACCESS_PASSWORD。"
 };
