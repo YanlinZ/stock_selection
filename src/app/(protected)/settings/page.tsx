@@ -9,6 +9,7 @@ import {
   Settings,
   Trash2
 } from "lucide-react";
+import { cookies } from "next/headers";
 import * as React from "react";
 
 import { AppShell } from "@/components/app-shell";
@@ -23,6 +24,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ACCESS_COOKIE_NAME } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
 import { createConfigService } from "@/server/config/service";
 import type { ConfigSnapshot } from "@/server/config/types";
@@ -104,9 +106,10 @@ const defaultBasicPreferences = {
 };
 
 export default async function SettingsPage() {
-  const [{ snapshot, error }, dataStatus] = await Promise.all([
+  const [{ snapshot, error }, dataStatus, actionToken] = await Promise.all([
     getConfigSnapshot(),
-    getDataStatusSnapshot()
+    getDataStatusSnapshot(),
+    getSettingsActionToken()
   ]);
 
   return (
@@ -140,21 +143,28 @@ export default async function SettingsPage() {
         ) : null}
 
         <DataStatusSection
+          actionToken={actionToken}
           error={dataStatus.error}
           snapshot={dataStatus.snapshot}
         />
 
         <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
-          <HoldingsSection snapshot={snapshot} />
-          <WatchlistSection snapshot={snapshot} />
+          <HoldingsSection actionToken={actionToken} snapshot={snapshot} />
+          <WatchlistSection actionToken={actionToken} snapshot={snapshot} />
         </section>
 
-        <KeyPriceLevelsSection snapshot={snapshot} />
+        <KeyPriceLevelsSection actionToken={actionToken} snapshot={snapshot} />
 
-        <PreferencesSection snapshot={snapshot} />
+        <PreferencesSection actionToken={actionToken} snapshot={snapshot} />
       </div>
     </AppShell>
   );
+}
+
+async function getSettingsActionToken() {
+  const cookieStore = await cookies();
+
+  return cookieStore.get(ACCESS_COOKIE_NAME)?.value ?? "";
 }
 
 async function getConfigSnapshot() {
@@ -189,14 +199,17 @@ async function getDataStatusSnapshot(): Promise<{
 }
 
 function DataStatusSection({
+  actionToken,
   error,
   snapshot
 }: {
+  actionToken: string;
   error: string | null;
   snapshot: DataStatusSnapshot | null;
 }) {
   const batchStatus = snapshot?.batchRun?.status ?? "idle";
   const BatchIcon = batchStatus === "success" ? CheckCircle2 : Clock3;
+  const refreshAllDataWithAuth = refreshAllDataAction.bind(null, actionToken);
 
   return (
     <Card>
@@ -214,7 +227,7 @@ function DataStatusSection({
           <Badge variant={batchStatus === "success" ? "default" : "secondary"}>
             {formatRunStatus(batchStatus)}
           </Badge>
-          <form action={refreshAllDataAction}>
+          <form action={refreshAllDataWithAuth}>
             <Button size="sm" type="submit">
               <RefreshCw className="h-4 w-4" aria-hidden="true" />
               刷新数据
@@ -294,14 +307,24 @@ function DataStatusSection({
   );
 }
 
-function HoldingsSection({ snapshot }: { snapshot: ConfigSnapshot }) {
+function HoldingsSection({
+  actionToken,
+  snapshot
+}: {
+  actionToken: string;
+  snapshot: ConfigSnapshot;
+}) {
+  const addHoldingWithAuth = addHoldingAction.bind(null, actionToken);
+  const updateHoldingWithAuth = updateHoldingAction.bind(null, actionToken);
+  const deactivateHoldingWithAuth = deactivateHoldingAction.bind(null, actionToken);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>持仓</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
-        <form action={addHoldingAction} className="grid gap-3 sm:grid-cols-2">
+        <form action={addHoldingWithAuth} className="grid gap-3 sm:grid-cols-2">
           <TextField label="Symbol" name="symbol" placeholder="TSLA" required />
           <TextField label="名称" name="name" placeholder="Tesla" />
           <SelectField label="类型" name="assetType" options={assetTypeOptions} />
@@ -355,7 +378,7 @@ function HoldingsSection({ snapshot }: { snapshot: ConfigSnapshot }) {
                   <Badge variant="secondary">{instrument.assetType}</Badge>
                 </div>
                 <form
-                  action={updateHoldingAction}
+                  action={updateHoldingWithAuth}
                   className="grid gap-3 sm:grid-cols-2"
                 >
                   <input name="id" type="hidden" value={holding.id} />
@@ -392,7 +415,7 @@ function HoldingsSection({ snapshot }: { snapshot: ConfigSnapshot }) {
                     </Button>
                   </div>
                 </form>
-                <form action={deactivateHoldingAction} className="mt-2">
+                <form action={deactivateHoldingWithAuth} className="mt-2">
                   <input name="id" type="hidden" value={holding.id} />
                   <ConfirmSubmitButton
                     className="text-destructive"
@@ -413,14 +436,33 @@ function HoldingsSection({ snapshot }: { snapshot: ConfigSnapshot }) {
   );
 }
 
-function WatchlistSection({ snapshot }: { snapshot: ConfigSnapshot }) {
+function WatchlistSection({
+  actionToken,
+  snapshot
+}: {
+  actionToken: string;
+  snapshot: ConfigSnapshot;
+}) {
+  const addWatchlistItemWithAuth = addWatchlistItemAction.bind(null, actionToken);
+  const updateWatchlistItemWithAuth = updateWatchlistItemAction.bind(
+    null,
+    actionToken
+  );
+  const deactivateWatchlistItemWithAuth = deactivateWatchlistItemAction.bind(
+    null,
+    actionToken
+  );
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>关注列表</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
-        <form action={addWatchlistItemAction} className="grid gap-3 sm:grid-cols-2">
+        <form
+          action={addWatchlistItemWithAuth}
+          className="grid gap-3 sm:grid-cols-2"
+        >
           <TextField label="Symbol" name="symbol" placeholder="HOOD" required />
           <TextField label="名称" name="name" placeholder="Robinhood" />
           <SelectField label="类型" name="assetType" options={assetTypeOptions} />
@@ -463,7 +505,7 @@ function WatchlistSection({ snapshot }: { snapshot: ConfigSnapshot }) {
                   <Badge variant="secondary">P{watchlistItem.priority}</Badge>
                 </div>
                 <form
-                  action={updateWatchlistItemAction}
+                  action={updateWatchlistItemWithAuth}
                   className="grid gap-3 sm:grid-cols-2"
                 >
                   <input name="id" type="hidden" value={watchlistItem.id} />
@@ -496,7 +538,7 @@ function WatchlistSection({ snapshot }: { snapshot: ConfigSnapshot }) {
                     </Button>
                   </div>
                 </form>
-                <form action={deactivateWatchlistItemAction} className="mt-2">
+                <form action={deactivateWatchlistItemWithAuth} className="mt-2">
                   <input name="id" type="hidden" value={watchlistItem.id} />
                   <ConfirmSubmitButton
                     className="text-destructive"
@@ -517,14 +559,33 @@ function WatchlistSection({ snapshot }: { snapshot: ConfigSnapshot }) {
   );
 }
 
-function KeyPriceLevelsSection({ snapshot }: { snapshot: ConfigSnapshot }) {
+function KeyPriceLevelsSection({
+  actionToken,
+  snapshot
+}: {
+  actionToken: string;
+  snapshot: ConfigSnapshot;
+}) {
+  const addKeyPriceLevelWithAuth = addKeyPriceLevelAction.bind(null, actionToken);
+  const updateKeyPriceLevelWithAuth = updateKeyPriceLevelAction.bind(
+    null,
+    actionToken
+  );
+  const deactivateKeyPriceLevelWithAuth = deactivateKeyPriceLevelAction.bind(
+    null,
+    actionToken
+  );
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>关键价位</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
-        <form action={addKeyPriceLevelAction} className="grid gap-3 md:grid-cols-4">
+        <form
+          action={addKeyPriceLevelWithAuth}
+          className="grid gap-3 md:grid-cols-4"
+        >
           <TextField label="Symbol" name="symbol" placeholder="BTC" required />
           <SelectField label="类型" name="assetType" options={assetTypeOptions} />
           <SelectField
@@ -575,7 +636,7 @@ function KeyPriceLevelsSection({ snapshot }: { snapshot: ConfigSnapshot }) {
                   </Badge>
                 </div>
                 <form
-                  action={updateKeyPriceLevelAction}
+                  action={updateKeyPriceLevelWithAuth}
                   className="grid gap-3 sm:grid-cols-2"
                 >
                   <input name="id" type="hidden" value={keyPriceLevel.id} />
@@ -611,7 +672,7 @@ function KeyPriceLevelsSection({ snapshot }: { snapshot: ConfigSnapshot }) {
                     </Button>
                   </div>
                 </form>
-                <form action={deactivateKeyPriceLevelAction} className="mt-2">
+                <form action={deactivateKeyPriceLevelWithAuth} className="mt-2">
                   <input name="id" type="hidden" value={keyPriceLevel.id} />
                   <ConfirmSubmitButton
                     className="text-destructive"
@@ -634,8 +695,18 @@ function KeyPriceLevelsSection({ snapshot }: { snapshot: ConfigSnapshot }) {
   );
 }
 
-function PreferencesSection({ snapshot }: { snapshot: ConfigSnapshot }) {
+function PreferencesSection({
+  actionToken,
+  snapshot
+}: {
+  actionToken: string;
+  snapshot: ConfigSnapshot;
+}) {
   const preferences = getBasicPreferences(snapshot);
+  const updateUserPreferencesWithAuth = updateUserPreferencesAction.bind(
+    null,
+    actionToken
+  );
 
   return (
     <Card>
@@ -644,7 +715,7 @@ function PreferencesSection({ snapshot }: { snapshot: ConfigSnapshot }) {
       </CardHeader>
       <CardContent>
         <form
-          action={updateUserPreferencesAction}
+          action={updateUserPreferencesWithAuth}
           className="grid gap-3 md:grid-cols-4"
         >
           <SelectField
