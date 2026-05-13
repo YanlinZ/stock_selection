@@ -1,5 +1,4 @@
 import { BarChart3, Database, Settings } from "lucide-react";
-import Link from "next/link";
 
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
@@ -30,16 +29,16 @@ export default function DashboardPlaceholderPage() {
             </p>
             <div className="flex flex-wrap gap-2">
               <Button asChild size="sm">
-                <Link href="/settings">
+                <a href="/settings">
                   <Settings className="h-4 w-4" aria-hidden="true" />
                   配置与刷新
-                </Link>
+                </a>
               </Button>
               <Button asChild size="sm" variant="ghost">
-                <Link href="/health">
+                <a href="/health">
                   <Database className="h-4 w-4" aria-hidden="true" />
                   健康检查
-                </Link>
+                </a>
               </Button>
             </div>
           </CardContent>
