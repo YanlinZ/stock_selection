@@ -29,10 +29,14 @@ function mockHeaders(values: HeaderValues) {
   });
 }
 
-function mockCookies(token?: string) {
+function mockCookies(tokens: string[] = []) {
   mocks.cookies.mockResolvedValue({
     get: (name: string) =>
-      name === ACCESS_COOKIE_NAME && token ? { value: token } : undefined
+      name === ACCESS_COOKIE_NAME && tokens[0] ? { value: tokens[0] } : undefined,
+    getAll: (name: string) =>
+      name === ACCESS_COOKIE_NAME
+        ? tokens.map((value) => ({ name: ACCESS_COOKIE_NAME, value }))
+        : []
   });
 }
 
@@ -62,10 +66,21 @@ describe("ProtectedLayout", () => {
 
   it("allows protected renders with a valid access token", async () => {
     const token = await createAccessToken("secret", "password");
-    mockCookies(token);
+    mockCookies([token]);
     mockHeaders({
       "next-action": "anything",
       "x-stock-selection-path": "/settings"
+    });
+
+    await expect(renderProtectedLayout("private")).resolves.toBe("private");
+  });
+
+  it("allows protected renders when an old duplicate cookie appears first", async () => {
+    const token = await createAccessToken("secret", "password");
+    mockCookies(["stale-token", token]);
+    mockHeaders({
+      "next-action": "anything",
+      "x-stock-selection-path": "/dashboard"
     });
 
     await expect(renderProtectedLayout("private")).resolves.toBe("private");

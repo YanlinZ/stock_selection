@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ACCESS_COOKIE_NAME } from "@/lib/auth/session";
+import { ACCESS_COOKIE_NAME, findValidAccessToken } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
 import { createConfigService } from "@/server/config/service";
 import type { ConfigSnapshot } from "@/server/config/types";
@@ -164,7 +164,11 @@ export default async function SettingsPage() {
 async function getSettingsActionToken() {
   const cookieStore = await cookies();
 
-  return cookieStore.get(ACCESS_COOKIE_NAME)?.value ?? "";
+  const token = await findValidAccessToken(
+    cookieStore.getAll(ACCESS_COOKIE_NAME).map((cookie) => cookie.value)
+  );
+
+  return token ?? "";
 }
 
 async function getConfigSnapshot() {

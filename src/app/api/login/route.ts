@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 
 import {
-  ACCESS_COOKIE_NAME,
+  ACCESS_COOKIE_CLEAR_PATHS,
   createAccessToken,
+  getExpiredAccessCookieOptions,
   getAccessCookieOptions,
-  passwordsMatch
+  passwordsMatch,
+  serializeAccessCookie
 } from "@/lib/auth/session";
 import { sanitizeNextPath } from "@/lib/http";
 
@@ -28,7 +30,17 @@ export async function POST(request: Request) {
     status: 303
   });
 
-  response.cookies.set(ACCESS_COOKIE_NAME, token, getAccessCookieOptions());
+  for (const path of ACCESS_COOKIE_CLEAR_PATHS) {
+    response.headers.append(
+      "Set-Cookie",
+      serializeAccessCookie("", getExpiredAccessCookieOptions(path))
+    );
+  }
+
+  response.headers.append(
+    "Set-Cookie",
+    serializeAccessCookie(token, getAccessCookieOptions())
+  );
 
   return response;
 }
