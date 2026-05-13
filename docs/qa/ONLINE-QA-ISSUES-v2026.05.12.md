@@ -2,9 +2,37 @@
 
 日期：2026-05-12
 
+状态表更新：2026-05-13
+
 目标环境：Production `https://stock-selection-pi.vercel.app`
 
 用途：本文件可直接复制给主 Agent，用于修复本轮线上 QA 发现的问题。修复时先阅读 `AGENTS.md` 和 `docs/context-map.md`，再按 context map 选择最小必要 PRD、技术计划和相关源码，并保持当前 phase 边界。
+
+## 状态表
+
+状态值：
+
+- `Open`：待修复或待决策。
+- `Fixed pending retest`：已有修复，等待 QA 复测。
+- `Closed`：已复测通过。
+- `Deferred`：明确延期，不阻塞当前阶段。
+
+| ID | Priority | Issue | Status | Owner | Fixed in | Retest | Next action |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| QA-001 | P0 | Settings 保存/停用后跳回登录页，阻断配置维护 | Open | Main Agent | - | - | 修复 auth/server action 提交后 session 与 redirect 闭环 |
+| QA-002 | P1 | 移动端顶部导航溢出，退出入口不可见 | Open | Main Agent | - | - | 修复 360px/390px/414px 导航可达性 |
+| QA-003 | P1 | 首页仍显示 Phase 0 工程地基，`/dashboard` 为 404 | Open | Main Agent | - | - | 同步当前阶段文案，补 Dashboard 占位或入口 |
+| QA-004 | P2 | 未登录访问受保护页不会保留目标路径 | Open | Main Agent | - | - | 在受保护 redirect 中保留安全 `next` |
+| QA-005 | P2 | 停用操作缺少确认或撤销 | Open | Main Agent | - | - | 增加确认、明确后果或记录延期决策 |
+| QA-006 | P2 | 基础偏好配置未出现在设置页 | Open | Main Agent/Product | - | - | 补最小入口或更新验收口径 |
+| QA-007 | P3 | 表单数字字段缺少前端约束和字段级错误反馈 | Open | Main Agent | - | - | 增加 min/max 与字段级错误反馈 |
+
+维护规则：
+
+- 修复 PR 合并后，将对应行改为 `Fixed pending retest`，填写 `Fixed in`。
+- QA 复测通过后改为 `Closed`，填写 `Retest`。
+- 需要延期的问题必须改为 `Deferred`，并在 `Next action` 写清延期原因或恢复条件。
+- 不要删除历史问题；保留状态，避免后续 agent 反复判断同一问题是否仍 open。
 
 ## 背景
 

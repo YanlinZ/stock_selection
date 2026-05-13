@@ -25,10 +25,12 @@
 
 - `docs/process/CODE-REVIEW-AGENT.md`
 - `docs/review/code_review.md`
+- `docs/process/SHIP-GATE.md`
 
 涉及线上测试、浏览器测试、QA、UI/UX 测试或回归测试时，额外阅读：
 
 - `docs/process/QA-AGENT.md`
+- `docs/qa/LOCAL-SMOKE.md`，仅当涉及开发期本地 smoke。
 - 当前 phase 的 `docs/qa/` 回归用例。
 
 涉及 Harness Engineering 定义时阅读：
