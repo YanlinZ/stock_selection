@@ -5,9 +5,9 @@ Use this workflow to keep the main thread small, avoid agent conflicts, and make
 ## Default Model
 
 - Main thread is the default implementation owner.
-- Local development smoke checks happen before review and merge when a change affects browser-visible behavior.
+- Local development smoke checks happen before review and merge when a change affects browser-visible behavior. Use `docs/qa/LOCAL-SMOKE.md`.
 - Code review is the main pre-merge gate for medium, phase, and high-risk changes.
-- Main agent is the ship executor: after reviewer gate passes and PR checks are all green, it can approve/merge, rely on Vercel auto-deploy, and trigger QA.
+- Main agent is the ship executor: after reviewer gate passes and PR checks are all green, it can apply `docs/process/SHIP-GATE.md`, approve/merge, rely on Vercel auto-deploy, and trigger QA.
 - Formal browser QA usually runs after merge/deploy, because production or preview testing may require merged code.
 - QA should be targeted by default. Use full regression only for phase completion, release candidates, or high-risk changes.
 
@@ -19,7 +19,7 @@ Use for narrow fixes, typo-level docs edits, and single-file low-risk changes.
 2. Open only the directly relevant source or doc.
 3. Make the change in the main thread.
 4. Run targeted validation, or explain why none is needed.
-5. Run a local smoke check only if the change affects a visible route, form, auth flow, or server action.
+5. Run the relevant local smoke rows from `docs/qa/LOCAL-SMOKE.md` only if the change affects a visible route, form, auth flow, or server action.
 6. Final summary stays short and includes files changed plus validation.
 
 Do not start QA or review agents unless the change touches auth, schema, provider, ingestion, server actions, secrets, deployment, data status UI, or core business rules.
@@ -31,10 +31,10 @@ Use for multi-file features or fixes with moderate risk.
 1. Explorer agent performs read-only discovery only when the touched area is unfamiliar, cross-module, or phase/risk boundaries are unclear.
 2. Main thread writes the change unless there is a clear reason to use a separate implementation owner.
 3. Run targeted tests first.
-4. Run local development smoke for affected browser flows when relevant.
+4. Run local development smoke for affected browser flows when relevant, using `docs/qa/LOCAL-SMOKE.md`.
 5. Reviewer agent performs read-only diff review using `docs/review/code_review.md`.
 6. Main thread fixes blocking issues and reruns relevant checks.
-7. Main agent applies the autonomous ship gate when a PR exists.
+7. Main agent applies `docs/process/SHIP-GATE.md` when a PR exists.
 8. After merge/deploy, run post-merge targeted QA only for user-facing, auth, data, provider, deployment, or workflow-sensitive changes.
 
 Keep one writer per worktree. Reviewer and explorer do not edit files.
@@ -48,10 +48,10 @@ Use for phase implementation, large UI flows, schema/data changes, or high-regre
 3. Main agent writes a plan with scope, acceptance criteria, and validation.
 4. A single implementation owner writes code in the current worktree, or each writer uses a separate worktree with disjoint file ownership.
 5. Run targeted tests while implementing.
-6. Run local development smoke for affected browser flows before review.
+6. Run local development smoke for affected browser flows before review, using `docs/qa/LOCAL-SMOKE.md`.
 7. Reviewer agent checks the diff and risk areas as the pre-merge gate.
 8. Main thread fixes blocking issues and reruns relevant checks.
-9. Main agent applies the autonomous ship gate.
+9. Main agent applies `docs/process/SHIP-GATE.md`.
 10. Vercel deploys automatically after merge; Main agent checks deploy status when available.
 11. QA agent runs post-merge targeted QA against current phase cases.
 12. Run lint/typecheck/tests appropriate to the risk if they were not already run before merge.
@@ -59,7 +59,7 @@ Use for phase implementation, large UI flows, schema/data changes, or high-regre
 
 ## Autonomous Ship Gate
 
-Main agent is authorized to ship a PR without asking again when all gate conditions are met:
+Main agent is authorized to ship a PR without asking again when all gate conditions are met. The executable protocol lives in `docs/process/SHIP-GATE.md`.
 
 - Reviewer agent reports no blocking issues, or blocking issues were fixed and re-reviewed.
 - PR is not draft.
@@ -71,6 +71,7 @@ Main agent is authorized to ship a PR without asking again when all gate conditi
 - There are no unresolved review threads.
 - Targeted validation and local dev smoke results are known, or skipped with a clear reason.
 - No secrets, phase-boundary drift, or production-data risk is unresolved.
+- No check or deploy has been pending for more than 8 minutes.
 
 When the gate passes, Main agent may:
 
@@ -80,7 +81,7 @@ When the gate passes, Main agent may:
 - Check deploy status when available.
 - Trigger post-merge targeted QA with a handoff packet.
 
-When the gate does not pass, Main agent must stop shipping and report the blocker plus the next action. If GitHub disallows formal self-approval but branch protection still allows merge, record that the ship gate passed and continue. If branch protection requires an approval the agent cannot provide, stop and report the blocker.
+When the gate does not pass, Main agent must stop shipping and report the blocker plus the next action. If `gh` cannot verify the gate because its token is expired or unavailable, fall back to the GitHub connector, then browser/Chrome PR inspection, and record the fallback. If GitHub disallows formal self-approval but branch protection still allows merge, record that the ship gate passed and continue. If branch protection requires an approval the agent cannot provide, stop and report the blocker.
 
 ## QA Handoff Packet
 
@@ -111,6 +112,7 @@ Use during implementation before review or merge.
 - Environment: local app, local browser, or narrow command-level verification.
 - Scope: only the route, form, server action, layout, or data path affected by the change.
 - Goal: catch obvious breakage before reviewer or post-merge QA time is spent.
+- Matrix: `docs/qa/LOCAL-SMOKE.md`.
 
 ### Post-Merge Targeted QA
 
@@ -174,6 +176,7 @@ When Codex feels stuck, slow, or "almost dead", check:
 - Are test commands unclear or missing?
 - Is the local environment setup incomplete?
 - Is a network/deploy command waiting on approval?
+- Has a PR check or Vercel deploy been pending for more than 8 minutes?
 
 When in doubt, shrink context first, reduce concurrency second, and make the next validation command explicit.
 

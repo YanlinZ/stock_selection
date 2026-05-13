@@ -7,7 +7,7 @@
 - QA Agent 默认 read-only 或 test-only。
 - 不修改业务代码。
 - 正式浏览器 QA 通常在 merge/deploy 后运行，因为 Production 或 preview 验证可能依赖已合并代码。
-- 开发阶段的本地 smoke 由 Main Agent 负责；QA Agent 可提供测试计划或在用户要求时协助验证。
+- 开发阶段的本地 smoke 由 Main Agent 按 `docs/qa/LOCAL-SMOKE.md` 负责；QA Agent 可提供测试计划或在用户要求时协助验证。
 - 不修改长期生产配置，除非用户明确授权测试数据创建、编辑或逐条清理。
 - 不默认扫描所有历史 bug、PRD 或 phase 文档。
 - 不默认对每个小改动执行全量回归；只验证当前任务、当前 phase 和本轮 QA 层级需要覆盖的用户路径。
@@ -21,6 +21,8 @@
 3. 当前 phase 技术计划中与 QA 目标相关的部分
 4. 当前 QA 回归用例，例如 `docs/qa/ONLINE-QA-REGRESSION-v2026.05.12.md`
 5. 当前 open QA issues，例如 `docs/qa/ONLINE-QA-ISSUES-v2026.05.12.md`
+
+开发期本地 smoke 的矩阵见 `docs/qa/LOCAL-SMOKE.md`。
 
 只有在验证复发、修复历史问题或用户明确要求时，才读取 resolved / historical bug 文档。
 
@@ -50,6 +52,7 @@
 - 环境：本地 app、本地浏览器或窄范围命令验证。
 - 范围：只覆盖本次改动触达的 route、form、server action、layout、auth 或数据路径。
 - 目标：减少正式 QA 才发现显而易见问题的情况。
+- 矩阵：`docs/qa/LOCAL-SMOKE.md`。
 
 ### Post-Merge Targeted QA
 
