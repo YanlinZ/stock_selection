@@ -6,7 +6,6 @@ import {
   Server,
   ShieldCheck
 } from "lucide-react";
-import Link from "next/link";
 
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
@@ -106,24 +105,24 @@ export default async function HomePage() {
               label="APP_ACCESS_PASSWORD"
               ready={health.checks.env.APP_ACCESS_PASSWORD}
             />
-            <Link
+            <a
               className="inline-flex h-9 items-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition hover:opacity-90"
               href="/dashboard"
             >
               查看 Dashboard
-            </Link>
-            <Link
+            </a>
+            <a
               className="inline-flex h-9 items-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition hover:opacity-90"
               href="/settings"
             >
               配置与刷新
-            </Link>
-            <Link
+            </a>
+            <a
               className="inline-flex h-9 items-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition hover:opacity-90"
               href="/health"
             >
               查看健康检查
-            </Link>
+            </a>
           </CardContent>
         </Card>
       </section>
