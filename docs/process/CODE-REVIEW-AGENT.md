@@ -1,30 +1,36 @@
 # Code Review Agent 工作协议
 
-本文件定义本项目中 Code Review Agent 的审查协议。只有在启动 code review agent、review agent、独立审查或 PR review 时，需要阅读本文件。主 agent 的项目级触发规则见 `AGENTS.md`。
+本文件定义 Code Review Agent 的审查协议。用户要求 code review agent、review agent、独立审查、PR review、approve 或 merge 时使用本文件。
+
+核心模式：
+
+- Reviewer Agent = 独立审查 gate，只给出审查结论和阻塞项。
+- Main Agent = ship executor，在 reviewer gate 通过且 PR checks 全部通过时，自主执行 approve/merge/deploy 下一步，并触发 post-merge QA。
 
 ## 角色边界
 
-当用户要求使用 code review agent、review agent、独立审查或 PR review 时，该 agent 默认只做代码审查，不主动修改代码。
+- Code Review Agent 默认 read-only。
+- 不主动修改代码。
+- 不执行 approve、merge、deploy 或 QA 触发；这些由 Main Agent 按 ship gate 执行。
+- 不默认扫描所有 PRD、phase、QA、bug 历史文档。
+- 不把 raw logs、完整 CI 输出或长测试输出倒灌到主线程。
+- 重点审查 blocking bugs、行为回归、数据一致性、安全、phase 边界、缺失测试和可维护性风险。
 
-Code Review Agent 必须继续遵守 Harness Engineering 方法论。项目统一定义见 `docs/engineering/HARNESS-ENGINEERING.md`。审查重点不是“代码看起来能跑”，而是确认变更是否仍然可验证、可追踪、可重跑、可解释失败原因。
+## 审查前必读
 
-## 审查前必读顺序
-
-Code Review Agent 在审查任何 PR、branch、commit 或 diff 前，必须按顺序阅读：
+按顺序读取最小必要上下文：
 
 1. `AGENTS.md`
-2. 所有 PRD，按版本从早到晚阅读
-3. 最新技术开发计划
-4. 当前 PR 或 diff
-5. 与变更直接相关的测试、fixture、migration、server action、provider adapter 和 UI 状态展示
+2. `docs/context-map.md`
+3. `docs/review/code_review.md`
+4. 当前 PR、branch、commit 或 working-tree diff
+5. 与变更直接相关的 phase acceptance criteria、测试、fixture、migration、server action、provider adapter 或 UI 状态展示
 
-不得只看 diff 就直接 approve。
+只有当审查结论依赖产品边界时，才按 `docs/context-map.md` 打开相关 PRD sections。不要默认通读全部历史文档。
 
 ## 审查重点
 
-Code Review Agent 必须重点检查：
-
-- 是否符合当前 phase 边界，是否偷偷进入下一阶段范围。
+- 是否符合当前 phase 边界。
 - 是否破坏 harness contract、fixture tests、fake provider 或离线可测路径。
 - provider、ingestion、DB 写入是否可追踪、可重跑、可解释失败原因。
 - raw response 与 normalized data 是否保持分离。
@@ -33,41 +39,51 @@ Code Review Agent 必须重点检查：
 - provider error、空响应、字段缺失、限流、401、过期数据是否有可见且安全的失败状态。
 - 是否泄露 API key、token、真实 secret、完整敏感 URL 或真实账户信息。
 - 是否绕过环境变量读取 secret。
-- 是否引入真实下单、券商同步、主动推送、分钟级/秒级行情、AI 交易建议等当前 phase 外能力。
 - 是否缺少覆盖关键风险的测试。
+- 是否有重复问题应该进入 `docs/harness-engineering.md` 描述的反馈闭环。
 
 ## Build / Deploy Gate
 
-Code Review Agent 在 PR 存在 build、test、lint、typecheck、Vercel preview、Vercel production 或其他 required check 失败时，不得 approve。
+Code Review Agent 在 PR 存在 build、test、lint、typecheck、Vercel preview、Vercel production 或其他 required check 失败时，不得给出 ship-ready 结论。
 
-如果 CI、build 或 deploy 仍在 pending，Code Review Agent 不得给出 approve 结论，只能说明“等待 checks 完成后再判断”。
+如果 CI、build 或 deploy 仍在 pending，Code Review Agent 不得给出 ship-ready 结论，只能说明“等待 checks 完成后再判断”。
 
 如果失败来自与本 PR 无关的外部系统，也必须明确标注为 blocking 或 unresolved，直到用户确认例外处理；不得默认放行。
 
-### Approve / Merge Protocol
+## Main Agent Ship Protocol
 
-如果用户明确授权 agent 在 review 通过后合并 PR，Code Review Agent 可以在满足以下全部条件后 approve 并 merge：
+本仓库默认授权 Main Agent 在 review 通过后执行 ship flow。Main Agent 可以在满足以下全部条件后自主 approve/merge，并让 Vercel 自动触发 deploy：
 
-- Review 后没有 blocking issue。
+- Reviewer Agent 没有发现 blocking issue，或 blocking issue 已修复并复审通过。
 - PR 不是 draft。
 - 所有 required checks、build、test、lint、typecheck、Vercel preview/deploy checks 均已通过。
 - 没有 pending checks。
 - 没有 failing checks。
 - PR merge state 为 clean 或可安全 merge。
 - 没有 unresolved review threads。
+- Main Agent 已知本轮 targeted validation/local smoke 结果，或明确记录跳过原因。
 - 合并方式遵守仓库当前习惯，默认使用普通 merge，不使用 squash/rebase，除非用户另有要求。
 
-如果任何条件不满足，Code Review Agent 不得 approve 或 merge，只能说明阻塞原因。
+任何条件不满足时，Main Agent 不得 merge，只能说明阻塞原因和下一步。
 
-## 输出格式
+如果 GitHub 不允许当前身份对自己创建的 PR 提交 formal approval，Main Agent 应记录 ship gate 已通过，并在 branch protection 允许时继续 merge；如果 branch protection 要求无法满足的 approval，停止并报告阻塞。
 
-Code Review Agent 输出应采用 code review stance：
+Merge 后：
 
-- Findings 放在最前面。
-- 按严重程度排序。
-- 每条 finding 必须包含文件路径和行号。
-- 优先指出 bug、行为回归、数据一致性风险、安全风险、缺失测试和 phase 边界问题。
-- 如果没有 blocking issue，必须明确说 `No blocking issues found`。
-- 最后简要列出已检查的验证项、仍未完成的 checks、测试缺口和 residual risk。
+- Vercel production deploy 由 merge 自动触发。
+- Main Agent 应尽量等待或检查 deploy 结果。
+- Deploy 成功后，Main Agent 触发 post-merge targeted QA。
+- Deploy pending 或失败时，不触发正式 QA，先报告阻塞或修复 deploy 问题。
 
-Code Review Agent 不应因为实现方向符合预期就省略风险说明。
+## Review Output Format
+
+Findings first, ordered by severity:
+
+1. Blockers
+2. Non-blocking issues
+3. Missing tests
+4. Risk areas
+5. Checks reviewed / still pending
+6. Recommended fixes
+
+每条 finding 必须包含文件路径和行号。若没有 blocking issue，必须明确写 `No blocking issues found`，并说明残余风险或未覆盖验证。

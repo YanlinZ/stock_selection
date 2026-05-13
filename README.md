@@ -55,9 +55,11 @@ pnpm db:studio
 
 ## 文档目录
 
+- `docs/context-map.md`：Codex 文档路由器，开发、QA、review 前先读它来选择最小必要上下文。
 - `docs/prd/`：产品需求文档和增量 PRD。
 - `docs/tech/`：技术开发计划。
 - `docs/process/`：协作流程、review agent 协议。
+- `docs/review/`：code review checklist。
 - `docs/engineering/`：工程方法论定义，例如 Harness Engineering。
 - `docs/README.md`：文档索引和维护约定。
 

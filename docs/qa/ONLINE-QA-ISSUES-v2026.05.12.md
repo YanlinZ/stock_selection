@@ -4,7 +4,7 @@
 
 目标环境：Production `https://stock-selection-pi.vercel.app`
 
-用途：本文件可直接复制给主 Agent，用于修复本轮线上 QA 发现的问题。修复时仍需先阅读 `AGENTS.md`、PRD 和最新技术计划，并保持当前 phase 边界。
+用途：本文件可直接复制给主 Agent，用于修复本轮线上 QA 发现的问题。修复时先阅读 `AGENTS.md` 和 `docs/context-map.md`，再按 context map 选择最小必要 PRD、技术计划和相关源码，并保持当前 phase 边界。
 
 ## 背景
 
@@ -272,4 +272,3 @@ PRD/技术计划与线上功能存在验收口径偏差。
 - 对所有 server action 表单，都要验证提交后是否仍在预期页面。
 - 如果浏览器自动化受限，必须明确标记“未完成真实点击闭环”，不能用 API/HTML 读取替代。
 - 已将该要求写入 `docs/process/QA-AGENT.md` 和 `docs/qa/ONLINE-QA-REGRESSION-v2026.05.12.md`。
-
