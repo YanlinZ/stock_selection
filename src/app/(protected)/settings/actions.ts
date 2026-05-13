@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 import { ACCESS_COOKIE_NAME, isValidAccessToken } from "@/lib/auth/session";
 import { createConfigService } from "@/server/config/service";
@@ -13,8 +13,8 @@ import {
 } from "@/server/config/types";
 import { createIngestionService } from "@/server/ingestion/service";
 
-export async function refreshAllDataAction() {
-  await requireSettingsActionAuth();
+export async function refreshAllDataAction(actionToken: string) {
+  await requireSettingsActionAuth(actionToken);
 
   await createIngestionService().refreshAll({ requestedBy: "manual" });
 
@@ -22,8 +22,8 @@ export async function refreshAllDataAction() {
   revalidatePath("/health");
 }
 
-export async function addHoldingAction(formData: FormData) {
-  await requireSettingsActionAuth();
+export async function addHoldingAction(actionToken: string, formData: FormData) {
+  await requireSettingsActionAuth(actionToken);
 
   await createConfigService().upsertHolding({
     symbol: readString(formData, "symbol"),
@@ -38,8 +38,8 @@ export async function addHoldingAction(formData: FormData) {
   revalidatePath("/settings");
 }
 
-export async function updateHoldingAction(formData: FormData) {
-  await requireSettingsActionAuth();
+export async function updateHoldingAction(actionToken: string, formData: FormData) {
+  await requireSettingsActionAuth(actionToken);
 
   await createConfigService().updateHolding({
     id: readString(formData, "id"),
@@ -52,16 +52,22 @@ export async function updateHoldingAction(formData: FormData) {
   revalidatePath("/settings");
 }
 
-export async function deactivateHoldingAction(formData: FormData) {
-  await requireSettingsActionAuth();
+export async function deactivateHoldingAction(
+  actionToken: string,
+  formData: FormData
+) {
+  await requireSettingsActionAuth(actionToken);
 
   await createConfigService().deactivateHolding(readString(formData, "id"));
 
   revalidatePath("/settings");
 }
 
-export async function addWatchlistItemAction(formData: FormData) {
-  await requireSettingsActionAuth();
+export async function addWatchlistItemAction(
+  actionToken: string,
+  formData: FormData
+) {
+  await requireSettingsActionAuth(actionToken);
 
   await createConfigService().upsertWatchlistItem({
     symbol: readString(formData, "symbol"),
@@ -75,8 +81,11 @@ export async function addWatchlistItemAction(formData: FormData) {
   revalidatePath("/settings");
 }
 
-export async function updateWatchlistItemAction(formData: FormData) {
-  await requireSettingsActionAuth();
+export async function updateWatchlistItemAction(
+  actionToken: string,
+  formData: FormData
+) {
+  await requireSettingsActionAuth(actionToken);
 
   await createConfigService().updateWatchlistItem({
     id: readString(formData, "id"),
@@ -88,16 +97,22 @@ export async function updateWatchlistItemAction(formData: FormData) {
   revalidatePath("/settings");
 }
 
-export async function deactivateWatchlistItemAction(formData: FormData) {
-  await requireSettingsActionAuth();
+export async function deactivateWatchlistItemAction(
+  actionToken: string,
+  formData: FormData
+) {
+  await requireSettingsActionAuth(actionToken);
 
   await createConfigService().deactivateWatchlistItem(readString(formData, "id"));
 
   revalidatePath("/settings");
 }
 
-export async function addKeyPriceLevelAction(formData: FormData) {
-  await requireSettingsActionAuth();
+export async function addKeyPriceLevelAction(
+  actionToken: string,
+  formData: FormData
+) {
+  await requireSettingsActionAuth(actionToken);
 
   await createConfigService().upsertKeyPriceLevel({
     symbol: readString(formData, "symbol"),
@@ -117,8 +132,11 @@ export async function addKeyPriceLevelAction(formData: FormData) {
   revalidatePath("/settings");
 }
 
-export async function updateKeyPriceLevelAction(formData: FormData) {
-  await requireSettingsActionAuth();
+export async function updateKeyPriceLevelAction(
+  actionToken: string,
+  formData: FormData
+) {
+  await requireSettingsActionAuth(actionToken);
 
   await createConfigService().updateKeyPriceLevel({
     id: readString(formData, "id"),
@@ -136,16 +154,22 @@ export async function updateKeyPriceLevelAction(formData: FormData) {
   revalidatePath("/settings");
 }
 
-export async function deactivateKeyPriceLevelAction(formData: FormData) {
-  await requireSettingsActionAuth();
+export async function deactivateKeyPriceLevelAction(
+  actionToken: string,
+  formData: FormData
+) {
+  await requireSettingsActionAuth(actionToken);
 
   await createConfigService().deactivateKeyPriceLevel(readString(formData, "id"));
 
   revalidatePath("/settings");
 }
 
-export async function updateUserPreferencesAction(formData: FormData) {
-  await requireSettingsActionAuth();
+export async function updateUserPreferencesAction(
+  actionToken: string,
+  formData: FormData
+) {
+  await requireSettingsActionAuth(actionToken);
 
   await createConfigService().upsertUserPreference({
     key: "basic_preferences",
@@ -170,13 +194,33 @@ export async function updateUserPreferencesAction(formData: FormData) {
   revalidatePath("/settings");
 }
 
-async function requireSettingsActionAuth() {
+async function requireSettingsActionAuth(actionToken: string | undefined) {
   const cookieStore = await cookies();
-  const token = cookieStore.get(ACCESS_COOKIE_NAME)?.value;
+  const headerStore = await headers();
+  const token =
+    cookieStore.get(ACCESS_COOKIE_NAME)?.value ??
+    readCookieValue(headerStore.get("cookie"), ACCESS_COOKIE_NAME);
 
-  if (!(await isValidAccessToken(token))) {
+  if (
+    !(await isValidAccessToken(token)) &&
+    !(await isValidAccessToken(actionToken))
+  ) {
     throw new Error("Unauthorized settings action.");
   }
+}
+
+function readCookieValue(cookieHeader: string | null, name: string) {
+  if (!cookieHeader) {
+    return undefined;
+  }
+
+  const prefix = `${name}=`;
+  const cookie = cookieHeader
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(prefix));
+
+  return cookie ? decodeURIComponent(cookie.slice(prefix.length)) : undefined;
 }
 
 function readString(formData: FormData, key: string) {

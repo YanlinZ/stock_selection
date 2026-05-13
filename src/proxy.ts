@@ -30,5 +30,22 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/settings/:path*", "/health/:path*", "/dashboard/:path*"]
+  matcher: [
+    {
+      source: "/",
+      missing: [{ type: "header", key: "next-action" }]
+    },
+    {
+      source: "/settings/:path*",
+      missing: [{ type: "header", key: "next-action" }]
+    },
+    {
+      source: "/health/:path*",
+      missing: [{ type: "header", key: "next-action" }]
+    },
+    {
+      source: "/dashboard/:path*",
+      missing: [{ type: "header", key: "next-action" }]
+    }
+  ]
 };
