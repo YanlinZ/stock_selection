@@ -13,9 +13,8 @@ export default async function ProtectedLayout({
   const headerStore = await headers();
   const token = cookieStore.get(ACCESS_COOKIE_NAME)?.value;
   const nextPath = headerStore.get("x-stock-selection-path") ?? "/";
-  const isServerActionRequest = headerStore.has("next-action");
 
-  if (!isServerActionRequest && !(await isValidAccessToken(token))) {
+  if (!(await isValidAccessToken(token))) {
     redirect(createLoginPath(nextPath, "auth-required"));
   }
 

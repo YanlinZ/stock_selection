@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { cookies, headers } from "next/headers";
 
-import { ACCESS_COOKIE_NAME, isValidAccessToken } from "@/lib/auth/session";
+import {
+  ACCESS_COOKIE_NAME,
+  getAccessCookieOptions,
+  isValidAccessToken
+} from "@/lib/auth/session";
 import { createConfigService } from "@/server/config/service";
 import {
   assetTypes,
@@ -201,12 +205,18 @@ async function requireSettingsActionAuth(actionToken: string | undefined) {
     cookieStore.get(ACCESS_COOKIE_NAME)?.value ??
     readCookieValue(headerStore.get("cookie"), ACCESS_COOKIE_NAME);
 
-  if (
-    !(await isValidAccessToken(token)) &&
-    !(await isValidAccessToken(actionToken))
-  ) {
-    throw new Error("Unauthorized settings action.");
+  if (await isValidAccessToken(token)) {
+    return;
   }
+
+  const validActionToken = actionToken;
+
+  if (validActionToken && (await isValidAccessToken(validActionToken))) {
+    cookieStore.set(ACCESS_COOKIE_NAME, validActionToken, getAccessCookieOptions());
+    return;
+  }
+
+  throw new Error("Unauthorized settings action.");
 }
 
 function readCookieValue(cookieHeader: string | null, name: string) {
