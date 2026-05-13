@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-import { ACCESS_COOKIE_NAME, isValidAccessToken } from "@/lib/auth/session";
+import { ACCESS_COOKIE_NAME, findValidAccessToken } from "@/lib/auth/session";
 import { createLoginPath } from "@/lib/http";
 
 export async function proxy(request: NextRequest) {
@@ -9,10 +9,12 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = request.cookies.get(ACCESS_COOKIE_NAME)?.value;
+  const tokens = request.cookies
+    .getAll(ACCESS_COOKIE_NAME)
+    .map((cookie) => cookie.value);
   const nextPath = `${request.nextUrl.pathname}${request.nextUrl.search}`;
 
-  if (!(await isValidAccessToken(token))) {
+  if (!(await findValidAccessToken(tokens))) {
     return NextResponse.redirect(
       new URL(createLoginPath(nextPath, "auth-required"), request.url),
       { status: 303 }

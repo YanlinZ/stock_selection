@@ -1,7 +1,7 @@
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { ACCESS_COOKIE_NAME, isValidAccessToken } from "@/lib/auth/session";
+import { ACCESS_COOKIE_NAME, findValidAccessToken } from "@/lib/auth/session";
 import { createLoginPath } from "@/lib/http";
 
 export default async function ProtectedLayout({
@@ -11,10 +11,12 @@ export default async function ProtectedLayout({
 }) {
   const cookieStore = await cookies();
   const headerStore = await headers();
-  const token = cookieStore.get(ACCESS_COOKIE_NAME)?.value;
+  const tokens = cookieStore
+    .getAll(ACCESS_COOKIE_NAME)
+    .map((cookie) => cookie.value);
   const nextPath = headerStore.get("x-stock-selection-path") ?? "/";
 
-  if (!(await isValidAccessToken(token))) {
+  if (!(await findValidAccessToken(tokens))) {
     redirect(createLoginPath(nextPath, "auth-required"));
   }
 

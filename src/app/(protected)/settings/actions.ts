@@ -5,6 +5,7 @@ import { cookies, headers } from "next/headers";
 
 import {
   ACCESS_COOKIE_NAME,
+  findValidAccessToken,
   getAccessCookieOptions,
   isValidAccessToken
 } from "@/lib/auth/session";
@@ -201,11 +202,12 @@ export async function updateUserPreferencesAction(
 async function requireSettingsActionAuth(actionToken: string | undefined) {
   const cookieStore = await cookies();
   const headerStore = await headers();
-  const token =
-    cookieStore.get(ACCESS_COOKIE_NAME)?.value ??
-    readCookieValue(headerStore.get("cookie"), ACCESS_COOKIE_NAME);
+  const tokens = [
+    ...cookieStore.getAll(ACCESS_COOKIE_NAME).map((cookie) => cookie.value),
+    ...readCookieValues(headerStore.get("cookie"), ACCESS_COOKIE_NAME)
+  ];
 
-  if (await isValidAccessToken(token)) {
+  if (await findValidAccessToken(tokens)) {
     return;
   }
 
@@ -219,18 +221,17 @@ async function requireSettingsActionAuth(actionToken: string | undefined) {
   throw new Error("Unauthorized settings action.");
 }
 
-function readCookieValue(cookieHeader: string | null, name: string) {
+function readCookieValues(cookieHeader: string | null, name: string) {
   if (!cookieHeader) {
-    return undefined;
+    return [];
   }
 
   const prefix = `${name}=`;
-  const cookie = cookieHeader
+  return cookieHeader
     .split(";")
     .map((part) => part.trim())
-    .find((part) => part.startsWith(prefix));
-
-  return cookie ? decodeURIComponent(cookie.slice(prefix.length)) : undefined;
+    .filter((part) => part.startsWith(prefix))
+    .map((cookie) => decodeURIComponent(cookie.slice(prefix.length)));
 }
 
 function readString(formData: FormData, key: string) {
