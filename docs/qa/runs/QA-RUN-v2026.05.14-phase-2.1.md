@@ -59,5 +59,6 @@ Environment:
 
 ## Next Action
 
-- Open PR, pass review/checks, merge, wait for production deploy.
-- Run post-merge production targeted QA for QA-001 through QA-007.
+- PR #28 merged on 2026-05-14 at 05:07:52 UTC, and Vercel deployment checks for `stock-selection` and `stock-selection-w5bi` passed.
+- Production targeted QA run recorded in `docs/qa/runs/QA-RUN-v2026.05.14-production-targeted.md`.
+- Remaining follow-up: short production retest for deactivate confirm/cancel and mobile navigation before closing QA-001, QA-002, and QA-005.

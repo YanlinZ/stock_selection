@@ -4,7 +4,7 @@ This file routes agents to the smallest useful context for each task. Read this 
 
 ## Active State
 
-- Active state: Phase 2 Dashboard v1 complete and merged; Phase 2.1 local hardening has local validation coverage and awaits production targeted QA after deploy.
+- Active state: Phase 2 Dashboard v1 complete and merged; Phase 2.1 local hardening merged in PR #28 on 2026-05-14 and Vercel deployment checks passed. Production targeted QA partially passed: QA-003, QA-004, QA-006, and QA-007 are closed; QA-001, QA-002, and QA-005 remain fixed pending short production retest for deactivate confirm/cancel and mobile navigation.
 - Latest phase plan: `docs/tech/TECH-PLAN-v2026.05.14-phase-2.1-hardening.md`
 - Latest completed technical status: `docs/tech/TECH-PLAN-v2026.05.14.md`
 - Phase 1 status: complete; configuration page, provider contracts, ingestion, normalized data, and production smoke are done.
@@ -25,6 +25,7 @@ This file routes agents to the smallest useful context for each task. Read this 
 - Local smoke matrix: `docs/qa/LOCAL-SMOKE.md`
 - Current QA regression cases: `docs/qa/ONLINE-QA-REGRESSION-v2026.05.12.md`
 - Current open QA issues: `docs/qa/ONLINE-QA-ISSUES-v2026.05.12.md`
+- Latest production QA run: `docs/qa/runs/QA-RUN-v2026.05.14-production-targeted.md`
 - Review protocol: `docs/process/CODE-REVIEW-AGENT.md`
 - Review checklist: `docs/review/code_review.md`
 - Autonomous ship gate: `docs/process/SHIP-GATE.md`
@@ -37,6 +38,7 @@ For Phase 2.1 post-merge hardening, use `docs/tech/TECH-PLAN-v2026.05.14-phase-2
 - QA issue exit standards: section 6
 - Validation plan: section 7
 - Done criteria: section 9
+- Current next-step handoff: section 11
 
 For Phase 2 Dashboard maintenance or follow-up work, use `docs/tech/TECH-PLAN-v2026.05.14.md` first. Original Phase 2 implementation acceptance criteria remain in `docs/tech/TECH-PLAN-v2026.05.12.md`:
 
