@@ -7,7 +7,7 @@
 - `context-map.md`：Codex 文档路由器，说明不同任务应该读取哪些文档。
 - `prd/`：产品需求文档和增量 PRD。
 - `tech/`：技术开发计划和 phase 状态记录。
-- `process/`：QA / review agent 协议和协作流程。
+- `process/`：planner / QA / review agent 协议和协作流程。
 - `review/`：稳定 code review checklist。
 - `engineering/`：跨 phase 的工程方法论和术语定义。
 - `qa/`：线上 QA 问题清单、回归测试用例和测试复盘。
@@ -26,6 +26,10 @@
 - `docs/process/CODE-REVIEW-AGENT.md`
 - `docs/review/code_review.md`
 - `docs/process/SHIP-GATE.md`
+
+涉及下一步开发计划、phase 拆分、修复排序或 ambiguous follow-up 时，额外阅读：
+
+- `docs/process/PLANNER-AGENT.md`
 
 涉及线上测试、浏览器测试、QA、UI/UX 测试或回归测试时，额外阅读：
 
