@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { createDashboardSnapshot } from "./service";
+import {
+  createDailyDecisionSnapshotRecords,
+  createDashboardService,
+  createDashboardSnapshot
+} from "./service";
 import type {
   DashboardHoldingInput,
   DashboardInputSnapshot,
@@ -9,6 +13,7 @@ import type {
   DashboardMarketDataPoint,
   DashboardWatchlistInput
 } from "./types";
+import type { DashboardRepository } from "./repository";
 
 const now = new Date("2026-05-13T12:00:00.000Z");
 
@@ -24,6 +29,13 @@ describe("createDashboardSnapshot", () => {
     expect(snapshot.status).toBe("unavailable");
     expect(snapshot.summary.kind).toBe("refresh_data");
     expect(snapshot.holdings[0]?.dataStatus).toBe("unavailable");
+    expect(snapshot.holdings[0]?.action).toMatchObject({
+      confidence: "low",
+      dataQuality: "unavailable"
+    });
+    expect(snapshot.holdings[0]?.action.evidence.missing[0]?.label).toContain(
+      "market_data_daily"
+    );
   });
 
   it("marks stale normalized data clearly", () => {
@@ -39,6 +51,8 @@ describe("createDashboardSnapshot", () => {
     expect(snapshot.status).toBe("stale");
     expect(snapshot.dataFreshness.warnings.join(" ")).toContain("超过 7 天");
     expect(snapshot.summary.label).toContain("数据已过期");
+    expect(snapshot.holdings[0]?.action.dataQuality).toBe("stale");
+    expect(snapshot.holdings[0]?.action.confidence).toBe("low");
   });
 
   it("builds a normal dashboard with macro scoring, key level alerts, and indicators", () => {
@@ -66,9 +80,111 @@ describe("createDashboardSnapshot", () => {
     expect(snapshot.holdings[0]?.movingAverages[200].status).toBe("ready");
     expect(snapshot.holdings[0]?.action).toMatchObject({
       basisDate: "2026-05-12",
+      confidence: "high",
+      dataQuality: "complete",
       kind: "consider_small_add"
     });
+    expect(snapshot.holdings[0]?.action.evidence.supporting.length).toBeGreaterThan(
+      0
+    );
+    expect(snapshot.holdings[0]?.action.dataSources).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          basisDate: "2026-05-12",
+          kind: "price",
+          provider: "FMP"
+        }),
+        expect.objectContaining({
+          kind: "macro",
+          provider: "FRED"
+        })
+      ])
+    );
     expect(snapshot.summary.label).toContain("市场恐慌升温");
+  });
+
+  it("downgrades confidence and records missing evidence for partial inputs", () => {
+    const snapshot = createDashboardSnapshot(
+      createInput({
+        holdings: [createHolding("TSLA")],
+        marketData: createHistory("instrument_TSLA", 210, 294)
+          .slice(-20)
+          .map((point) => ({
+            ...point,
+            volume: null
+          }))
+      }),
+      now
+    );
+
+    const action = snapshot.holdings[0]?.action;
+
+    expect(action?.dataQuality).toBe("partial");
+    expect(action?.confidence).toBe("low");
+    expect(action?.kind).toBe("wait");
+    expect(action?.evidence.missing.map((item) => item.label).join(" ")).toContain(
+      "MA200"
+    );
+    expect(action?.evidence.missing.map((item) => item.label).join(" ")).toContain(
+      "成交量"
+    );
+    expect(action?.evidence.missing.map((item) => item.label).join(" ")).toContain(
+      "宏观"
+    );
+  });
+
+  it("creates summary and holding decision snapshot records with safe replay context", () => {
+    const snapshot = createDashboardSnapshot(
+      createInput({
+        holdings: [createHolding("TSLA")],
+        keyPriceLevels: [createKeyLevel("TSLA", 300)],
+        macroObservations: [
+          createObservation("VIXCLS", 27, "2026-05-12"),
+          createObservation("DGS10", 4.7, "2026-05-12")
+        ],
+        marketData: createHistory("instrument_TSLA", 210, 294)
+      }),
+      now
+    );
+
+    const records = createDailyDecisionSnapshotRecords(snapshot);
+
+    expect(records).toHaveLength(2);
+    expect(records[0]).toMatchObject({
+      scope: "summary",
+      subjectKey: "summary"
+    });
+    expect(records[1]).toMatchObject({
+      actionKind: "watch_key_level",
+      instrumentId: "instrument_TSLA",
+      scope: "holding",
+      subjectKey: "instrument_TSLA"
+    });
+    expect(JSON.stringify(records)).not.toContain("rawResponse");
+    expect(JSON.stringify(records)).not.toContain("secret");
+  });
+
+  it("does not fail dashboard rendering when daily snapshot persistence fails", async () => {
+    const repository: DashboardRepository = {
+      async getDashboardInputs() {
+        return createInput({
+          holdings: [createHolding("TSLA")],
+          marketData: [createMarketPoint("instrument_TSLA", "2026-05-12", 294)]
+        });
+      },
+      async persistDailyDecisionSnapshots() {
+        throw new Error("snapshot write failed");
+      }
+    };
+
+    const service = createDashboardService({
+      clock: { now: () => now },
+      repository
+    });
+
+    await expect(service.getDashboardSnapshot()).resolves.toMatchObject({
+      generatedAt: now.toISOString()
+    });
   });
 });
 
@@ -93,7 +209,8 @@ function createHolding(symbol: string): DashboardHoldingInput {
     id: `holding_${symbol}`,
     instrument: createInstrument(symbol),
     notes: null,
-    positionSize: "medium"
+    positionSize: "medium",
+    updatedAt: now
   };
 }
 
@@ -103,7 +220,8 @@ function createWatchlistItem(symbol: string): DashboardWatchlistInput {
     instrument: createInstrument(symbol),
     notes: null,
     priority: 1,
-    theme: null
+    theme: null,
+    updatedAt: now
   };
 }
 
@@ -117,7 +235,8 @@ function createKeyLevel(
     instrument: createInstrument(symbol),
     levelType: "long_term_add",
     notes: "Personal add zone",
-    price
+    price,
+    updatedAt: now
   };
 }
 
@@ -158,10 +277,12 @@ function createMarketPoint(
     close,
     date,
     high: close + 2,
+    ingestionRunId: "run_market",
     instrumentId,
     low: close - 2,
     open: close - 1,
     provider: "fmp",
+    updatedAt: new Date(`${date}T21:00:00.000Z`),
     volume: 1000
   };
 }
@@ -173,9 +294,11 @@ function createObservation(
 ): DashboardMacroObservation {
   return {
     date,
+    ingestionRunId: "run_macro",
     provider: "fred",
     seriesId,
     unit: seriesId === "DGS10" ? "percent" : "index",
+    updatedAt: new Date(`${date}T22:00:00.000Z`),
     value
   };
 }

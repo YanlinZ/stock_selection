@@ -273,3 +273,52 @@ export const macroObservations = pgTable(
     index("macro_observations_date_idx").on(table.date)
   ]
 );
+
+export const dashboardDecisionSnapshots = pgTable(
+  "dashboard_decision_snapshots",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    snapshotDate: date("snapshot_date").notNull(),
+    scope: text("scope").notNull(),
+    subjectKey: text("subject_key").notNull(),
+    instrumentId: uuid("instrument_id").references(() => instruments.id, {
+      onDelete: "set null"
+    }),
+    symbol: text("symbol"),
+    actionKind: text("action_kind").notNull(),
+    actionLabel: text("action_label").notNull(),
+    confidence: text("confidence").notNull(),
+    dataQuality: text("data_quality").notNull(),
+    basisDate: date("basis_date"),
+    dataSources: jsonb("data_sources")
+      .$type<Array<Record<string, unknown>>>()
+      .notNull()
+      .default([]),
+    evidence: jsonb("evidence")
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default({}),
+    keyLevels: jsonb("key_levels")
+      .$type<Array<Record<string, unknown>>>()
+      .notNull()
+      .default([]),
+    macroState: jsonb("macro_state")
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default({}),
+    ruleVersion: text("rule_version").notNull(),
+    generatedAt: timestamp("generated_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [
+    uniqueIndex("dashboard_decision_snapshots_daily_subject_unique").on(
+      table.snapshotDate,
+      table.scope,
+      table.subjectKey,
+      table.ruleVersion
+    ),
+    index("dashboard_decision_snapshots_instrument_idx").on(table.instrumentId),
+    index("dashboard_decision_snapshots_generated_at_idx").on(table.generatedAt)
+  ]
+);

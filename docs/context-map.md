@@ -4,13 +4,13 @@ This file routes agents to the smallest useful context for each task. Read this 
 
 ## Active State
 
-- Active state: Phase 2 Dashboard v1 complete and merged; Phase 2.1 local hardening merged in PR #28 on 2026-05-14 and Vercel deployment checks passed. Phase 3 is planned but not implemented. Production targeted QA partially passed: QA-003, QA-004, QA-006, and QA-007 are closed; QA-001, QA-002, and QA-005 remain fixed pending later production retest for deactivate confirm/cancel and mobile navigation.
+- Active state: Phase 3 Dashboard Trust is implemented in the current codebase: holdings now include trust tags, source/update metadata, support/opposition/risk/missing evidence groups, confidence/data-quality labels, and lightweight daily decision snapshots. Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production targeted QA partially passed: QA-003, QA-004, QA-006, and QA-007 are closed; QA-001, QA-002, and QA-005 remain fixed pending later production retest for deactivate confirm/cancel and mobile navigation.
 - Latest phase plan: `docs/tech/TECH-PLAN-v2026.05.14-phase-3-dashboard-trust.md`
 - Latest hardening plan: `docs/tech/TECH-PLAN-v2026.05.14-phase-2.1-hardening.md`
 - Latest completed technical status: `docs/tech/TECH-PLAN-v2026.05.14.md`
 - Phase 1 status: complete; configuration page, provider contracts, ingestion, normalized data, and production smoke are done.
 - Phase 2 result: Dashboard v1 reads normalized data and outputs rule-based, explainable daily guidance with reasons, risks, data dates, macro scoring, technical indicators, and key price level proximity.
-- Phase 3 plan: Dashboard Trust for Holdings Decisions should strengthen holding action trust with source/update metadata, support/opposition/risk/missing evidence groups, confidence/data-quality tags, and lightweight daily decision snapshots.
+- Phase 3 result: Dashboard Trust for Holdings Decisions strengthens holding action trust with source/update metadata, support/opposition/risk/missing evidence groups, confidence/data-quality tags, and lightweight daily decision snapshots.
 - Current boundary: do not add AI summaries, news/earnings deep understanding, automatic scheduled jobs, broker sync, real trading, push notifications, high-frequency market data, or full-market recommendations unless explicitly requested.
 
 ## Canonical Entrypoints

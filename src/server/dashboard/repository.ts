@@ -2,6 +2,7 @@ import { and, asc, desc, eq, inArray } from "drizzle-orm";
 
 import { getDb } from "@/db/client";
 import {
+  dashboardDecisionSnapshots,
   holdings,
   ingestionRuns,
   instruments,
@@ -12,6 +13,7 @@ import {
 } from "@/db/schema";
 
 import type {
+  DashboardDecisionSnapshotRecord,
   DashboardInputSnapshot,
   DashboardInstrument,
   DashboardMarketDataPoint,
@@ -25,6 +27,9 @@ const macroSeriesIds = ["DGS10", "VIXCLS"];
 
 export type DashboardRepository = {
   getDashboardInputs(): Promise<DashboardInputSnapshot>;
+  persistDailyDecisionSnapshots?(
+    snapshots: DashboardDecisionSnapshotRecord[]
+  ): Promise<void>;
 };
 
 export function createDashboardRepository(db: Db = getDb()): DashboardRepository {
@@ -109,7 +114,8 @@ export function createDashboardRepository(db: Db = getDb()): DashboardRepository
           id: holding.id,
           instrument: toDashboardInstrument(instrument),
           notes: holding.notes,
-          positionSize: holding.positionSize
+          positionSize: holding.positionSize,
+          updatedAt: holding.updatedAt
         })),
         keyPriceLevels: keyPriceLevelRows.map(({ keyPriceLevel, instrument }) => ({
           currency: keyPriceLevel.currency,
@@ -117,7 +123,8 @@ export function createDashboardRepository(db: Db = getDb()): DashboardRepository
           instrument: toDashboardInstrument(instrument),
           levelType: keyPriceLevel.levelType,
           notes: keyPriceLevel.notes,
-          price: toNumber(keyPriceLevel.price)
+          price: toNumber(keyPriceLevel.price),
+          updatedAt: keyPriceLevel.updatedAt
         })),
         latestBatchRun: latestBatchRunRows[0]
           ? toDashboardRunSnapshot(latestBatchRunRows[0])
@@ -125,9 +132,11 @@ export function createDashboardRepository(db: Db = getDb()): DashboardRepository
         macroObservations: macroRows.map(
           (row): DashboardMacroObservation => ({
             date: row.date,
+            ingestionRunId: row.ingestionRunId,
             provider: row.provider,
             seriesId: row.seriesId,
             unit: row.unit,
+            updatedAt: row.updatedAt,
             value: toNumber(row.value)
           })
         ),
@@ -137,10 +146,12 @@ export function createDashboardRepository(db: Db = getDb()): DashboardRepository
             close: toNumber(row.close),
             date: row.date,
             high: toNullableNumber(row.high),
+            ingestionRunId: row.ingestionRunId,
             instrumentId: row.instrumentId,
             low: toNullableNumber(row.low),
             open: toNullableNumber(row.open),
             provider: row.provider,
+            updatedAt: row.updatedAt,
             volume: toNullableNumber(row.volume)
           })
         ),
@@ -149,9 +160,61 @@ export function createDashboardRepository(db: Db = getDb()): DashboardRepository
           instrument: toDashboardInstrument(instrument),
           notes: watchlistItem.notes,
           priority: watchlistItem.priority,
-          theme: watchlistItem.theme
+          theme: watchlistItem.theme,
+          updatedAt: watchlistItem.updatedAt
         }))
       };
+    },
+
+    async persistDailyDecisionSnapshots(snapshots) {
+      const now = new Date();
+
+      for (const snapshot of snapshots) {
+        await db
+          .insert(dashboardDecisionSnapshots)
+          .values({
+            actionKind: snapshot.actionKind,
+            actionLabel: snapshot.actionLabel,
+            basisDate: snapshot.basisDate,
+            confidence: snapshot.confidence,
+            dataQuality: snapshot.dataQuality,
+            dataSources: snapshot.dataSources,
+            evidence: snapshot.evidence,
+            generatedAt: snapshot.generatedAt,
+            instrumentId: snapshot.instrumentId,
+            keyLevels: snapshot.keyLevels,
+            macroState: snapshot.macroState,
+            ruleVersion: snapshot.ruleVersion,
+            scope: snapshot.scope,
+            snapshotDate: snapshot.snapshotDate,
+            subjectKey: snapshot.subjectKey,
+            symbol: snapshot.symbol,
+            updatedAt: now
+          })
+          .onConflictDoUpdate({
+            target: [
+              dashboardDecisionSnapshots.snapshotDate,
+              dashboardDecisionSnapshots.scope,
+              dashboardDecisionSnapshots.subjectKey,
+              dashboardDecisionSnapshots.ruleVersion
+            ],
+            set: {
+              actionKind: snapshot.actionKind,
+              actionLabel: snapshot.actionLabel,
+              basisDate: snapshot.basisDate,
+              confidence: snapshot.confidence,
+              dataQuality: snapshot.dataQuality,
+              dataSources: snapshot.dataSources,
+              evidence: snapshot.evidence,
+              generatedAt: snapshot.generatedAt,
+              instrumentId: snapshot.instrumentId,
+              keyLevels: snapshot.keyLevels,
+              macroState: snapshot.macroState,
+              symbol: snapshot.symbol,
+              updatedAt: now
+            }
+          });
+      }
     }
   };
 }

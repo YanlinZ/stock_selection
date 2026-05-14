@@ -426,3 +426,11 @@ pnpm dev
 1. Main Agent 按本计划进入 Phase 3 实现前的任务拆分。
 2. 如用户希望继续保持计划先行，可先开 Phase 3 implementation PR checklist。
 3. 实现时坚持单 writer；如果需要并行，只能拆到独立 worktree 或互不重叠文件范围。
+
+## 11. Implementation Notes
+
+- 新增 `dashboard_decision_snapshots` 轻量快照表，用于保存每日 summary 和 holding 判断的规则化上下文。
+- 快照保存 `actionKind`、`confidence`、`dataQuality`、四组 evidence、normalized data source metadata、key level 摘要、macro state 和 `ruleVersion`。
+- `instrumentId` 对 summary 仍可为空；表中额外使用 `subjectKey` 做幂等键，避免 Postgres unique index 对 `NULL` 的多值行为导致 summary 重复。
+- 快照不得保存 provider raw payload、request params、API key、secret、cookie、完整错误日志或真实账户敏感字段。
+- Dashboard 主渲染不依赖快照写入成功；写入失败时页面继续展示，避免 migration 或数据库短暂异常影响用户读取持仓判断。
