@@ -5,6 +5,7 @@ Use this workflow to keep the main thread small, avoid agent conflicts, and make
 ## Default Model
 
 - Main thread is the default implementation owner.
+- Planner agent is the read-only planning gate whenever the workflow needs to decide next development work for medium, large, phase, cross-module, or ambiguous follow-up tasks. Use `docs/process/PLANNER-AGENT.md`.
 - Local development smoke checks happen before review and merge when a change affects browser-visible behavior. Use `docs/qa/LOCAL-SMOKE.md`.
 - Code review is the main pre-merge gate for medium, phase, and high-risk changes.
 - Main agent is the ship executor: after reviewer gate passes and PR checks are all green, it can apply `docs/process/SHIP-GATE.md`, approve/merge, rely on Vercel auto-deploy, and trigger QA.
@@ -28,14 +29,15 @@ Do not start QA or review agents unless the change touches auth, schema, provide
 
 Use for multi-file features or fixes with moderate risk.
 
-1. Explorer agent performs read-only discovery only when the touched area is unfamiliar, cross-module, or phase/risk boundaries are unclear.
-2. Main thread writes the change unless there is a clear reason to use a separate implementation owner.
-3. Run targeted tests first.
-4. Run local development smoke for affected browser flows when relevant, using `docs/qa/LOCAL-SMOKE.md`.
-5. Reviewer agent performs read-only diff review using `docs/review/code_review.md`.
-6. Main thread fixes blocking issues and reruns relevant checks.
-7. Main agent applies `docs/process/SHIP-GATE.md` when a PR exists.
-8. After merge/deploy, run post-merge targeted QA only for user-facing, auth, data, provider, deployment, or workflow-sensitive changes.
+1. Planner agent creates the next-work plan with scope, ordered steps, validation, risks, and handoff using `docs/process/PLANNER-AGENT.md`.
+2. Explorer agent performs read-only discovery only when the planner or main thread finds the touched area unfamiliar, cross-module, or phase/risk boundaries are unclear.
+3. Main thread writes the change unless there is a clear reason to use a separate implementation owner.
+4. Run targeted tests first.
+5. Run local development smoke for affected browser flows when relevant, using `docs/qa/LOCAL-SMOKE.md`.
+6. Reviewer agent performs read-only diff review using `docs/review/code_review.md`.
+7. Main thread fixes blocking issues and reruns relevant checks.
+8. Main agent applies `docs/process/SHIP-GATE.md` when a PR exists.
+9. After merge/deploy, run post-merge targeted QA only for user-facing, auth, data, provider, deployment, or workflow-sensitive changes.
 
 Keep one writer per worktree. Reviewer and explorer do not edit files.
 
@@ -44,18 +46,19 @@ Keep one writer per worktree. Reviewer and explorer do not edit files.
 Use for phase implementation, large UI flows, schema/data changes, or high-regression-risk work.
 
 1. Main agent reads `docs/context-map.md`.
-2. Explorer agent maps relevant files, dependencies, and risks without editing when the work crosses unfamiliar or high-risk boundaries.
-3. Main agent writes a plan with scope, acceptance criteria, and validation.
-4. A single implementation owner writes code in the current worktree, or each writer uses a separate worktree with disjoint file ownership.
-5. Run targeted tests while implementing.
-6. Run local development smoke for affected browser flows before review, using `docs/qa/LOCAL-SMOKE.md`.
-7. Reviewer agent checks the diff and risk areas as the pre-merge gate.
-8. Main thread fixes blocking issues and reruns relevant checks.
-9. Main agent applies `docs/process/SHIP-GATE.md`.
-10. Vercel deploys automatically after merge; Main agent checks deploy status when available.
-11. QA agent runs post-merge targeted QA against current phase cases.
-12. Run lint/typecheck/tests appropriate to the risk if they were not already run before merge.
-13. Convert repeated failures into tests, QA cases, checklist items, scripts, or context-map routing.
+2. Planner agent creates the phase/large-task plan with scope, acceptance criteria, validation, risks, and agent handoff using `docs/process/PLANNER-AGENT.md`.
+3. Explorer agent maps relevant files, dependencies, and risks without editing when the planner identifies unfamiliar or high-risk boundaries.
+4. Main agent accepts or adjusts the plan, then records the execution plan before implementation.
+5. A single implementation owner writes code in the current worktree, or each writer uses a separate worktree with disjoint file ownership.
+6. Run targeted tests while implementing.
+7. Run local development smoke for affected browser flows before review, using `docs/qa/LOCAL-SMOKE.md`.
+8. Reviewer agent checks the diff and risk areas as the pre-merge gate.
+9. Main thread fixes blocking issues and reruns relevant checks.
+10. Main agent applies `docs/process/SHIP-GATE.md`.
+11. Vercel deploys automatically after merge; Main agent checks deploy status when available.
+12. QA agent runs post-merge targeted QA against current phase cases.
+13. Run lint/typecheck/tests appropriate to the risk if they were not already run before merge.
+14. Convert repeated failures into tests, QA cases, checklist items, scripts, or context-map routing.
 
 ## Autonomous Ship Gate
 
@@ -98,6 +101,7 @@ After deploy succeeds, Main agent should pass this compact context to QA:
 
 When QA finds a failure:
 
+- If several next actions are plausible, Planner agent ranks the next development loop before Main Agent starts implementation.
 - P0/P1: Main agent fixes in a new loop, reruns targeted validation/local smoke, asks reviewer for re-review when risk warrants it, ships through the same gate, then triggers targeted QA re-test.
 - P2/P3: Main agent fixes in the same loop only when it is low-risk and clearly in scope; otherwise record it as follow-up.
 - Repeated failures become a test, QA case, review checklist item, script check, or context-map route.
@@ -167,6 +171,7 @@ When Codex feels stuck, slow, or "almost dead", check:
 
 - Is the thread too long and should it compact or restart with `docs/context-map.md`?
 - Is a subagent waiting for approval?
+- Is the workflow missing a Planner Agent pass for the next development step?
 - Is fan-out too high for the task?
 - Are multiple agents writing the same files?
 - Should parallel writers be split into worktrees?

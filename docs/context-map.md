@@ -19,6 +19,7 @@ This file routes agents to the smallest useful context for each task. Read this 
 - Harness Engineering definition: `docs/engineering/HARNESS-ENGINEERING.md`
 - Harness feedback loop for agent workflows: `docs/harness-engineering.md`
 - QA protocol: `docs/process/QA-AGENT.md`
+- Planner protocol: `docs/process/PLANNER-AGENT.md`
 - Local smoke matrix: `docs/qa/LOCAL-SMOKE.md`
 - Current QA regression cases: `docs/qa/ONLINE-QA-REGRESSION-v2026.05.12.md`
 - Current open QA issues: `docs/qa/ONLINE-QA-ISSUES-v2026.05.12.md`
@@ -46,6 +47,7 @@ For Phase 1 fixes, read the directly relevant Phase 1 sections from `docs/tech/T
 | Quick code fix | `AGENTS.md`, this file, directly relevant source/tests | PRD/tech section for phase boundary questions |
 | Phase 2 Dashboard maintenance/follow-up | Latest tech status, directly relevant Dashboard source/tests, relevant PRD sections for Dashboard/product rules | Original Phase 2 implementation plan, older tech plans, QA issue history |
 | Product/scope decision | PRD v2026.05.10 plus PRD v2026.05.11 delta | Old tech plans |
+| Next development planning | Planner protocol, latest tech status, directly relevant PRD/QA/review inputs | Old phase plans only when the plan depends on their implementation details |
 | Provider/ingestion/schema fix | Latest tech plan, relevant Phase 1 tech plan section, affected source/tests | Full PRD only if behavior scope is unclear |
 | Settings UI/auth fix | Latest tech plan, current QA open issues, relevant source/tests | Full QA history |
 | QA run | QA protocol, current QA regression doc, current phase plan | Local smoke matrix for development smoke context; historical/resolved bugs only when checking recurrence |
@@ -80,6 +82,7 @@ For Phase 1 fixes, read the directly relevant Phase 1 sections from `docs/tech/T
 
 ## Subagent Routing
 
+- Planner: read-only; plans next development work, scope, validation, risks, and handoff before medium/large/phase or ambiguous follow-up tasks.
 - Explorer: read-only; finds files, dependencies, risks, and minimal context.
 - Reviewer: read-only; reviews diff and checklist compliance.
 - QA: read-only or test-only; runs or designs targeted validation.

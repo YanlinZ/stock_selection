@@ -10,6 +10,7 @@ This is the root instruction file for AI coding/product agents working in this r
 - Current phase plan: `docs/tech/TECH-PLAN-v2026.05.14.md`
 - QA entrypoint: `docs/process/QA-AGENT.md`
 - QA cases and open issues: `docs/qa/`
+- Planner protocol: `docs/process/PLANNER-AGENT.md`
 - Review protocol: `docs/process/CODE-REVIEW-AGENT.md`
 - Review checklist: `docs/review/code_review.md`
 - Harness feedback loop: `docs/harness-engineering.md`
@@ -28,6 +29,7 @@ Current active state: Phase 2 Dashboard v1 is complete and merged. Phase 1 confi
 - Do not paste raw logs into the main thread. Save long logs to a file and report the file path plus a short summary.
 - Prefer targeted tests while iterating; use full `pnpm check` for larger or risky changes.
 - For browser-visible changes, run local dev smoke when practical; formal browser QA is post-merge/deploy and targeted by default.
+- Use the Planner Agent protocol before planning next development work for medium, large, phase, cross-module, or ambiguous follow-up tasks.
 - After reviewer gate passes and all PR checks are green, Main Agent may approve/merge, rely on Vercel auto-deploy, and trigger post-merge QA.
 - Only one writing agent should modify code in a worktree at a time. Explorer, reviewer, and QA agents are read-only or test-only by default.
 - If parallel implementation is needed, use separate git worktrees or independent branches and merge serially.
@@ -57,6 +59,7 @@ No e2e command is currently configured. Browser/QA coverage is documented in `do
 ## Agent Boundaries
 
 - Main agent: owns task framing, implementation, integration, and final summary.
+- Planner agent: read-only planning gate for next development work; returns scope, ordered steps, validation, risks, and recommended handoff.
 - Explorer agent: read-only context search; returns relevant files, dependencies, risks, and next action.
 - Reviewer agent: read-only diff review gate; focuses on blockers, regressions, missing tests, security, data consistency, and phase boundary drift. It does not merge or deploy.
 - QA agent: read-only or test-only; verifies current phase user flows, summarizes failures, and stores long logs as files.
