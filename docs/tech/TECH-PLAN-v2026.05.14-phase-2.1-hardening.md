@@ -13,6 +13,7 @@
 - 将 `docs/qa/ONLINE-QA-ISSUES-v2026.05.12.md` 中仍 open 或待复测的问题纳入本阶段验收。
 - 记录当前代码已经出现的部分修复迹象，但要求通过本地 smoke、测试和生产 QA 重新确认后才能关闭 QA issue。
 - 明确 Phase 2.1 完成后，才能重新决定是否进入后续产品扩展阶段。
+- 2026-05-14 Planner Agent next-step handoff 确认当前下一步是 reviewer gate、PR checks、merge/deploy 和 production targeted QA，不进入 Phase 3 扩展；随后 PR #28 已合并且 Vercel deployment checks 已通过，当前只剩 production targeted QA 与文档收尾。
 
 ## 0. Planner Gate
 
@@ -58,7 +59,7 @@ Handoff：
 
 当前项目处于：
 
-> Phase 2.1：Dashboard v1 post-merge hardening 与 Settings/auth 可用性收敛阶段
+> Phase 2.1：Dashboard v1 post-merge hardening 与 Settings/auth 可用性收敛阶段；PR #28 已合并且 Vercel deployment checks 已通过，production targeted QA 已部分通过，等待停用确认分支与移动端生产视口短复测。
 
 已知基础状态：
 
@@ -66,8 +67,10 @@ Handoff：
 - Phase 1 配置页、provider contract、ingestion harness、normalized data 已完成。
 - Phase 2 Dashboard v1 已完成并合入 `main`。
 - Dashboard v1 消费 normalized data，不读取 provider raw response。
-- 当前 branch：`codex/add-planner-agent`。
-- 当前最新 commit：`3cd4cc9 docs: add planner agent workflow`。
+- 当前 branch：`codex/phase-2-1-hardening`。
+- 当前最新 commit：`c658f41 fix: harden phase 2.1 settings flows`。
+- PR #28：`https://github.com/yanlin-zhou/stock-selection/pull/28`，2026-05-14 05:07:52 UTC merged，merge commit `d00c4b1850acd2597345aa5f1558e99b43ce80c4`。
+- Vercel deployment checks：`stock-selection` 与 `stock-selection-w5bi` 已通过。
 
 当前代码观察：
 
@@ -78,6 +81,15 @@ Handoff：
 - `src/app/(protected)/settings/page.tsx` 已展示基础偏好配置，并对若干数字字段提供 `min`/`max` 约束。
 
 这些观察只能作为计划输入。QA issue 的状态必须以测试和生产复测结果为准，不因源码看起来已修就直接关闭。
+
+本地验证记录：
+
+- `docs/qa/runs/QA-RUN-v2026.05.14-phase-2.1.md` 记录了 local hardening run。
+- 已记录的本地覆盖包含 auth redirect、Settings server action auth fallback、持仓添加/保存、停用确认存在性、基础偏好、数字字段约束、Dashboard `/` 与 `/dashboard`、360px/390px/414px 移动端导航。
+- 已记录的命令包含 targeted tests、`pnpm typecheck`、`pnpm lint`、`pnpm check`、`pnpm build` 和本地 HTTP/browser smoke。
+- 生产 targeted QA 记录见 `docs/qa/runs/QA-RUN-v2026.05.14-production-targeted.md`。
+- 已关闭：QA-003、QA-004、QA-006、QA-007。
+- 仍为 `Fixed pending retest`：QA-001 的停用确认后提交分支、QA-002 的生产移动端视口、QA-005 的停用确认取消/确认分支。
 
 ## 2. 本阶段目标
 
@@ -300,3 +312,41 @@ Phase 2.1 完成必须满足：
 - Phase 4：更新节奏、计划状态追踪和每日历史报告。
 
 这些只是候选方向，不属于 Phase 2.1 的默认执行范围。
+
+## 11. 当前下一步执行计划
+
+2026-05-14 Planner Agent 结论，已按 PR #28 合并和 Vercel deployment checks 通过后的真实状态收敛：
+
+Goal：
+
+- 完成 Phase 2.1 收尾闭环：补齐 production deactivate confirm/cancel 和 mobile navigation 短复测，并同步 QA issue 与运行记录状态。
+
+Scope：
+
+- 包含 QA-001 停用确认后提交、QA-002 production mobile navigation、QA-005 停用确认取消/确认、QA run 记录、QA issue 状态更新、context/tech plan 状态同步。
+- 明确不包含 broker sync、real trading、push notifications、high-frequency data、full-market recommendations、AI summaries、新闻/财报深度理解或自动定时任务。
+
+Plan：
+
+1. 用手动或可控浏览器在 production 创建一个明确测试记录，验证 `停用` 取消不改变数据，确认后仅停用该记录，且不跳回 `/login`。
+2. 在 production 390px 视口验证 Settings、Health、退出入口均可达；建议补 360px 和 414px。
+3. 按 production 结果更新 QA-001、QA-002、QA-005：通过改 `Closed`，失败回 `Open` 或继续保留 `Fixed pending retest` 并记录最小复现。
+4. 更新或新增 QA run，记录环境、范围、通过/失败项、跳过项和 next action。
+5. 同步 `docs/context-map.md`、本文件和根 `AGENTS.md`；若全部通过，再单独规划后续 MVP 内的小范围 Dashboard/Settings polish。
+
+Validation：
+
+- 本地代码若继续改动：补跑 `pnpm check`、`pnpm build`。
+- 已通过的 production targeted QA：`/login`、`/`、`/dashboard`、`/settings`、`/health`、`/api/health`，以及 Settings 新增/保存/刷新/基础偏好/数字字段约束。
+- 剩余 production smoke：停用确认取消/确认分支；移动端至少 390px，建议补 360px 和 414px。
+
+Risks：
+
+- Production cookie/session 行为在新增、保存、刷新路径已通过；停用确认后提交仍需短复测。
+- 生产测试数据只能逐条创建、逐条确认停用；不能批量删除或批量清理。
+- 如果只合并代码不更新 QA 文档，后续 agent 会继续误判 Phase 2.1 状态。
+- 若 QA 失败，下一轮只修失败路径，继续守住 Dashboard plus simple settings 边界。
+
+Handoff：
+
+- 推荐顺序：QA Agent 或 Main Agent 做剩余 production short retest -> Main Agent 更新 QA issue/run/context/tech docs -> 若全部通过，再决定是否进入下一轮计划。

@@ -16,7 +16,7 @@ This is the root instruction file for AI coding/product agents working in this r
 - Harness feedback loop: `docs/harness-engineering.md`
 - Recommended Codex workflow: `docs/workflows/codex-development-flow.md`
 
-Current active state: Phase 2 Dashboard v1 is complete and merged. Phase 1 configuration and ingestion are complete. Phase 2.1 local hardening for Settings/auth, Dashboard retest, mobile navigation, and QA issue reconciliation has local validation coverage; QA issues are fixed pending production retest after deploy. Scope must stay inside Dashboard plus simple settings; do not start broker sync, real trading, push notifications, high-frequency data, full-market recommendations, or AI summaries unless explicitly requested.
+Current active state: Phase 2 Dashboard v1 is complete and merged. Phase 1 configuration and ingestion are complete. Phase 2.1 local hardening merged in PR #28 on 2026-05-14; Vercel deployment checks passed. Production targeted QA partially passed: QA-003, QA-004, QA-006, and QA-007 are closed; QA-001, QA-002, and QA-005 remain fixed pending a short production retest for deactivate confirm/cancel and mobile navigation. Scope must stay inside Dashboard plus simple settings; do not start broker sync, real trading, push notifications, high-frequency data, full-market recommendations, or AI summaries unless explicitly requested.
 
 ## Working Rules
 

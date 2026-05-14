@@ -2,7 +2,7 @@
 
 日期：2026-05-12
 
-状态表更新：2026-05-14 Phase 2.1 local hardening pass
+状态表更新：2026-05-14 Phase 2.1 production targeted QA partial pass
 
 目标环境：Production `https://stock-selection-pi.vercel.app`
 
@@ -19,13 +19,13 @@
 
 | ID | Priority | Issue | Status | Owner | Fixed in | Retest | Next action |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| QA-001 | P0 | Settings 保存/停用后跳回登录页，阻断配置维护 | Fixed pending retest | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening` | Local browser add/save holding passed; settings action auth tests passed; production retest pending | 合并部署后在 production 真实点击保存/停用/刷新数据闭环 |
-| QA-002 | P1 | 移动端顶部导航溢出，退出入口不可见 | Fixed pending retest | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening` | Local in-app browser responsive smoke passed at 360px, 390px, 414px; production retest pending | 合并部署后在 production 390px 复测 Settings、Health、退出入口 |
-| QA-003 | P1 | 首页仍显示 Phase 0 工程地基，`/dashboard` 为 404 | Fixed pending retest | Main Agent | PR #24 / `f007a25` plus Phase 2.1 local retest | Local HTTP/browser Dashboard smoke passed for `/` and `/dashboard`; production authenticated retest pending | 合并部署后在 production 登录态复测 `/` 与 `/dashboard` |
-| QA-004 | P2 | 未登录访问受保护页不会保留目标路径 | Fixed pending retest | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening` | Local browser and HTTP smoke passed for `/settings` next redirect; tests cover safe local paths and external URL cleaning | 合并部署后在 production 复测 `/settings`、`/health` 登录后返回原路径 |
-| QA-005 | P2 | 停用操作缺少确认或撤销 | Fixed pending retest | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening` | Source uses `ConfirmSubmitButton`; local browser click opened native confirmation; explicit smoke holding was deactivated by single-record cleanup after automation dialog limitations | 合并部署后手动或可控浏览器复测取消确认不改变数据、确认后仅停用明确测试记录 |
-| QA-006 | P2 | 基础偏好配置未出现在设置页 | Fixed pending retest | Main Agent/Product | Phase 2.1 local hardening / `codex/phase-2-1-hardening` | Local browser smoke confirmed 基础偏好 section and 保存偏好 form; production retest pending | 合并部署后在 production 保存并刷新确认基础偏好 |
-| QA-007 | P3 | 表单数字字段缺少前端约束和字段级错误反馈 | Fixed pending retest | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening` | Local browser smoke confirmed min/max/helper text; service tests reject invalid numeric writes | 合并部署后在 production 复测无效值被浏览器约束或字段提示阻止 |
+| QA-001 | P0 | Settings 保存/停用后跳回登录页，阻断配置维护 | Fixed pending retest | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening`; PR #28 | Production add/save holding, watchlist, key price, preferences, and refresh stayed on `/settings`; deactivate confirmation opened but native dialog blocked automation before confirm branch | 用手动或可控浏览器在 production 复测一个明确测试记录的停用确认后提交不跳回登录 |
+| QA-002 | P1 | 移动端顶部导航溢出，退出入口不可见 | Fixed pending retest | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening`; PR #28 | Local in-app browser responsive smoke passed at 360px, 390px, 414px; production mobile viewport not completed because browser automation was blocked by native confirmation dialog | 在 production 390px 复测 Settings、Health、退出入口；建议补 360px 和 414px |
+| QA-003 | P1 | 首页仍显示 Phase 0 工程地基，`/dashboard` 为 404 | Closed | Main Agent | PR #24 / `f007a25`; PR #28 production retest | Production authenticated `/` and `/dashboard` render Dashboard v1; no Phase 0 copy and no 404 | 无 |
+| QA-004 | P2 | 未登录访问受保护页不会保留目标路径 | Closed | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening`; PR #28 | Production logged-out `/settings` redirects to `/login?error=auth-required&next=%2Fsettings`; correct login returns to `/settings`; logged-in protected routes stay authenticated | 无 |
+| QA-005 | P2 | 停用操作缺少确认或撤销 | Fixed pending retest | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening`; PR #28 | Production click reached browser-native confirmation path, proving a guard exists; automation channel blocked before cancel/confirm branches could be verified; explicit QA records were soft-deactivated by exact-symbol cleanup | 手动或可控浏览器复测取消确认不改变数据、确认后仅停用明确测试记录 |
+| QA-006 | P2 | 基础偏好配置未出现在设置页 | Closed | Main Agent/Product | Phase 2.1 local hardening / `codex/phase-2-1-hardening`; PR #28 | Production Settings shows 基础偏好 and 保存偏好; saving preferences stays on `/settings` and remains readable after reload | 无 |
+| QA-007 | P3 | 表单数字字段缺少前端约束和字段级错误反馈 | Closed | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening`; PR #28 | Production `/settings` exposes numeric constraints and helper text for cost basis, priority, key price, and short-term window; service tests reject invalid numeric writes | 无 |
 
 维护规则：
 
