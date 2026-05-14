@@ -2,7 +2,7 @@
 
 日期：2026-05-12
 
-状态表更新：2026-05-14
+状态表更新：2026-05-14 Phase 2.1 local hardening pass
 
 目标环境：Production `https://stock-selection-pi.vercel.app`
 
@@ -19,13 +19,13 @@
 
 | ID | Priority | Issue | Status | Owner | Fixed in | Retest | Next action |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| QA-001 | P0 | Settings 保存/停用后跳回登录页，阻断配置维护 | Open | Main Agent | - | - | 修复 auth/server action 提交后 session 与 redirect 闭环 |
-| QA-002 | P1 | 移动端顶部导航溢出，退出入口不可见 | Open | Main Agent | - | - | 修复 360px/390px/414px 导航可达性 |
-| QA-003 | P1 | 首页仍显示 Phase 0 工程地基，`/dashboard` 为 404 | Fixed pending retest | Main Agent | PR #24 / `f007a25` | Local Dashboard smoke passed; production authenticated retest pending | Phase 2 Dashboard v1 已合入，待 QA 在生产登录态复测 `/` 与 `/dashboard` |
-| QA-004 | P2 | 未登录访问受保护页不会保留目标路径 | Open | Main Agent | - | - | 在受保护 redirect 中保留安全 `next` |
-| QA-005 | P2 | 停用操作缺少确认或撤销 | Open | Main Agent | - | - | 增加确认、明确后果或记录延期决策 |
-| QA-006 | P2 | 基础偏好配置未出现在设置页 | Open | Main Agent/Product | - | - | 补最小入口或更新验收口径 |
-| QA-007 | P3 | 表单数字字段缺少前端约束和字段级错误反馈 | Open | Main Agent | - | - | 增加 min/max 与字段级错误反馈 |
+| QA-001 | P0 | Settings 保存/停用后跳回登录页，阻断配置维护 | Fixed pending retest | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening` | Local browser add/save holding passed; settings action auth tests passed; production retest pending | 合并部署后在 production 真实点击保存/停用/刷新数据闭环 |
+| QA-002 | P1 | 移动端顶部导航溢出，退出入口不可见 | Fixed pending retest | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening` | Local in-app browser responsive smoke passed at 360px, 390px, 414px; production retest pending | 合并部署后在 production 390px 复测 Settings、Health、退出入口 |
+| QA-003 | P1 | 首页仍显示 Phase 0 工程地基，`/dashboard` 为 404 | Fixed pending retest | Main Agent | PR #24 / `f007a25` plus Phase 2.1 local retest | Local HTTP/browser Dashboard smoke passed for `/` and `/dashboard`; production authenticated retest pending | 合并部署后在 production 登录态复测 `/` 与 `/dashboard` |
+| QA-004 | P2 | 未登录访问受保护页不会保留目标路径 | Fixed pending retest | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening` | Local browser and HTTP smoke passed for `/settings` next redirect; tests cover safe local paths and external URL cleaning | 合并部署后在 production 复测 `/settings`、`/health` 登录后返回原路径 |
+| QA-005 | P2 | 停用操作缺少确认或撤销 | Fixed pending retest | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening` | Source uses `ConfirmSubmitButton`; local browser click opened native confirmation; explicit smoke holding was deactivated by single-record cleanup after automation dialog limitations | 合并部署后手动或可控浏览器复测取消确认不改变数据、确认后仅停用明确测试记录 |
+| QA-006 | P2 | 基础偏好配置未出现在设置页 | Fixed pending retest | Main Agent/Product | Phase 2.1 local hardening / `codex/phase-2-1-hardening` | Local browser smoke confirmed 基础偏好 section and 保存偏好 form; production retest pending | 合并部署后在 production 保存并刷新确认基础偏好 |
+| QA-007 | P3 | 表单数字字段缺少前端约束和字段级错误反馈 | Fixed pending retest | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening` | Local browser smoke confirmed min/max/helper text; service tests reject invalid numeric writes | 合并部署后在 production 复测无效值被浏览器约束或字段提示阻止 |
 
 维护规则：
 

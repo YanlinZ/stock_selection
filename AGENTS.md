@@ -16,7 +16,7 @@ This is the root instruction file for AI coding/product agents working in this r
 - Harness feedback loop: `docs/harness-engineering.md`
 - Recommended Codex workflow: `docs/workflows/codex-development-flow.md`
 
-Current active state: Phase 2 Dashboard v1 is complete and merged. Phase 1 configuration and ingestion are complete. Next planned work is Phase 2.1 post-merge hardening for Settings/auth, Dashboard retest, mobile navigation, and QA issue reconciliation. Scope must stay inside Dashboard plus simple settings; do not start broker sync, real trading, push notifications, high-frequency data, full-market recommendations, or AI summaries unless explicitly requested.
+Current active state: Phase 2 Dashboard v1 is complete and merged. Phase 1 configuration and ingestion are complete. Phase 2.1 local hardening for Settings/auth, Dashboard retest, mobile navigation, and QA issue reconciliation has local validation coverage; QA issues are fixed pending production retest after deploy. Scope must stay inside Dashboard plus simple settings; do not start broker sync, real trading, push notifications, high-frequency data, full-market recommendations, or AI summaries unless explicitly requested.
 
 ## Working Rules
 

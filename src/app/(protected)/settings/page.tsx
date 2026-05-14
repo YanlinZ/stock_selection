@@ -98,6 +98,8 @@ const maxExtendedOpportunityOptions = [
   ["1", "1"]
 ] as const;
 
+const positiveNumberMin = "0.0001";
+
 const defaultBasicPreferences = {
   primaryStyle: "long_term_with_rebound",
   shortTermWindowDays: 5,
@@ -338,9 +340,10 @@ function HoldingsSection({
             options={holdingTypeOptions}
           />
           <TextField
+            helpText="需大于 0"
             inputMode="decimal"
             label="成本价"
-            min="0"
+            min={positiveNumberMin}
             name="costBasis"
             placeholder="300"
             step="any"
@@ -400,9 +403,10 @@ function HoldingsSection({
                   />
                   <TextField
                     defaultValue={holding.costBasis ?? ""}
+                    helpText="需大于 0"
                     inputMode="decimal"
                     label="成本价"
-                    min="0"
+                    min={positiveNumberMin}
                     name="costBasis"
                     step="any"
                     type="number"
@@ -472,6 +476,7 @@ function WatchlistSection({
           <SelectField label="类型" name="assetType" options={assetTypeOptions} />
           <TextField
             defaultValue="0"
+            helpText="0 到 100"
             inputMode="numeric"
             label="优先级"
             max="100"
@@ -515,6 +520,7 @@ function WatchlistSection({
                   <input name="id" type="hidden" value={watchlistItem.id} />
                   <TextField
                     defaultValue={watchlistItem.priority}
+                    helpText="0 到 100"
                     inputMode="numeric"
                     label="优先级"
                     max="100"
@@ -598,9 +604,10 @@ function KeyPriceLevelsSection({
             options={levelTypeOptions}
           />
           <TextField
+            helpText="需大于 0"
             inputMode="decimal"
             label="价格"
-            min="0"
+            min={positiveNumberMin}
             name="price"
             placeholder="60000"
             required
@@ -652,9 +659,10 @@ function KeyPriceLevelsSection({
                   />
                   <TextField
                     defaultValue={keyPriceLevel.price}
+                    helpText="需大于 0"
                     inputMode="decimal"
                     label="价格"
-                    min="0"
+                    min={positiveNumberMin}
                     name="price"
                     step="any"
                     type="number"
@@ -730,6 +738,7 @@ function PreferencesSection({
           />
           <TextField
             defaultValue={preferences.shortTermWindowDays}
+            helpText="1 到 5"
             inputMode="numeric"
             label="短线观察天数"
             max="5"
@@ -830,21 +839,34 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function TextField({
+  helpText,
   id,
   label,
   name,
   ...props
 }: React.InputHTMLAttributes<HTMLInputElement> & {
+  helpText?: string;
   label: string;
   name: string;
 }) {
   const generatedId = React.useId();
   const fieldId = id ?? `${name}-${generatedId}`;
+  const helpTextId = helpText ? `${fieldId}-hint` : undefined;
 
   return (
     <div className="space-y-2">
       <Label htmlFor={fieldId}>{label}</Label>
-      <Input id={fieldId} name={name} {...props} />
+      <Input
+        aria-describedby={helpTextId}
+        id={fieldId}
+        name={name}
+        {...props}
+      />
+      {helpText ? (
+        <p className="text-xs text-muted-foreground" id={helpTextId}>
+          {helpText}
+        </p>
+      ) : null}
     </div>
   );
 }

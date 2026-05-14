@@ -4,7 +4,7 @@ This file routes agents to the smallest useful context for each task. Read this 
 
 ## Active State
 
-- Active state: Phase 2 Dashboard v1 complete and merged; next planned work is Phase 2.1 post-merge hardening.
+- Active state: Phase 2 Dashboard v1 complete and merged; Phase 2.1 local hardening has local validation coverage and awaits production targeted QA after deploy.
 - Latest phase plan: `docs/tech/TECH-PLAN-v2026.05.14-phase-2.1-hardening.md`
 - Latest completed technical status: `docs/tech/TECH-PLAN-v2026.05.14.md`
 - Phase 1 status: complete; configuration page, provider contracts, ingestion, normalized data, and production smoke are done.

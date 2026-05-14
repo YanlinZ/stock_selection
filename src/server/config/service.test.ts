@@ -152,6 +152,51 @@ describe("createConfigService", () => {
     expect(updatedKeyPriceLevel.currency).toBe("USD");
     expect(deactivatedKeyPriceLevel.isActive).toBe(false);
   });
+
+  it("rejects invalid numeric settings before writing them", async () => {
+    const fake = createFakeConfigRepository();
+    const service = createConfigService(fake.repository);
+
+    await expect(
+      service.upsertHolding({
+        symbol: "TSLA",
+        costBasis: "-1"
+      })
+    ).rejects.toThrow();
+    await expect(
+      service.upsertWatchlistItem({
+        symbol: "HOOD",
+        priority: 101
+      })
+    ).rejects.toThrow();
+    await expect(
+      service.upsertKeyPriceLevel({
+        symbol: "BTC",
+        levelType: "long_term_add",
+        price: "0"
+      })
+    ).rejects.toThrow();
+
+    expect(fake.holdings.size).toBe(0);
+    expect(fake.watchlistItems.size).toBe(0);
+    expect(fake.keyPriceLevels.size).toBe(0);
+
+    const holding = await service.upsertHolding({
+      symbol: "NET",
+      holdingType: "long_term"
+    });
+
+    await expect(
+      service.updateHolding({
+        id: holding.id,
+        holdingType: "long_term",
+        costBasis: "0",
+        positionSize: "small"
+      })
+    ).rejects.toThrow();
+
+    expect(fake.holdings.get(holding.instrumentId)?.costBasis).toBeNull();
+  });
 });
 
 function createFakeConfigRepository() {
