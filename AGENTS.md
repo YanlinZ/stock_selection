@@ -7,7 +7,7 @@ This is the root instruction file for AI coding/product agents working in this r
 - Context router: `docs/context-map.md`
 - Product overview: `docs/prd/PRD-v2026.05.10.md`
 - Current PRD delta: `docs/prd/PRD-v2026.05.11.md`
-- Current phase plan: `docs/tech/TECH-PLAN-v2026.05.14-phase-2.1-hardening.md`
+- Current phase plan: `docs/tech/TECH-PLAN-v2026.05.14-phase-3-dashboard-trust.md`
 - QA entrypoint: `docs/process/QA-AGENT.md`
 - QA cases and open issues: `docs/qa/`
 - Planner protocol: `docs/process/PLANNER-AGENT.md`
@@ -16,7 +16,7 @@ This is the root instruction file for AI coding/product agents working in this r
 - Harness feedback loop: `docs/harness-engineering.md`
 - Recommended Codex workflow: `docs/workflows/codex-development-flow.md`
 
-Current active state: Phase 2 Dashboard v1 is complete and merged. Phase 1 configuration and ingestion are complete. Phase 2.1 local hardening merged in PR #28 on 2026-05-14; Vercel deployment checks passed. Production targeted QA partially passed: QA-003, QA-004, QA-006, and QA-007 are closed; QA-001, QA-002, and QA-005 remain fixed pending a short production retest for deactivate confirm/cancel and mobile navigation. Scope must stay inside Dashboard plus simple settings; do not start broker sync, real trading, push notifications, high-frequency data, full-market recommendations, or AI summaries unless explicitly requested.
+Current active state: Phase 2 Dashboard v1 is complete and merged. Phase 1 configuration and ingestion are complete. Phase 2.1 local hardening merged in PR #28 on 2026-05-14; Vercel deployment checks passed. Phase 3 is planned as Dashboard Trust for Holdings Decisions: strengthen holding action trust with source/update metadata, support/opposition/risk/missing evidence groups, confidence/data-quality tags, and lightweight daily decision snapshots. Production targeted QA partially passed: QA-003, QA-004, QA-006, and QA-007 are closed; QA-001, QA-002, and QA-005 remain fixed pending a later production retest for deactivate confirm/cancel and mobile navigation. Scope must stay inside Dashboard plus simple settings; do not start broker sync, real trading, push notifications, high-frequency data, full-market recommendations, or AI summaries unless explicitly requested.
 
 ## Working Rules
 
