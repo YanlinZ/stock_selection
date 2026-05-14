@@ -4,8 +4,9 @@ This file routes agents to the smallest useful context for each task. Read this 
 
 ## Active State
 
-- Active state: Phase 2 Dashboard v1 complete and merged.
-- Latest phase plan/status: `docs/tech/TECH-PLAN-v2026.05.14.md`
+- Active state: Phase 2 Dashboard v1 complete and merged; next planned work is Phase 2.1 post-merge hardening.
+- Latest phase plan: `docs/tech/TECH-PLAN-v2026.05.14-phase-2.1-hardening.md`
+- Latest completed technical status: `docs/tech/TECH-PLAN-v2026.05.14.md`
 - Phase 1 status: complete; configuration page, provider contracts, ingestion, normalized data, and production smoke are done.
 - Phase 2 result: Dashboard v1 reads normalized data and outputs rule-based, explainable daily guidance with reasons, risks, data dates, macro scoring, technical indicators, and key price level proximity.
 - Current boundary: do not add AI summaries, news/earnings deep understanding, automatic scheduled jobs, broker sync, real trading, push notifications, high-frequency market data, or full-market recommendations unless explicitly requested.
@@ -14,7 +15,8 @@ This file routes agents to the smallest useful context for each task. Read this 
 
 - Product overview: `docs/prd/PRD-v2026.05.10.md`
 - Product delta and future replay/self-improvement notes: `docs/prd/PRD-v2026.05.11.md`
-- Current technical status and acceptance criteria: `docs/tech/TECH-PLAN-v2026.05.14.md`
+- Next phase plan and acceptance criteria: `docs/tech/TECH-PLAN-v2026.05.14-phase-2.1-hardening.md`
+- Current completed technical status: `docs/tech/TECH-PLAN-v2026.05.14.md`
 - Phase 2 implementation plan/history: `docs/tech/TECH-PLAN-v2026.05.12.md`
 - Harness Engineering definition: `docs/engineering/HARNESS-ENGINEERING.md`
 - Harness feedback loop for agent workflows: `docs/harness-engineering.md`
@@ -29,6 +31,12 @@ This file routes agents to the smallest useful context for each task. Read this 
 - Recommended development workflow: `docs/workflows/codex-development-flow.md`
 
 ## Acceptance Criteria
+
+For Phase 2.1 post-merge hardening, use `docs/tech/TECH-PLAN-v2026.05.14-phase-2.1-hardening.md` first:
+
+- QA issue exit standards: section 6
+- Validation plan: section 7
+- Done criteria: section 9
 
 For Phase 2 Dashboard maintenance or follow-up work, use `docs/tech/TECH-PLAN-v2026.05.14.md` first. Original Phase 2 implementation acceptance criteria remain in `docs/tech/TECH-PLAN-v2026.05.12.md`:
 
@@ -45,6 +53,7 @@ For Phase 1 fixes, read the directly relevant Phase 1 sections from `docs/tech/T
 | Task type | Read by default | Read only if needed |
 | --- | --- | --- |
 | Quick code fix | `AGENTS.md`, this file, directly relevant source/tests | PRD/tech section for phase boundary questions |
+| Phase 2.1 hardening / QA issue reconciliation | Next phase plan, current QA open issues, local smoke matrix, directly relevant auth/settings/Dashboard source/tests | Older phase plans only when a fix depends on their implementation details |
 | Phase 2 Dashboard maintenance/follow-up | Latest tech status, directly relevant Dashboard source/tests, relevant PRD sections for Dashboard/product rules | Original Phase 2 implementation plan, older tech plans, QA issue history |
 | Product/scope decision | PRD v2026.05.10 plus PRD v2026.05.11 delta | Old tech plans |
 | Next development planning | Planner protocol, latest tech status, directly relevant PRD/QA/review inputs | Old phase plans only when the plan depends on their implementation details |
