@@ -4,16 +4,18 @@ This file routes agents to the smallest useful context for each task. Read this 
 
 ## Active State
 
-- Active phase: Phase 2 Dashboard v1 preparation.
-- Latest phase plan: `docs/tech/TECH-PLAN-v2026.05.12.md`
+- Active state: Phase 2 Dashboard v1 complete and merged.
+- Latest phase plan/status: `docs/tech/TECH-PLAN-v2026.05.14.md`
 - Phase 1 status: complete; configuration page, provider contracts, ingestion, normalized data, and production smoke are done.
-- Phase 2 boundary: build Dashboard v1 from normalized data. Do not add AI summaries, news/earnings deep understanding, automatic scheduled jobs, broker sync, real trading, or high-frequency market data.
+- Phase 2 result: Dashboard v1 reads normalized data and outputs rule-based, explainable daily guidance with reasons, risks, data dates, macro scoring, technical indicators, and key price level proximity.
+- Current boundary: do not add AI summaries, news/earnings deep understanding, automatic scheduled jobs, broker sync, real trading, push notifications, high-frequency market data, or full-market recommendations unless explicitly requested.
 
 ## Canonical Entrypoints
 
 - Product overview: `docs/prd/PRD-v2026.05.10.md`
 - Product delta and future replay/self-improvement notes: `docs/prd/PRD-v2026.05.11.md`
-- Current technical plan and acceptance criteria: `docs/tech/TECH-PLAN-v2026.05.12.md`
+- Current technical status and acceptance criteria: `docs/tech/TECH-PLAN-v2026.05.14.md`
+- Phase 2 implementation plan/history: `docs/tech/TECH-PLAN-v2026.05.12.md`
 - Harness Engineering definition: `docs/engineering/HARNESS-ENGINEERING.md`
 - Harness feedback loop for agent workflows: `docs/harness-engineering.md`
 - QA protocol: `docs/process/QA-AGENT.md`
@@ -27,7 +29,7 @@ This file routes agents to the smallest useful context for each task. Read this 
 
 ## Acceptance Criteria
 
-For Phase 2 work, use `docs/tech/TECH-PLAN-v2026.05.12.md`:
+For Phase 2 Dashboard maintenance or follow-up work, use `docs/tech/TECH-PLAN-v2026.05.14.md` first. Original Phase 2 implementation acceptance criteria remain in `docs/tech/TECH-PLAN-v2026.05.12.md`:
 
 - Dashboard data service: section 4.1
 - Technical indicators: section 4.2
@@ -42,7 +44,7 @@ For Phase 1 fixes, read the directly relevant Phase 1 sections from `docs/tech/T
 | Task type | Read by default | Read only if needed |
 | --- | --- | --- |
 | Quick code fix | `AGENTS.md`, this file, directly relevant source/tests | PRD/tech section for phase boundary questions |
-| Phase 2 Dashboard implementation | Latest tech plan sections 2-5, relevant PRD sections for Dashboard/product rules | Older tech plans, QA issue history |
+| Phase 2 Dashboard maintenance/follow-up | Latest tech status, directly relevant Dashboard source/tests, relevant PRD sections for Dashboard/product rules | Original Phase 2 implementation plan, older tech plans, QA issue history |
 | Product/scope decision | PRD v2026.05.10 plus PRD v2026.05.11 delta | Old tech plans |
 | Provider/ingestion/schema fix | Latest tech plan, relevant Phase 1 tech plan section, affected source/tests | Full PRD only if behavior scope is unclear |
 | Settings UI/auth fix | Latest tech plan, current QA open issues, relevant source/tests | Full QA history |

@@ -2,7 +2,7 @@
 
 日期：2026-05-12
 
-状态表更新：2026-05-13
+状态表更新：2026-05-14
 
 目标环境：Production `https://stock-selection-pi.vercel.app`
 
@@ -21,7 +21,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | QA-001 | P0 | Settings 保存/停用后跳回登录页，阻断配置维护 | Open | Main Agent | - | - | 修复 auth/server action 提交后 session 与 redirect 闭环 |
 | QA-002 | P1 | 移动端顶部导航溢出，退出入口不可见 | Open | Main Agent | - | - | 修复 360px/390px/414px 导航可达性 |
-| QA-003 | P1 | 首页仍显示 Phase 0 工程地基，`/dashboard` 为 404 | Open | Main Agent | - | - | 同步当前阶段文案，补 Dashboard 占位或入口 |
+| QA-003 | P1 | 首页仍显示 Phase 0 工程地基，`/dashboard` 为 404 | Fixed pending retest | Main Agent | PR #24 / `f007a25` | Local Dashboard smoke passed; production authenticated retest pending | Phase 2 Dashboard v1 已合入，待 QA 在生产登录态复测 `/` 与 `/dashboard` |
 | QA-004 | P2 | 未登录访问受保护页不会保留目标路径 | Open | Main Agent | - | - | 在受保护 redirect 中保留安全 `next` |
 | QA-005 | P2 | 停用操作缺少确认或撤销 | Open | Main Agent | - | - | 增加确认、明确后果或记录延期决策 |
 | QA-006 | P2 | 基础偏好配置未出现在设置页 | Open | Main Agent/Product | - | - | 补最小入口或更新验收口径 |
@@ -39,7 +39,7 @@
 当前项目状态为：
 
 - Phase 1 已完成：配置页与数据入库 harness 已上线。
-- Phase 2 Dashboard v1 准备中。
+- Phase 2 Dashboard v1 已完成并合入 `main`。
 - Production `/api/health` 返回 `status: ok`。
 - `FMP_API_KEY`、`COINGECKO_API_KEY`、`FRED_API_KEY` 已配置。
 - `OPENAI_API_KEY` 未配置符合当前阶段预期。
@@ -132,7 +132,7 @@
 
 ### 期望结果
 
-当前项目已进入 Phase 2 Dashboard v1 准备阶段，首页至少应准确表达当前阶段。若 Dashboard 尚未实现，应给出“Dashboard v1 准备中”或展示 Phase 1 数据状态入口，而不是停留在 Phase 0。
+当前项目已完成 Phase 2 Dashboard v1，首页和 `/dashboard` 应展示 Dashboard v1，而不是 Phase 0 或占位页。
 
 ### 影响
 
@@ -140,15 +140,15 @@
 
 ### 建议修复方向
 
-- 在 Dashboard v1 未完成前，将首页改为 Phase 1 数据状态与配置入口。
-- 或增加 `/dashboard` 占位页，说明 Dashboard v1 准备中，并链接到 `/settings`。
-- 文案同步为当前阶段，不再显示 Phase 0。
+- 首页和 `/dashboard` 已由 PR #24 更新为 Dashboard v1。
+- Dashboard v1 展示今日总判断、宏观状态、持仓/关注状态、关键价位提醒和数据状态。
+- 待 QA 在生产登录态复测。
 
 ### 回归测试点
 
-- 首页阶段文案与 `AGENTS.md`/技术计划一致。
+- 首页阶段文案与 `AGENTS.md`/最新技术状态一致。
 - `/dashboard` 不返回默认 404。
-- 未实现的功能应有明确说明和下一步入口。
+- Dashboard v1 正常展示，且无数据或 stale 数据时有明确降级状态。
 
 ## P2：未登录访问受保护页不会保留目标路径
 

@@ -7,7 +7,7 @@ This is the root instruction file for AI coding/product agents working in this r
 - Context router: `docs/context-map.md`
 - Product overview: `docs/prd/PRD-v2026.05.10.md`
 - Current PRD delta: `docs/prd/PRD-v2026.05.11.md`
-- Current phase plan: `docs/tech/TECH-PLAN-v2026.05.12.md`
+- Current phase plan: `docs/tech/TECH-PLAN-v2026.05.14.md`
 - QA entrypoint: `docs/process/QA-AGENT.md`
 - QA cases and open issues: `docs/qa/`
 - Review protocol: `docs/process/CODE-REVIEW-AGENT.md`
@@ -15,7 +15,7 @@ This is the root instruction file for AI coding/product agents working in this r
 - Harness feedback loop: `docs/harness-engineering.md`
 - Recommended Codex workflow: `docs/workflows/codex-development-flow.md`
 
-Current active phase: Phase 2 Dashboard v1 preparation. Phase 1 configuration and ingestion are complete. Phase 2 must consume normalized data and stay inside MVP boundaries.
+Current active state: Phase 2 Dashboard v1 is complete and merged. Phase 1 configuration and ingestion are complete. Next work should be scoped explicitly before expanding beyond Dashboard plus simple settings; do not start broker sync, real trading, push notifications, high-frequency data, full-market recommendations, or AI summaries unless explicitly requested.
 
 ## Working Rules
 
