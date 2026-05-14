@@ -35,4 +35,15 @@ describe("proxy", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("location")).toBeNull();
   });
+
+  it("lets non-page submissions pass through for server action auth handling", async () => {
+    const response = await proxy(
+      new NextRequest("https://example.test/settings", {
+        method: "POST"
+      })
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+  });
 });
