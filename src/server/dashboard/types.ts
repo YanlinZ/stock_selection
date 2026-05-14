@@ -24,6 +24,7 @@ export type DashboardHoldingInput = {
   instrument: DashboardInstrument;
   notes: string | null;
   positionSize: PositionSize;
+  updatedAt: Date;
 };
 
 export type DashboardWatchlistInput = {
@@ -32,6 +33,7 @@ export type DashboardWatchlistInput = {
   notes: string | null;
   priority: number;
   theme: string | null;
+  updatedAt: Date;
 };
 
 export type DashboardKeyPriceLevelInput = {
@@ -41,6 +43,7 @@ export type DashboardKeyPriceLevelInput = {
   levelType: KeyPriceLevelType;
   notes: string | null;
   price: number;
+  updatedAt: Date;
 };
 
 export type DashboardMarketDataPoint = {
@@ -48,18 +51,22 @@ export type DashboardMarketDataPoint = {
   close: number;
   date: string;
   high: number | null;
+  ingestionRunId: string | null;
   instrumentId: string;
   low: number | null;
   open: number | null;
   provider: string;
+  updatedAt: Date;
   volume: number | null;
 };
 
 export type DashboardMacroObservation = {
   date: string;
+  ingestionRunId: string | null;
   provider: string;
   seriesId: string;
   unit: string | null;
+  updatedAt: Date;
   value: number;
 };
 
@@ -127,6 +134,67 @@ export type DashboardActionKind =
   | "wait"
   | "watch_key_level";
 
+export type DashboardConfidence = "high" | "low" | "medium";
+
+export type DashboardDataQuality =
+  | "complete"
+  | "partial"
+  | "stale"
+  | "unavailable";
+
+export type DashboardEvidenceImpact =
+  | "missing"
+  | "negative"
+  | "neutral"
+  | "positive";
+
+export type DashboardEvidenceSource =
+  | "holdings"
+  | "ingestion_runs"
+  | "key_price_levels"
+  | "macro_observations"
+  | "market_data_daily"
+  | "watchlist_items";
+
+export type DashboardEvidenceItem = {
+  basisDate: string | null;
+  detail: string | null;
+  impact: DashboardEvidenceImpact;
+  label: string;
+  source: DashboardEvidenceSource;
+};
+
+export type DashboardEvidenceGroups = {
+  missing: DashboardEvidenceItem[];
+  opposing: DashboardEvidenceItem[];
+  risks: DashboardEvidenceItem[];
+  supporting: DashboardEvidenceItem[];
+};
+
+export type DashboardDataSourceStatus =
+  | "partial"
+  | "ready"
+  | "stale"
+  | "unavailable";
+
+export type DashboardDataSourceKind =
+  | "configuration"
+  | "ingestion"
+  | "macro"
+  | "price"
+  | "technical";
+
+export type DashboardDataSourceSnapshot = {
+  basisDate: string | null;
+  detail: string | null;
+  kind: DashboardDataSourceKind;
+  label: string;
+  provider: string | null;
+  source: DashboardEvidenceSource;
+  status: DashboardDataSourceStatus;
+  updatedAt: string | null;
+};
+
 export type DashboardActionRecommendation = {
   basisDate: string | null;
   kind: DashboardActionKind;
@@ -135,10 +203,18 @@ export type DashboardActionRecommendation = {
   risks: string[];
 };
 
+export type DashboardTrustActionRecommendation = DashboardActionRecommendation & {
+  confidence: DashboardConfidence;
+  dataQuality: DashboardDataQuality;
+  dataSources: DashboardDataSourceSnapshot[];
+  evidence: DashboardEvidenceGroups;
+  ruleVersion: string;
+};
+
 export type DashboardTargetRole = "holding" | "watchlist" | "both";
 
 export type DashboardTargetSnapshot = {
-  action: DashboardActionRecommendation;
+  action: DashboardTrustActionRecommendation;
   changePercent: number | null;
   dataStatus: DashboardStatus;
   holding: DashboardHoldingInput | null;
@@ -207,4 +283,25 @@ export type DashboardSnapshot = {
   summary: DashboardActionRecommendation;
   targets: DashboardTargetSnapshot[];
   watchlistItems: DashboardTargetSnapshot[];
+};
+
+export type DashboardDecisionSnapshotScope = "holding" | "summary";
+
+export type DashboardDecisionSnapshotRecord = {
+  actionKind: DashboardActionKind;
+  actionLabel: string;
+  basisDate: string | null;
+  confidence: DashboardConfidence;
+  dataQuality: DashboardDataQuality;
+  dataSources: DashboardDataSourceSnapshot[];
+  evidence: DashboardEvidenceGroups;
+  generatedAt: Date;
+  instrumentId: string | null;
+  keyLevels: Array<Record<string, unknown>>;
+  macroState: Record<string, unknown>;
+  ruleVersion: string;
+  scope: DashboardDecisionSnapshotScope;
+  snapshotDate: string;
+  subjectKey: string;
+  symbol: string | null;
 };

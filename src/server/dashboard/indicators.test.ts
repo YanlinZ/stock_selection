@@ -80,10 +80,12 @@ function createMarketPoints(count: number): DashboardMarketDataPoint[] {
       close,
       date: date.toISOString().slice(0, 10),
       high: close + 1,
+      ingestionRunId: "run_market",
       instrumentId: "instrument_tsla",
       low: close - 1,
       open: close - 0.5,
       provider: "fmp",
+      updatedAt: new Date(`${date.toISOString().slice(0, 10)}T21:00:00.000Z`),
       volume: 1000 + index
     };
   });
@@ -109,6 +111,7 @@ function createKeyLevel({
     },
     levelType: "long_term_add",
     notes: null,
-    price
+    price,
+    updatedAt: new Date("2026-05-13T12:00:00.000Z")
   };
 }

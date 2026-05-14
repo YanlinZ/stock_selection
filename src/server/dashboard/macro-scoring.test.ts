@@ -57,9 +57,11 @@ function createObservation(
 ): DashboardMacroObservation {
   return {
     date: "2026-05-12",
+    ingestionRunId: "run_macro",
     provider: "fred",
     seriesId,
     unit: seriesId === "DGS10" ? "percent" : "index",
+    updatedAt: new Date("2026-05-12T22:00:00.000Z"),
     value
   };
 }
@@ -85,10 +87,12 @@ function createMarketPoint(
     close,
     date,
     high: close + 1,
+    ingestionRunId: "run_market",
     instrumentId,
     low: close - 1,
     open: close,
     provider: "fmp",
+    updatedAt: new Date(`${date}T21:00:00.000Z`),
     volume: 1000
   };
 }

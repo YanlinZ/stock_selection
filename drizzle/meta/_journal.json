@@ -15,6 +15,13 @@
       "when": 1778481577011,
       "tag": "0001_dashing_nomad",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778740063315,
+      "tag": "0002_talented_bishop",
+      "breakpoints": true
     }
   ]
 }
