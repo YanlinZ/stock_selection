@@ -87,6 +87,12 @@ describe("createDashboardSnapshot", () => {
     expect(snapshot.holdings[0]?.action.evidence.supporting.length).toBeGreaterThan(
       0
     );
+    expect(snapshot.opportunity).toMatchObject({
+      status: "available",
+      candidate: expect.objectContaining({
+        instrument: expect.objectContaining({ symbol: "TSLA" })
+      })
+    });
     expect(snapshot.holdings[0]?.action.dataSources).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -101,6 +107,36 @@ describe("createDashboardSnapshot", () => {
       ])
     );
     expect(snapshot.summary.label).toContain("市场恐慌升温");
+  });
+
+  it("surfaces only the highest-quality configured opportunity", () => {
+    const snapshot = createDashboardSnapshot(
+      createInput({
+        keyPriceLevels: [
+          createKeyLevel("QQQ", 300),
+          createKeyLevel("TSLA", 280)
+        ],
+        macroObservations: [
+          createObservation("VIXCLS", 28, "2026-05-12"),
+          createObservation("DGS10", 4.6, "2026-05-12")
+        ],
+        marketData: [
+          ...createDropHistory("instrument_QQQ", 330, 300),
+          ...createDropHistory("instrument_TSLA", 300, 280)
+        ],
+        watchlistItems: [
+          createWatchlistItem("QQQ", 90),
+          createWatchlistItem("TSLA", 10)
+        ]
+      }),
+      now
+    );
+
+    expect(snapshot.opportunity.status).toBe("available");
+    expect(snapshot.opportunity.candidate?.instrument.symbol).toBe("QQQ");
+    expect(snapshot.opportunity.action.label).toContain("今日重点观察：QQQ");
+    expect(snapshot.opportunity.evaluatedTargetCount).toBe(2);
+    expect(snapshot.watchlistItems).toHaveLength(2);
   });
 
   it("downgrades confidence and records missing evidence for partial inputs", () => {
@@ -131,6 +167,10 @@ describe("createDashboardSnapshot", () => {
     expect(action?.evidence.missing.map((item) => item.label).join(" ")).toContain(
       "宏观"
     );
+    expect(snapshot.opportunity).toMatchObject({
+      candidate: null,
+      status: "none"
+    });
   });
 
   it("creates summary and holding decision snapshot records with safe replay context", () => {
@@ -214,12 +254,15 @@ function createHolding(symbol: string): DashboardHoldingInput {
   };
 }
 
-function createWatchlistItem(symbol: string): DashboardWatchlistInput {
+function createWatchlistItem(
+  symbol: string,
+  priority = 1
+): DashboardWatchlistInput {
   return {
     id: `watchlist_${symbol}`,
     instrument: createInstrument(symbol),
     notes: null,
-    priority: 1,
+    priority,
     theme: null,
     updatedAt: now
   };
@@ -265,6 +308,17 @@ function createHistory(
 
     return createMarketPoint(instrumentId, date.toISOString().slice(0, 10), close);
   });
+}
+
+function createDropHistory(
+  instrumentId: string,
+  previousClose: number,
+  latestClose: number
+): DashboardMarketDataPoint[] {
+  return [
+    ...createHistory(instrumentId, 209, previousClose),
+    createMarketPoint(instrumentId, "2026-05-12", latestClose)
+  ];
 }
 
 function createMarketPoint(

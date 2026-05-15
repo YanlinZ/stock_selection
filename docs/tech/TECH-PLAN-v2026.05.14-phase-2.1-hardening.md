@@ -13,7 +13,7 @@
 - 将 `docs/qa/ONLINE-QA-ISSUES-v2026.05.12.md` 中仍 open 或待复测的问题纳入本阶段验收。
 - 记录当前代码已经出现的部分修复迹象，但要求通过本地 smoke、测试和生产 QA 重新确认后才能关闭 QA issue。
 - 明确 Phase 2.1 完成后，才能重新决定是否进入后续产品扩展阶段。
-- 2026-05-14 Planner Agent next-step handoff 确认当前下一步是 reviewer gate、PR checks、merge/deploy 和 production targeted QA，不进入 Phase 3 扩展；随后 PR #28 已合并且 Vercel deployment checks 已通过，当前只剩 production targeted QA 与文档收尾。
+- 2026-05-14 Planner Agent next-step handoff 确认当前下一步是 reviewer gate、PR checks、merge/deploy 和 production targeted QA，不进入 Phase 3 扩展；随后 PR #28 已合并且 Vercel deployment checks 已通过。2026-05-15 production closure retest 已通过，QA-001 到 QA-007 均已关闭。
 
 ## 0. Planner Gate
 
@@ -59,7 +59,7 @@ Handoff：
 
 当前项目处于：
 
-> Phase 2.1：Dashboard v1 post-merge hardening 与 Settings/auth 可用性收敛阶段；PR #28 已合并且 Vercel deployment checks 已通过，production targeted QA 已部分通过，等待停用确认分支与移动端生产视口短复测。
+> Phase 2.1：Dashboard v1 post-merge hardening 与 Settings/auth 可用性收敛阶段已完成；PR #28 已合并且 Vercel deployment checks 已通过，2026-05-15 production closure retest 已关闭剩余停用确认分支与移动端生产视口缺口。
 
 已知基础状态：
 
@@ -87,9 +87,9 @@ Handoff：
 - `docs/qa/runs/QA-RUN-v2026.05.14-phase-2.1.md` 记录了 local hardening run。
 - 已记录的本地覆盖包含 auth redirect、Settings server action auth fallback、持仓添加/保存、停用确认存在性、基础偏好、数字字段约束、Dashboard `/` 与 `/dashboard`、360px/390px/414px 移动端导航。
 - 已记录的命令包含 targeted tests、`pnpm typecheck`、`pnpm lint`、`pnpm check`、`pnpm build` 和本地 HTTP/browser smoke。
-- 生产 targeted QA 记录见 `docs/qa/runs/QA-RUN-v2026.05.14-production-targeted.md`。
+- 生产 targeted QA 记录见 `docs/qa/runs/QA-RUN-v2026.05.14-production-targeted.md`；closure retest 记录见 `docs/qa/runs/QA-RUN-v2026.05.15-production-closure.md`。
 - 已关闭：QA-003、QA-004、QA-006、QA-007。
-- 仍为 `Fixed pending retest`：QA-001 的停用确认后提交分支、QA-002 的生产移动端视口、QA-005 的停用确认取消/确认分支。
+- 2026-05-15 closure retest 后，QA-001 到 QA-007 均为 `Closed`。
 
 ## 2. 本阶段目标
 
@@ -314,6 +314,8 @@ Phase 2.1 完成必须满足：
 这些只是候选方向，不属于 Phase 2.1 的默认执行范围。
 
 ## 11. 当前下一步执行计划
+
+2026-05-15 更新：本节中的剩余 production short retest 已完成并记录在 `docs/qa/runs/QA-RUN-v2026.05.15-production-closure.md`。QA-001、QA-002 和 QA-005 已关闭。后续产品扩展应使用新的 Phase 4 技术计划，而不是继续在 Phase 2.1 中追加范围。
 
 2026-05-14 Planner Agent 结论，已按 PR #28 合并和 Vercel deployment checks 通过后的真实状态收敛：
 

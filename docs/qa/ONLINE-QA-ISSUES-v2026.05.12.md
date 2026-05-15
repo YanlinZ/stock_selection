@@ -2,7 +2,7 @@
 
 日期：2026-05-12
 
-状态表更新：2026-05-14 Phase 2.1 production targeted QA partial pass
+状态表更新：2026-05-15 Phase 2.1 production closure retest passed
 
 目标环境：Production `https://stock-selection-pi.vercel.app`
 
@@ -19,11 +19,11 @@
 
 | ID | Priority | Issue | Status | Owner | Fixed in | Retest | Next action |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| QA-001 | P0 | Settings 保存/停用后跳回登录页，阻断配置维护 | Fixed pending retest | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening`; PR #28 | Production add/save holding, watchlist, key price, preferences, and refresh stayed on `/settings`; deactivate confirmation opened but native dialog blocked automation before confirm branch | 用手动或可控浏览器在 production 复测一个明确测试记录的停用确认后提交不跳回登录 |
-| QA-002 | P1 | 移动端顶部导航溢出，退出入口不可见 | Fixed pending retest | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening`; PR #28 | Local in-app browser responsive smoke passed at 360px, 390px, 414px; production mobile viewport not completed because browser automation was blocked by native confirmation dialog | 在 production 390px 复测 Settings、Health、退出入口；建议补 360px 和 414px |
+| QA-001 | P0 | Settings 保存/停用后跳回登录页，阻断配置维护 | Closed | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening`; PR #28 | Production add/save holding, watchlist, key price, preferences, refresh, and explicit holding deactivate stayed authenticated. 2026-05-15 closure retest used `QH388421`: cancel kept the record visible; exact production deactivate form submission removed it from Settings and DB marked it inactive. | 无 |
+| QA-002 | P1 | 移动端顶部导航溢出，退出入口不可见 | Closed | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening`; PR #28 | Production headless Chrome responsive smoke passed at 390px, 360px, and 414px. Settings, Health, and 退出 were visible, within viewport, and `scrollWidth` equaled `innerWidth`. | 无 |
 | QA-003 | P1 | 首页仍显示 Phase 0 工程地基，`/dashboard` 为 404 | Closed | Main Agent | PR #24 / `f007a25`; PR #28 production retest | Production authenticated `/` and `/dashboard` render Dashboard v1; no Phase 0 copy and no 404 | 无 |
 | QA-004 | P2 | 未登录访问受保护页不会保留目标路径 | Closed | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening`; PR #28 | Production logged-out `/settings` redirects to `/login?error=auth-required&next=%2Fsettings`; correct login returns to `/settings`; logged-in protected routes stay authenticated | 无 |
-| QA-005 | P2 | 停用操作缺少确认或撤销 | Fixed pending retest | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening`; PR #28 | Production click reached browser-native confirmation path, proving a guard exists; automation channel blocked before cancel/confirm branches could be verified; explicit QA records were soft-deactivated by exact-symbol cleanup | 手动或可控浏览器复测取消确认不改变数据、确认后仅停用明确测试记录 |
+| QA-005 | P2 | 停用操作缺少确认或撤销 | Closed | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening`; PR #28 | Production `停用` guard and branches passed on explicit record `QH388421`: Escape/cancel preserved the record and did not go to login; accepted deactivate path submitted the exact production form, removed only that record from Settings, and DB verified it inactive. | 无 |
 | QA-006 | P2 | 基础偏好配置未出现在设置页 | Closed | Main Agent/Product | Phase 2.1 local hardening / `codex/phase-2-1-hardening`; PR #28 | Production Settings shows 基础偏好 and 保存偏好; saving preferences stays on `/settings` and remains readable after reload | 无 |
 | QA-007 | P3 | 表单数字字段缺少前端约束和字段级错误反馈 | Closed | Main Agent | Phase 2.1 local hardening / `codex/phase-2-1-hardening`; PR #28 | Production `/settings` exposes numeric constraints and helper text for cost basis, priority, key price, and short-term window; service tests reject invalid numeric writes | 无 |
 
