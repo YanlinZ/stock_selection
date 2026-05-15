@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1000" viewBox="0 0 1440 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Frontend Redesign V1 Reference Mock</title>
+  <desc id="desc">Black-gold restrained financial dashboard redesign reference for stock_selection.</desc>
+  <defs>
+    <linearGradient id="page" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0f0e0b"/>
+      <stop offset="0.52" stop-color="#080807"/>
+      <stop offset="1" stop-color="#050505"/>
+    </linearGradient>
+    <linearGradient id="goldLine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#d6b25e" stop-opacity="0"/>
+      <stop offset="0.28" stop-color="#d6b25e" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#d6b25e" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000000" flood-opacity="0.34"/>
+    </filter>
+    <style>
+      .bg { fill: url(#page); }
+      .shell { fill: #0b0a08; stroke: #272116; stroke-width: 1; }
+      .surface { fill: #11100d; stroke: #2a251a; stroke-width: 1; }
+      .surface-soft { fill: #15130f; stroke: #2a251a; stroke-width: 1; }
+      .row { fill: #0f0e0c; stroke: #1f1b13; stroke-width: 1; }
+      .row-alt { fill: #13110d; stroke: #221d14; stroke-width: 1; }
+      .gold-row { fill: #1d190f; stroke: #6f5823; stroke-width: 1; }
+      .text { fill: #f4efe3; font-family: Inter, Arial, Helvetica, sans-serif; }
+      .muted { fill: #8f8878; font-family: Inter, Arial, Helvetica, sans-serif; }
+      .soft { fill: #c6bfaf; font-family: Inter, Arial, Helvetica, sans-serif; }
+      .gold { fill: #d6b25e; font-family: Inter, Arial, Helvetica, sans-serif; }
+      .green { fill: #34c77b; font-family: Inter, Arial, Helvetica, sans-serif; }
+      .red { fill: #ff5c5c; font-family: Inter, Arial, Helvetica, sans-serif; }
+      .mono { font-family: Menlo, Monaco, monospace; }
+      .h1 { font-size: 27px; font-weight: 650; letter-spacing: 0; }
+      .h2 { font-size: 17px; font-weight: 650; letter-spacing: 0; }
+      .body { font-size: 14px; font-weight: 450; letter-spacing: 0; }
+      .small { font-size: 12px; font-weight: 520; letter-spacing: 0; }
+      .tiny { font-size: 11px; font-weight: 520; letter-spacing: 0; }
+      .num { font-size: 21px; font-weight: 650; letter-spacing: 0; }
+      .badge-neutral { fill: #1a1711; stroke: #332b1c; stroke-width: 1; }
+      .badge-gold { fill: #2a2111; stroke: #927333; stroke-width: 1; }
+      .badge-green { fill: #10261a; stroke: #265c3c; stroke-width: 1; }
+      .badge-red { fill: #301516; stroke: #773030; stroke-width: 1; }
+      .divider { stroke: #242016; stroke-width: 1; }
+      .gold-stroke { stroke: #d6b25e; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+      .muted-stroke { stroke: #625c50; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1440" height="1000"/>
+  <rect x="48" y="38" width="1344" height="924" rx="8" class="shell" filter="url(#softShadow)"/>
+
+  <rect x="48" y="38" width="1344" height="70" rx="8" fill="#0d0c09" stroke="#272116"/>
+  <rect x="48" y="100" width="1344" height="1" fill="url(#goldLine)" opacity="0.72"/>
+
+  <rect x="80" y="60" width="34" height="34" rx="8" fill="#d6b25e"/>
+  <path d="M89 81 L96 74 L101 79 L111 68" stroke="#090806" stroke-width="2.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M89 86 H111" stroke="#090806" stroke-width="2.1" stroke-linecap="round" opacity="0.32"/>
+  <circle cx="111" cy="68" r="2.1" fill="#090806"/>
+  <path d="M86 68 C86 65.8 87.8 64 90 64 H104" stroke="#f1d488" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.54"/>
+  <text x="128" y="82" class="text body" font-weight="650">stock_selection</text>
+  <text x="276" y="82" class="muted small">Dashboard</text>
+  <text x="370" y="82" class="muted small">Settings</text>
+  <text x="450" y="82" class="muted small">Health</text>
+  <rect x="1248" y="58" width="48" height="38" rx="6" class="badge-neutral"/>
+  <path d="M1265 70 h14 M1265 77 h14 M1265 84 h9" class="muted-stroke"/>
+  <rect x="1308" y="58" width="52" height="38" rx="6" class="badge-neutral"/>
+  <path d="M1325 77 h18 M1334 68 v18" stroke="#8f8878" stroke-width="1.6" stroke-linecap="round"/>
+
+  <text x="80" y="154" class="muted small">Phase 4</text>
+  <text x="80" y="186" class="text h1">Dashboard Trust</text>
+  <text x="80" y="212" class="soft body">规则化机会扫描与持仓决策证据</text>
+
+  <rect x="984" y="130" width="376" height="92" rx="8" class="surface"/>
+  <text x="1008" y="158" class="muted tiny">STATUS STRIP</text>
+  <text x="1008" y="184" class="gold h2">可用</text>
+  <text x="1082" y="184" class="soft small mono">Market 2026-05-12</text>
+  <text x="1008" y="208" class="muted small mono">Macro 2026-05-12 · Refresh success 05/15 08:42</text>
+
+  <rect x="80" y="250" width="824" height="190" rx="8" class="surface"/>
+  <text x="108" y="282" class="muted small">今日总判断</text>
+  <text x="108" y="318" class="text h1">保持观察，等待更清晰的证据</text>
+  <rect x="108" y="340" width="68" height="26" rx="4" class="badge-neutral"/>
+  <text x="126" y="358" class="soft tiny">观察</text>
+  <rect x="186" y="340" width="76" height="26" rx="4" class="badge-gold"/>
+  <text x="202" y="358" class="gold tiny">中置信</text>
+  <rect x="272" y="340" width="90" height="26" rx="4" class="badge-neutral"/>
+  <text x="290" y="358" class="soft tiny">数据完整</text>
+  <text x="108" y="398" class="muted body">依据 2026-05-12 · 支持、反对、风险、缺口必须随判断一起呈现。</text>
+  <path d="M600 355 C644 326, 685 390, 726 350 S810 340, 858 304" class="gold-stroke" opacity="0.64"/>
+  <path d="M600 385 C646 368, 684 405, 730 382 S812 384, 858 365" class="muted-stroke" opacity="0.55"/>
+
+  <rect x="928" y="250" width="432" height="190" rx="8" class="surface"/>
+  <text x="956" y="282" class="muted small">数据状态</text>
+  <rect x="956" y="304" width="176" height="48" rx="6" class="row"/>
+  <text x="974" y="326" class="muted tiny">市场数据</text>
+  <text x="974" y="344" class="text small mono">2026-05-12</text>
+  <rect x="1148" y="304" width="176" height="48" rx="6" class="row"/>
+  <text x="1166" y="326" class="muted tiny">宏观数据</text>
+  <text x="1166" y="344" class="text small mono">2026-05-12</text>
+  <rect x="956" y="368" width="268" height="38" rx="6" class="row-alt"/>
+  <text x="974" y="392" class="soft small">来源与更新时间可用</text>
+  <rect x="1240" y="368" width="84" height="38" rx="6" fill="#d6b25e"/>
+  <text x="1257" y="392" fill="#090806" font-family="Inter, Arial, Helvetica, sans-serif" font-size="12" font-weight="700">刷新数据</text>
+
+  <rect x="80" y="468" width="1280" height="222" rx="8" class="gold-row"/>
+  <text x="108" y="500" class="muted small">今日机会</text>
+  <text x="108" y="536" class="text h1">今日重点观察：QQQ · 关键价位</text>
+  <text x="108" y="566" class="soft body">已评估 7 个持仓/关注标的。仅展示一个高质量规则化机会。</text>
+  <rect x="108" y="590" width="82" height="28" rx="4" class="badge-gold"/>
+  <text x="127" y="609" class="gold tiny">评分 74</text>
+  <rect x="202" y="590" width="76" height="28" rx="4" class="badge-neutral"/>
+  <text x="220" y="609" class="soft tiny">排名 1</text>
+  <rect x="290" y="590" width="92" height="28" rx="4" class="badge-neutral"/>
+  <text x="308" y="609" class="soft tiny">关注/持仓</text>
+  <text x="108" y="653" class="muted small mono">最新价格 300.42 USD · 日变化 -3.8% · 依据 2026-05-12</text>
+
+  <rect x="640" y="500" width="210" height="144" rx="6" class="row"/>
+  <text x="664" y="528" class="gold h2">支持</text>
+  <text x="664" y="556" class="soft small">接近长期加仓价位</text>
+  <text x="664" y="580" class="soft small">日跌幅进入观察区</text>
+  <text x="664" y="614" class="muted tiny mono">key_price_levels · 2026-05-12</text>
+
+  <rect x="872" y="500" width="210" height="144" rx="6" class="row"/>
+  <text x="896" y="528" class="gold h2">风险</text>
+  <text x="896" y="556" class="soft small">宏观风险仍需确认</text>
+  <text x="896" y="580" class="soft small">不展示次优机会</text>
+  <text x="896" y="614" class="muted tiny mono">macro_observations · 2026-05-12</text>
+
+  <rect x="1104" y="500" width="210" height="144" rx="6" class="row"/>
+  <text x="1128" y="528" class="gold h2">缺口</text>
+  <text x="1128" y="556" class="soft small">成交量证据有限</text>
+  <text x="1128" y="580" class="soft small">等待下一次刷新</text>
+  <text x="1128" y="614" class="muted tiny mono">market_data_daily · partial</text>
+
+  <rect x="80" y="722" width="820" height="186" rx="8" class="surface"/>
+  <text x="108" y="754" class="text h2">持仓</text>
+  <text x="814" y="754" class="muted tiny">4 rows</text>
+  <line x1="108" y1="774" x2="872" y2="774" class="divider"/>
+  <g>
+    <rect x="108" y="790" width="764" height="48" rx="6" class="row-alt"/>
+    <text x="128" y="819" class="text body" font-weight="650">TSLA</text>
+    <text x="198" y="819" class="muted small">Tesla</text>
+    <text x="396" y="819" class="soft small mono">184.20 USD</text>
+    <text x="548" y="819" class="green small mono">+1.4%</text>
+    <text x="650" y="819" class="soft small">观察</text>
+    <text x="786" y="819" class="muted tiny">依据 05-12</text>
+    <rect x="710" y="802" width="58" height="24" rx="4" class="badge-neutral"/>
+    <text x="724" y="818" class="soft tiny">完整</text>
+  </g>
+  <g>
+    <rect x="108" y="846" width="764" height="48" rx="6" class="row"/>
+    <text x="128" y="875" class="text body" font-weight="650">BTC</text>
+    <text x="198" y="875" class="muted small">Crypto</text>
+    <text x="396" y="875" class="soft small mono">68,240 USD</text>
+    <text x="548" y="875" class="red small mono">-2.1%</text>
+    <text x="650" y="875" class="soft small">风控</text>
+    <rect x="710" y="858" width="58" height="24" rx="4" class="badge-gold"/>
+    <text x="724" y="874" class="gold tiny">部分</text>
+    <text x="786" y="875" class="muted tiny">依据 05-12</text>
+  </g>
+
+  <rect x="928" y="722" width="432" height="186" rx="8" class="surface"/>
+  <text x="956" y="754" class="text h2">关注列表</text>
+  <text x="1272" y="754" class="muted tiny">3 rows</text>
+  <line x1="956" y1="774" x2="1324" y2="774" class="divider"/>
+  <rect x="956" y="790" width="368" height="48" rx="6" class="row-alt"/>
+  <text x="976" y="819" class="text body" font-weight="650">HOOD</text>
+  <text x="1058" y="819" class="muted small">P80</text>
+  <text x="1134" y="819" class="soft small">观察</text>
+  <rect x="1248" y="802" width="58" height="24" rx="4" class="badge-neutral"/>
+  <text x="1262" y="818" class="soft tiny">完整</text>
+  <rect x="956" y="846" width="368" height="48" rx="6" class="row"/>
+  <text x="976" y="875" class="text body" font-weight="650">NVDA</text>
+  <text x="1058" y="875" class="muted small">P60</text>
+  <text x="1134" y="875" class="soft small">等待</text>
+  <rect x="1248" y="858" width="58" height="24" rx="4" class="badge-neutral"/>
+  <text x="1262" y="874" class="soft tiny">完整</text>
+</svg>
