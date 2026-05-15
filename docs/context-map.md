@@ -4,10 +4,11 @@ This file routes agents to the smallest useful context for each task. Read this 
 
 ## Active State
 
-- Active state: Phase 4 Watchlist Opportunity Scan is implemented in the current codebase: Dashboard scans configured holdings/watchlist targets, surfaces at most one rules-only high-quality opportunity, or explicitly stays quiet with trust evidence when no target clears the bar. Phase 3 Dashboard Trust is merged, migrated, and production-smoked; Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production closure QA passed on 2026-05-15; QA-001 through QA-007 are closed.
+- Active state: Phase 4 Watchlist Opportunity Scan is complete, merged, deployed, and production-QA smoked on 2026-05-15. Dashboard scans configured holdings/watchlist targets, surfaces at most one rules-only high-quality opportunity, or explicitly stays quiet with trust evidence when no target clears the bar. Phase 3 Dashboard Trust is merged, migrated, and production-smoked; Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production closure QA passed on 2026-05-15; QA-001 through QA-007 are closed. No next phase is selected yet.
 - Latest phase plan: `docs/tech/TECH-PLAN-v2026.05.15-phase-4-watchlist-opportunity-scan.md`
 - Latest hardening plan: `docs/tech/TECH-PLAN-v2026.05.14-phase-2.1-hardening.md`
-- Latest completed technical status: `docs/tech/TECH-PLAN-v2026.05.14.md`
+- Latest completed technical status: `docs/tech/TECH-PLAN-v2026.05.15-phase-4-watchlist-opportunity-scan.md`
+- Phase 2 completed technical status: `docs/tech/TECH-PLAN-v2026.05.14.md`
 - Phase 1 status: complete; configuration page, provider contracts, ingestion, normalized data, and production smoke are done.
 - Phase 2 result: Dashboard v1 reads normalized data and outputs rule-based, explainable daily guidance with reasons, risks, data dates, macro scoring, technical indicators, and key price level proximity.
 - Phase 3 result: Dashboard Trust for Holdings Decisions strengthens holding action trust with source/update metadata, support/opposition/risk/missing evidence groups, confidence/data-quality tags, and lightweight daily decision snapshots.
@@ -18,10 +19,10 @@ This file routes agents to the smallest useful context for each task. Read this 
 
 - Product overview: `docs/prd/PRD-v2026.05.10.md`
 - Product delta and future replay/self-improvement notes: `docs/prd/PRD-v2026.05.11.md`
-- Next phase plan and acceptance criteria: `docs/tech/TECH-PLAN-v2026.05.15-phase-4-watchlist-opportunity-scan.md`
+- Latest phase plan, acceptance criteria, and completion status: `docs/tech/TECH-PLAN-v2026.05.15-phase-4-watchlist-opportunity-scan.md`
 - Phase 3 completion plan and acceptance criteria: `docs/tech/TECH-PLAN-v2026.05.14-phase-3-dashboard-trust.md`
 - Phase 2.1 hardening plan and acceptance criteria: `docs/tech/TECH-PLAN-v2026.05.14-phase-2.1-hardening.md`
-- Current completed technical status: `docs/tech/TECH-PLAN-v2026.05.14.md`
+- Phase 2 completed technical status: `docs/tech/TECH-PLAN-v2026.05.14.md`
 - Phase 2 implementation plan/history: `docs/tech/TECH-PLAN-v2026.05.12.md`
 - Harness Engineering definition: `docs/engineering/HARNESS-ENGINEERING.md`
 - Harness feedback loop for agent workflows: `docs/harness-engineering.md`
@@ -39,7 +40,7 @@ This file routes agents to the smallest useful context for each task. Read this 
 
 ## Acceptance Criteria
 
-For Phase 4 Watchlist Opportunity Scan implementation, use `docs/tech/TECH-PLAN-v2026.05.15-phase-4-watchlist-opportunity-scan.md` first:
+For Phase 4 Watchlist Opportunity Scan maintenance or follow-up, use `docs/tech/TECH-PLAN-v2026.05.15-phase-4-watchlist-opportunity-scan.md` first:
 
 - Planner gate: section 0
 - Technical discovery: section 1
@@ -81,7 +82,7 @@ For Phase 1 fixes, read the directly relevant Phase 1 sections from `docs/tech/T
 | Task type | Read by default | Read only if needed |
 | --- | --- | --- |
 | Quick code fix | `AGENTS.md`, this file, directly relevant source/tests | PRD/tech section for phase boundary questions |
-| Phase 4 Watchlist Opportunity Scan implementation | Phase 4 plan, latest production QA closure run, directly relevant Dashboard source/tests | PRD v2026.05.10 opportunity model sections only when rule scope is unclear |
+| Phase 4 Watchlist Opportunity Scan maintenance/follow-up | Phase 4 plan, latest production QA closure run, directly relevant Dashboard source/tests | PRD v2026.05.10 opportunity model sections only when rule scope is unclear |
 | Phase 2.1 hardening / QA issue reconciliation | Phase 2.1 hardening plan, current QA open issues, local smoke matrix, directly relevant auth/settings/Dashboard source/tests | Older phase plans only when a fix depends on their implementation details |
 | Phase 3 Dashboard Trust implementation | Phase 3 plan, latest tech status, directly relevant Dashboard source/tests, schema/migration files if snapshots are touched | PRD v2026.05.11 decision snapshot notes only when scope questions arise |
 | Phase 2 Dashboard maintenance/follow-up | Latest tech status, directly relevant Dashboard source/tests, relevant PRD sections for Dashboard/product rules | Original Phase 2 implementation plan, older tech plans, QA issue history |

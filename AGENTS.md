@@ -16,7 +16,7 @@ This is the root instruction file for AI coding/product agents working in this r
 - Harness feedback loop: `docs/harness-engineering.md`
 - Recommended Codex workflow: `docs/workflows/codex-development-flow.md`
 
-Current active state: Phase 4 Watchlist Opportunity Scan is implemented in the current codebase: Dashboard scans configured holdings/watchlist targets, surfaces at most one rules-only high-quality opportunity, or explicitly stays quiet with trust evidence when no target clears the bar. Phase 3 Dashboard Trust is merged, migrated, and production-smoked; Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production closure QA passed on 2026-05-15; QA-001 through QA-007 are closed. Scope must stay inside Dashboard plus simple settings; do not start broker sync, real trading, push notifications, high-frequency data, full-market recommendations, or AI summaries unless explicitly requested.
+Current active state: Phase 4 Watchlist Opportunity Scan is complete, merged, deployed, and production-QA smoked on 2026-05-15. Dashboard scans configured holdings/watchlist targets, surfaces at most one rules-only high-quality opportunity, or explicitly stays quiet with trust evidence when no target clears the bar. Phase 3 Dashboard Trust is merged, migrated, and production-smoked; Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production closure QA passed on 2026-05-15; QA-001 through QA-007 are closed. No next phase is selected yet. Scope must stay inside Dashboard plus simple settings; do not start broker sync, real trading, push notifications, high-frequency data, full-market recommendations, or AI summaries unless explicitly requested.
 
 ## Working Rules
 

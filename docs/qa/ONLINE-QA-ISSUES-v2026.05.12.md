@@ -40,6 +40,9 @@
 
 - Phase 1 已完成：配置页与数据入库 harness 已上线。
 - Phase 2 Dashboard v1 已完成并合入 `main`。
+- Phase 3 Dashboard Trust 已完成、合入 `main`、迁移并 production-smoked。
+- Phase 4 Watchlist Opportunity Scan 已完成、合入 `main`、部署并 production-smoked；Dashboard 每天最多展示 0-1 个规则化高质量机会。
+- QA-001 到 QA-007 均已关闭。
 - Production `/api/health` 返回 `status: ok`。
 - `FMP_API_KEY`、`COINGECKO_API_KEY`、`FRED_API_KEY` 已配置。
 - `OPENAI_API_KEY` 未配置符合当前阶段预期。
