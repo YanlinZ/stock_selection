@@ -1,5 +1,4 @@
-import { LockKeyhole } from "lucide-react";
-
+import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -32,10 +31,11 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     <main className="grid min-h-screen place-items-center px-4 py-8">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <div className="mb-3 grid h-10 w-10 place-items-center rounded-md bg-primary text-primary-foreground">
-            <LockKeyhole className="h-5 w-5" aria-hidden="true" />
-          </div>
+          <BrandMark className="mb-3 h-10 w-10 rounded-md" />
           <CardTitle>stock_selection</CardTitle>
+          <p className="mt-2 text-sm text-muted-foreground">
+            访问受保护的规则化 Dashboard。
+          </p>
         </CardHeader>
         <CardContent>
           <form action="/api/login" className="space-y-4" method="post">
@@ -52,7 +52,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               />
             </div>
             {error ? (
-              <p className="rounded-md bg-muted px-3 py-2 text-sm text-destructive">
+              <p className="rounded-md border border-destructive/40 bg-negative-surface px-3 py-2 text-sm text-destructive">
                 {error}
               </p>
             ) : null}

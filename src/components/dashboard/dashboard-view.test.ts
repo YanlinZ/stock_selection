@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 import { createDashboardSnapshot } from "@/server/dashboard/service";
 import type {
+  DashboardHoldingInput,
   DashboardInputSnapshot,
   DashboardKeyPriceLevelInput,
   DashboardMacroObservation,
@@ -65,6 +66,36 @@ describe("DashboardView", () => {
     expect(html).toContain("风险");
     expect(html).toContain("来源与更新时间");
   });
+
+  it("renders the redesign status strip and dense target rows with inline evidence access", () => {
+    const snapshot = createDashboardSnapshot(
+      createInput({
+        holdings: [createHolding("TSLA")],
+        keyPriceLevels: [
+          createKeyLevel("TSLA", 180),
+          createKeyLevel("HOOD", 35)
+        ],
+        macroObservations: [
+          createObservation("VIXCLS", 18, "2026-05-12"),
+          createObservation("DGS10", 4.1, "2026-05-12")
+        ],
+        marketData: [
+          ...createDropHistory("instrument_TSLA", 190, 184),
+          ...createDropHistory("instrument_HOOD", 42, 36)
+        ],
+        watchlistItems: [createWatchlistItem("HOOD", 80)]
+      }),
+      now
+    );
+    const html = renderToStaticMarkup(DashboardView({ snapshot }));
+
+    expect(html).toContain('data-dashboard-region="status-strip"');
+    expect(html).toContain('data-dashboard-region="holdings-table"');
+    expect(html).toContain('data-dashboard-region="watchlist-table"');
+    expect(html).toContain("<details");
+    expect(html).toContain("查看证据");
+    expect(html).not.toContain("持仓状态");
+  });
 });
 
 function createInput(
@@ -91,6 +122,18 @@ function createWatchlistItem(
     notes: null,
     priority,
     theme: null,
+    updatedAt: now
+  };
+}
+
+function createHolding(symbol: string): DashboardHoldingInput {
+  return {
+    costBasis: null,
+    holdingType: "long_term",
+    id: `holding_${symbol}`,
+    instrument: createInstrument(symbol),
+    notes: null,
+    positionSize: "medium",
     updatedAt: now
   };
 }

@@ -15,6 +15,9 @@ const config = {
         "primary-foreground": "hsl(var(--primary-foreground))",
         accent: "hsl(var(--accent))",
         "accent-foreground": "hsl(var(--accent-foreground))",
+        positive: "hsl(var(--positive))",
+        "positive-surface": "hsl(var(--positive-surface))",
+        "negative-surface": "hsl(var(--negative-surface))",
         destructive: "hsl(var(--destructive))",
         "destructive-foreground": "hsl(var(--destructive-foreground))"
       },
@@ -23,7 +26,8 @@ const config = {
         mono: ["Menlo", "Monaco", "monospace"]
       },
       boxShadow: {
-        panel: "0 12px 40px rgba(15, 23, 42, 0.08)"
+        panel: "none",
+        overlay: "0 18px 50px rgba(0, 0, 0, 0.32)"
       }
     }
   },

@@ -18,6 +18,10 @@ export default async function HealthPage() {
 
   return (
     <AppShell>
+      <div className="mb-5">
+        <p className="text-sm text-muted-foreground">System</p>
+        <h1 className="mt-2 text-2xl font-semibold">Health</h1>
+      </div>
       <section className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
         <Card>
           <CardHeader>
@@ -87,7 +91,7 @@ export default async function HealthPage() {
                   {health.checks.database.status}
                 </Badge>
               </div>
-              <p className="rounded-md bg-muted px-3 py-2 text-muted-foreground">
+              <p className="rounded-md border border-border bg-[#0F0E0C] px-3 py-2 text-muted-foreground">
                 {health.checks.database.message}
               </p>
             </CardContent>

@@ -120,10 +120,13 @@ export default async function SettingsPage() {
         <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <Settings className="h-4 w-4" aria-hidden="true" />
+              <Settings className="h-4 w-4 text-primary" aria-hidden="true" />
               Phase 1
             </div>
             <h1 className="mt-2 text-2xl font-semibold">配置</h1>
+            <p className="mt-2 text-sm text-[#C6BFAF]">
+              管理持仓、关注列表、关键价位和基础偏好。
+            </p>
           </div>
           <Badge variant={error ? "warning" : "default"}>
             {error ? "需要迁移" : "可编辑"}
@@ -243,14 +246,14 @@ function DataStatusSection({
       </CardHeader>
       <CardContent className="space-y-4">
         {error ? (
-          <div className="flex items-start gap-3 rounded-md border border-border bg-muted px-3 py-3 text-sm text-muted-foreground">
+          <div className="flex items-start gap-3 rounded-md border border-border bg-[#0F0E0C] px-3 py-3 text-sm text-muted-foreground">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
             <span>{error}</span>
           </div>
         ) : null}
 
         {snapshot?.batchRun ? (
-          <div className="flex flex-col gap-2 rounded-md border border-border bg-background px-3 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-2 rounded-md border border-border bg-[#0F0E0C] px-3 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <BatchIcon className="h-4 w-4" aria-hidden="true" />
               <span>最近一次刷新</span>
@@ -265,7 +268,7 @@ function DataStatusSection({
         <div className="grid gap-3 lg:grid-cols-3">
           {(snapshot?.providers ?? []).map((provider) => (
             <div
-              className="rounded-md border border-border bg-background p-4"
+            className="rounded-md border border-border bg-[#0F0E0C] p-4"
               key={provider.provider}
             >
               <div className="flex items-start justify-between gap-3">
@@ -301,7 +304,7 @@ function DataStatusSection({
               </dl>
 
               {provider.errorMessage ? (
-                <p className="mt-3 rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+                <p className="mt-3 rounded-md border border-border bg-[#0F0E0C] px-3 py-2 text-xs text-muted-foreground">
                   {provider.errorMessage}
                 </p>
               ) : null}
@@ -372,7 +375,7 @@ function HoldingsSection({
           ) : (
             snapshot.holdings.map(({ holding, instrument }) => (
               <div
-                className="rounded-md border border-border bg-background p-4"
+                className="rounded-md border border-border bg-[#0F0E0C] p-4"
                 key={holding.id}
               >
                 <div className="mb-3 flex items-center justify-between gap-3">
@@ -501,7 +504,7 @@ function WatchlistSection({
           ) : (
             snapshot.watchlistItems.map(({ watchlistItem, instrument }) => (
               <div
-                className="rounded-md border border-border bg-background p-4"
+                className="rounded-md border border-border bg-[#0F0E0C] p-4"
                 key={watchlistItem.id}
               >
                 <div className="mb-3 flex items-center justify-between gap-3">
@@ -632,7 +635,7 @@ function KeyPriceLevelsSection({
           ) : (
             snapshot.keyPriceLevels.map(({ keyPriceLevel, instrument }) => (
               <div
-                className="rounded-md border border-border bg-background p-4"
+                className="rounded-md border border-border bg-[#0F0E0C] p-4"
                 key={keyPriceLevel.id}
               >
                 <div className="mb-3 flex items-center justify-between gap-3">
@@ -892,7 +895,7 @@ function SelectField<TOptions extends readonly (readonly [string, string])[]>({
       <Label htmlFor={fieldId}>{label}</Label>
       <select
         className={cn(
-          "flex h-10 w-full rounded-md border border-border bg-background px-3 text-sm outline-none transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20"
+          "flex h-10 w-full rounded-md border border-border bg-[#0F0E0C] px-3 text-sm text-foreground outline-none transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20"
         )}
         defaultValue={defaultValue}
         id={fieldId}
@@ -924,7 +927,7 @@ function TextAreaField({
     <div className="space-y-2">
       <Label htmlFor={fieldId}>{label}</Label>
       <textarea
-        className="min-h-20 w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20"
+        className="min-h-20 w-full rounded-md border border-border bg-[#0F0E0C] px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20"
         id={fieldId}
         name={name}
         {...props}
