@@ -2,9 +2,21 @@
 
 版本：v2026.05.15-phase-4-watchlist-opportunity-scan
 
-本文件基于 Phase 3 Dashboard Trust 完成态和 2026-05-15 production closure retest 结果，规划下一阶段 MVP 内产品扩展。
+本文件基于 Phase 3 Dashboard Trust 完成态和 2026-05-15 production closure retest 结果，记录 Phase 4 MVP 内产品扩展的计划与完成状态。
 
-`docs/tech/TECH-PLAN-v2026.05.14-phase-3-dashboard-trust.md` 继续作为 Dashboard Trust 完成状态与验收口径记录有效。本文件是 Phase 4 执行入口。
+`docs/tech/TECH-PLAN-v2026.05.14-phase-3-dashboard-trust.md` 继续作为 Dashboard Trust 完成状态与验收口径记录有效。本文件是 Phase 4 执行入口和完成状态记录。
+
+## 当前完成状态
+
+- Phase 4 Watchlist Opportunity Scan 已完成、合入 `main` 并由 Vercel 自动部署到 Production。
+- 合并记录：
+  - PR #32：`https://github.com/yanlin-zhou/stock-selection/pull/32`
+  - PR #33：`https://github.com/yanlin-zhou/stock-selection/pull/33`
+  - 最新 merge commit：`c451e182428c4f72eb5d06549e2e91408a098c54`
+- Production deploy：`stock-selection` 与 `stock-selection-w5bi` 两个 Vercel 状态均为 success。
+- Production QA smoke 已于 2026-05-15 完成：`/dashboard` 显示 Phase 4 今日机会区、trust evidence、数据质量与来源更新时间；360px、390px、414px 无横向溢出，Settings、Health、退出入口均在视口内。
+- 本地验证记录：`docs/qa/runs/QA-RUN-v2026.05.15-phase-4-local.md`。
+- 本阶段没有新增 schema；继续复用 normalized internal data 和 Phase 3 可信层。
 
 ## 相对上一版的关键变化
 
@@ -268,15 +280,18 @@ pnpm dev
 
 ## 9. 完成定义
 
-- Phase 4 功能实现完成并通过相关测试。
-- `pnpm check` 通过。
-- 本地 Dashboard smoke 完成并记录结果。
+当前状态：已完成。
+
+- Phase 4 功能实现已完成并通过相关测试。
+- `pnpm check` 已通过。
+- 本地 Dashboard smoke 已完成并记录结果。
 - Diff 经 review gate 通过，无 blocking issue。
-- PR checks 全部通过后合并。
-- 合并后依赖 Vercel 自动部署；production QA 可按需补充。
+- PR checks 全部通过，PR #32 与 PR #33 已合并。
+- Vercel 自动部署已完成，production Dashboard smoke 已通过。
 
 ## 10. 当前下一步
 
-1. Main Agent 按本计划进入 Phase 4 契约与测试实现。
-2. 实现时坚持单 writer。
-3. 若中途发现需要 schema 或快照表扩展，先更新本计划并重新过 review gate。
+2026-05-15 更新：
+
+- Phase 4 契约、service 规则、Dashboard UI、targeted tests、本地 smoke、PR checks、merge、Production deploy 和 production smoke 均已完成。
+- 当前没有已选定的下一阶段。后续如进入新 phase，应先更新 `AGENTS.md`、`docs/context-map.md` 和新的技术计划，再实施。

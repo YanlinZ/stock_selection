@@ -105,7 +105,7 @@
 期望：
 
 - 页面阶段文案与 `AGENTS.md` 和最新技术状态一致。
-- 当前 Phase 2 Dashboard v1 已完成，不应仍显示 Phase 0 或 Phase 2 准备阶段作为主状态。
+- 当前 Phase 4 Watchlist Opportunity Scan 已完成，不应仍显示 Phase 0、Phase 2 准备阶段或旧 Dashboard v1 作为主状态。
 
 ### TC-102：Dashboard 路由
 
@@ -115,8 +115,8 @@
 
 期望：
 
-- Dashboard v1 应正常展示。
-- 页面应包含今日总判断、宏观状态、持仓/关注状态、关键价位提醒和数据状态。
+- Dashboard 应正常展示。
+- 页面应包含今日总判断、宏观状态、今日机会、持仓/关注状态、关键价位提醒和数据状态。
 - 数据不足时应显示 unavailable/stale 降级状态，不应崩溃或返回默认 404。
 
 ## Settings 配置页
