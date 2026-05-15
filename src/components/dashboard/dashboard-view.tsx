@@ -1,11 +1,12 @@
 import {
   AlertTriangle,
-  BarChart3,
   CalendarClock,
   CheckCircle2,
+  ChevronDown,
   Database,
   Eye,
   RefreshCw,
+  Settings,
   ShieldAlert,
   Target,
   TrendingDown,
@@ -37,95 +38,176 @@ import type {
 export function DashboardView({ snapshot }: { snapshot: DashboardSnapshot }) {
   return (
     <div className="space-y-6">
-      <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      <section className="grid gap-4 lg:grid-cols-[1fr_0.7fr] lg:items-start">
         <div>
-          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <BarChart3 className="h-4 w-4" aria-hidden="true" />
+          <div className="text-sm font-medium text-muted-foreground">
             Phase 4
           </div>
-          <h1 className="mt-2 text-2xl font-semibold">Dashboard Trust</h1>
+          <h1 className="mt-2 text-2xl font-semibold leading-tight sm:text-[28px]">
+            Dashboard Trust
+          </h1>
+          <p className="mt-2 text-sm text-[#C6BFAF]">
+            规则化机会扫描与持仓决策证据
+          </p>
         </div>
-        <Badge variant={statusBadgeVariant(snapshot.status)}>
-          {formatDashboardStatus(snapshot.status)}
-        </Badge>
+        <StatusStrip snapshot={snapshot} />
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-        <Card>
-          <CardHeader className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">今日总判断</p>
-              <CardTitle className="mt-2 text-2xl">
-                {snapshot.summary.label}
-              </CardTitle>
-            </div>
-            <ActionKindBadge action={snapshot.summary} />
-          </CardHeader>
-          <CardContent>
-            <ActionDetail action={snapshot.summary} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Database className="h-4 w-4" aria-hidden="true" />
-              数据状态
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <StatusLine
-              label="市场数据"
-              value={snapshot.dataFreshness.latestMarketDate ?? "暂无"}
-            />
-            <StatusLine
-              label="宏观数据"
-              value={snapshot.dataFreshness.latestMacroDate ?? "暂无"}
-            />
-            <StatusLine
-              label="最近刷新"
-              value={
-                snapshot.dataFreshness.latestRefreshStartedAt
-                  ? formatDateTime(snapshot.dataFreshness.latestRefreshStartedAt)
-                  : "暂无"
-              }
-            />
-            {snapshot.dataFreshness.warnings.length > 0 ? (
-              <div className="rounded-md border border-border bg-muted px-3 py-2 text-xs text-muted-foreground">
-                {snapshot.dataFreshness.warnings[0]}
-              </div>
-            ) : null}
-            <a
-              className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition hover:opacity-90"
-              href="/settings"
-            >
-              <RefreshCw className="h-4 w-4" aria-hidden="true" />
-              刷新数据
-            </a>
-          </CardContent>
-        </Card>
+      <section className="grid gap-5 lg:grid-cols-[1fr_0.52fr]">
+        <SummaryPanel action={snapshot.summary} />
+        <DataFreshnessPanel snapshot={snapshot} />
       </section>
-
-      <MacroSection macro={snapshot.macro} />
 
       <OpportunitySection snapshot={snapshot} />
 
-      <KeyLevelAlertSection alerts={snapshot.keyLevelAlerts} />
+      <section className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
+        <MacroSection macro={snapshot.macro} />
+        <KeyLevelAlertSection alerts={snapshot.keyLevelAlerts} />
+      </section>
 
-      <TargetSection
-        emptyLabel="暂无持仓"
-        icon={WalletCards}
-        targets={snapshot.holdings}
-        title="持仓状态"
-      />
+      <section className="grid gap-5 xl:grid-cols-[1.35fr_0.9fr]">
+        <TargetSection
+          emptyLabel="暂无持仓"
+          icon={WalletCards}
+          region="holdings-table"
+          targets={snapshot.holdings}
+          title="持仓"
+        />
 
-      <TargetSection
-        emptyLabel="暂无关注标的"
-        icon={Eye}
-        targets={snapshot.watchlistItems}
-        title="关注列表"
-      />
+        <TargetSection
+          emptyLabel="暂无关注标的"
+          icon={Eye}
+          region="watchlist-table"
+          targets={snapshot.watchlistItems}
+          title="关注列表"
+        />
+      </section>
     </div>
+  );
+}
+
+function StatusStrip({ snapshot }: { snapshot: DashboardSnapshot }) {
+  return (
+    <section
+      className="rounded-lg border border-border bg-card px-4 py-4"
+      data-dashboard-region="status-strip"
+    >
+      <p className="text-xs font-semibold text-muted-foreground">STATUS STRIP</p>
+      <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+        <Badge variant={statusBadgeVariant(snapshot.status)}>
+          {formatDashboardStatus(snapshot.status)}
+        </Badge>
+        <span className="font-mono text-xs text-[#C6BFAF]">
+          Market {snapshot.dataFreshness.latestMarketDate ?? "暂无"}
+        </span>
+        <span className="font-mono text-xs text-[#C6BFAF]">
+          Macro {snapshot.dataFreshness.latestMacroDate ?? "暂无"}
+        </span>
+      </div>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+        <span className="font-mono">
+          Refresh{" "}
+          {snapshot.dataFreshness.latestRefreshStartedAt
+            ? formatDateTime(snapshot.dataFreshness.latestRefreshStartedAt)
+            : "暂无"}
+        </span>
+        <a
+          className="inline-flex items-center gap-1.5 text-primary transition hover:text-[#F1D488]"
+          href="/settings"
+        >
+          <Settings className="h-3.5 w-3.5" aria-hidden="true" />
+          Settings
+        </a>
+      </div>
+    </section>
+  );
+}
+
+function SummaryPanel({ action }: { action: DashboardActionRecommendation }) {
+  return (
+    <Card>
+      <CardHeader className="grid gap-4 sm:grid-cols-[1fr_260px] sm:items-end">
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">今日总判断</p>
+          <CardTitle className="mt-2 text-2xl sm:text-[28px]">
+            {action.label}
+          </CardTitle>
+        </div>
+        <div className="hidden justify-self-end sm:block" aria-hidden="true">
+          <MiniSignalChart />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <ActionDetail action={action} />
+      </CardContent>
+    </Card>
+  );
+}
+
+function DataFreshnessPanel({ snapshot }: { snapshot: DashboardSnapshot }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Database className="h-4 w-4 text-primary" aria-hidden="true" />
+          数据状态
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3 text-sm">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+          <StatusLine
+            label="市场数据"
+            value={snapshot.dataFreshness.latestMarketDate ?? "暂无"}
+          />
+          <StatusLine
+            label="宏观数据"
+            value={snapshot.dataFreshness.latestMacroDate ?? "暂无"}
+          />
+        </div>
+        <StatusLine
+          label="最近刷新"
+          value={
+            snapshot.dataFreshness.latestRefreshStartedAt
+              ? formatDateTime(snapshot.dataFreshness.latestRefreshStartedAt)
+              : "暂无"
+          }
+        />
+        {snapshot.dataFreshness.warnings.length > 0 ? (
+          <div className="rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-xs text-[#C6BFAF]">
+            {snapshot.dataFreshness.warnings[0]}
+          </div>
+        ) : null}
+        <a
+          className="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground transition hover:bg-[#F1D488]"
+          href="/settings"
+        >
+          <RefreshCw className="h-4 w-4" aria-hidden="true" />
+          刷新数据
+        </a>
+      </CardContent>
+    </Card>
+  );
+}
+
+function MiniSignalChart() {
+  return (
+    <svg className="h-24 w-64 max-w-full" fill="none" viewBox="0 0 260 92">
+      <path
+        d="M2 58C38 34 66 72 94 42C122 12 142 82 170 52C196 24 222 46 258 8"
+        stroke="#D6B25E"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+      />
+      <path
+        d="M2 82C36 66 68 86 98 70C126 54 142 88 172 68C198 50 224 70 258 48"
+        opacity="0.55"
+        stroke="#625C50"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </svg>
   );
 }
 
@@ -139,50 +221,46 @@ function OpportunitySection({ snapshot }: { snapshot: DashboardSnapshot }) {
     : null;
 
   return (
-    <section>
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="flex items-center gap-2 text-lg font-semibold">
-          <Target className="h-4 w-4" aria-hidden="true" />
-          今日机会
-        </h2>
-        <Badge variant={opportunity.status === "available" ? "warning" : "secondary"}>
-          {opportunity.status === "available" ? "1 个重点" : "无触发"}
-        </Badge>
-      </div>
-      <Card>
-        <CardHeader className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-muted-foreground">
-              已评估 {opportunity.evaluatedTargetCount} 个持仓/关注标的
-            </p>
-            <CardTitle className="mt-2 break-words text-xl">
+    <section
+      className={cn(
+        "rounded-lg border px-4 py-5 sm:px-7 sm:py-6",
+        opportunity.status === "available"
+          ? "border-primary/55 bg-[#1D190F]"
+          : "border-border bg-card"
+      )}
+      data-dashboard-region="opportunity-panel"
+    >
+      <div className="grid gap-5 xl:grid-cols-[0.8fr_1.2fr] xl:items-start">
+        <div className="min-w-0 space-y-4">
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">今日机会</p>
+            <h2 className="mt-3 break-words text-2xl font-semibold leading-tight sm:text-[28px]">
               {opportunity.action.label}
-            </CardTitle>
-            {target ? (
-              <p className="mt-1 break-words text-sm text-muted-foreground">
-                {target.instrument.name ?? target.instrument.assetType.toUpperCase()}
-              </p>
-            ) : null}
+            </h2>
+            <p className="mt-2 text-sm text-[#C6BFAF]">
+              已评估 {opportunity.evaluatedTargetCount} 个持仓/关注标的。仅展示一个高质量规则化机会。
+            </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-            {target ? (
-              <Badge variant="secondary">{formatTargetRole(target.role)}</Badge>
-            ) : null}
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant={opportunity.status === "available" ? "warning" : "secondary"}>
+              {opportunity.status === "available" ? "1 个重点" : "无触发"}
+            </Badge>
+            <Badge variant={opportunity.status === "available" ? "warning" : "secondary"}>
+              {opportunity.score !== null ? `评分 ${opportunity.score}` : "保持观察"}
+            </Badge>
             {selectedEvaluation?.opportunityRank ? (
               <Badge variant="secondary">
                 排名 {selectedEvaluation.opportunityRank}
               </Badge>
             ) : null}
-            <Badge variant={opportunity.status === "available" ? "warning" : "secondary"}>
-              {opportunity.score !== null ? `评分 ${opportunity.score}` : "保持安静"}
-            </Badge>
+            {target ? (
+              <Badge variant="secondary">{formatTargetRole(target.role)}</Badge>
+            ) : (
+              <Badge variant="secondary">无触发</Badge>
+            )}
           </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <ActionDetail action={opportunity.action} />
-          <DataSourceGrid sources={opportunity.action.dataSources} />
           {target ? (
-            <div className="grid gap-2 text-sm sm:grid-cols-3">
+            <div className="grid gap-2 text-sm sm:grid-cols-3 xl:grid-cols-1">
               <StatusLine
                 label="最新价格"
                 value={
@@ -191,20 +269,38 @@ function OpportunitySection({ snapshot }: { snapshot: DashboardSnapshot }) {
                     : "暂无"
                 }
               />
-              <StatusLine
+              <SignedStatusLine
                 label="日变化"
                 value={
                   target.changePercent !== null
                     ? formatSignedPercent(target.changePercent)
                     : "暂无"
                 }
+                signedValue={target.changePercent}
               />
               <StatusLine label="依据日期" value={target.latestPriceDate ?? "暂无"} />
             </div>
-          ) : null}
-        </CardContent>
-      </Card>
+          ) : (
+            <QuietReason reasons={opportunity.disqualifiedReasons} />
+          )}
+        </div>
+        <div className="space-y-4">
+          <ActionDetail action={opportunity.action} compactEvidence />
+          <DataSourceGrid sources={opportunity.action.dataSources} />
+        </div>
+      </div>
     </section>
+  );
+}
+
+function QuietReason({ reasons }: { reasons: string[] }) {
+  return (
+    <div className="rounded-md border border-border bg-[#0F0E0C] px-3 py-3 text-sm text-[#C6BFAF]">
+      <p className="font-medium text-card-foreground">今日无高质量关注机会，保持观察。</p>
+      {reasons.length > 0 ? (
+        <p className="mt-2 text-muted-foreground">{reasons[0]}</p>
+      ) : null}
+    </div>
   );
 }
 
@@ -345,61 +441,73 @@ function KeyLevelAlertSection({
 function TargetSection({
   emptyLabel,
   icon: Icon,
+  region,
   targets,
   title
 }: {
   emptyLabel: string;
   icon: typeof WalletCards;
+  region: "holdings-table" | "watchlist-table";
   targets: DashboardTargetSnapshot[];
   title: string;
 }) {
   return (
-    <section>
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="flex items-center gap-2 text-lg font-semibold">
-          <Icon className="h-4 w-4" aria-hidden="true" />
-          {title}
-        </h2>
-        <Badge variant="secondary">{targets.length}</Badge>
-      </div>
-      {targets.length > 0 ? (
-        <div className="grid gap-4 xl:grid-cols-2">
-          {targets.map((target) => (
-            <TargetCard key={`${target.role}:${target.instrument.id}`} target={target} />
-          ))}
+    <Card data-dashboard-region={region}>
+      <CardHeader className="border-b border-border pb-3">
+        <div className="flex items-center justify-between gap-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Icon className="h-4 w-4 text-primary" aria-hidden="true" />
+            {title}
+          </CardTitle>
+          <span className="text-xs text-muted-foreground">
+            {targets.length} rows
+          </span>
         </div>
+      </CardHeader>
+      {targets.length > 0 ? (
+        <CardContent className="space-y-2 pt-4 sm:pt-4">
+          {targets.map((target) => (
+            <TargetRow key={`${target.role}:${target.instrument.id}`} target={target} />
+          ))}
+        </CardContent>
       ) : (
-        <EmptyBand label={emptyLabel} />
+        <CardContent className="pt-4 sm:pt-4">
+          <EmptyBand label={emptyLabel} />
+        </CardContent>
       )}
-    </section>
+    </Card>
   );
 }
 
-function TargetCard({ target }: { target: DashboardTargetSnapshot }) {
+function TargetRow({ target }: { target: DashboardTargetSnapshot }) {
   return (
-    <Card>
-      <CardHeader className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+    <div className="rounded-md border border-border bg-[#0F0E0C]">
+      <div className="grid gap-3 px-4 py-3 text-sm md:grid-cols-[1.1fr_0.85fr_0.65fr_0.85fr] md:items-center">
         <div className="min-w-0">
-          <CardTitle className="flex flex-wrap items-center gap-2 text-lg">
-            <span className="break-all">{target.instrument.symbol}</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="break-all text-base font-semibold">
+              {target.instrument.symbol}
+            </span>
             <Badge variant="secondary">{formatTargetRole(target.role)}</Badge>
-          </CardTitle>
-          <p className="mt-1 break-words text-sm text-muted-foreground">
+          </div>
+          <p className="mt-1 break-words text-xs text-muted-foreground">
             {target.instrument.name ?? target.instrument.assetType.toUpperCase()}
           </p>
         </div>
-        <div className="min-w-0 text-left sm:text-right">
-          <p className="text-lg font-semibold">
+        <div className="min-w-0">
+          <p className="font-mono text-sm text-[#C6BFAF]">
             {target.latestPrice !== null
               ? formatCurrency(target.latestPrice, target.instrument.currency)
               : "暂无价格"}
           </p>
           <p
             className={cn(
-              "text-xs font-medium",
+              "mt-1 font-mono text-xs font-medium",
               target.changePercent !== null && target.changePercent < 0
                 ? "text-destructive"
-                : "text-muted-foreground"
+                : target.changePercent !== null && target.changePercent > 0
+                  ? "text-positive"
+                  : "text-muted-foreground"
             )}
           >
             {target.changePercent !== null
@@ -407,51 +515,63 @@ function TargetCard({ target }: { target: DashboardTargetSnapshot }) {
               : "变化暂无"}
           </p>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <ActionDetail action={target.action} />
-        <DataSourceGrid sources={target.action.dataSources} />
-        <div className="grid gap-2 sm:grid-cols-4">
-          {([8, 21, 50, 200] as const).map((window) => (
-            <IndicatorPill
-              indicator={target.movingAverages[window]}
-              key={window}
-              label={`MA${window}`}
+        <div className="flex flex-wrap gap-2">
+          <ActionKindBadge action={target.action} />
+          <DataQualityBadge dataQuality={target.action.dataQuality} />
+        </div>
+        <div className="font-mono text-xs text-muted-foreground md:text-right">
+          依据 {target.latestPriceDate ?? target.action.basisDate ?? "暂无"}
+        </div>
+      </div>
+      <details className="border-t border-border px-4 py-3 text-sm">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-semibold text-muted-foreground">
+          <span>查看证据</span>
+          <ChevronDown className="h-4 w-4" aria-hidden="true" />
+        </summary>
+        <div className="mt-4 space-y-4">
+          <ActionDetail action={target.action} compactEvidence />
+          <DataSourceGrid sources={target.action.dataSources} />
+          <div className="grid gap-2 sm:grid-cols-4">
+            {([8, 21, 50, 200] as const).map((window) => (
+              <IndicatorPill
+                indicator={target.movingAverages[window]}
+                key={window}
+                label={`MA${window}`}
+              />
+            ))}
+          </div>
+          <div className="grid gap-2 text-sm sm:grid-cols-2">
+            <StatusLine
+              label="近高"
+              value={
+                target.recentRange.high !== null
+                  ? `${formatNumber(target.recentRange.high)} · ${target.recentRange.highDate}`
+                  : "暂无"
+              }
             />
-          ))}
-        </div>
-        <div className="grid gap-2 text-sm sm:grid-cols-2">
-          <StatusLine
-            label="近高"
-            value={
-              target.recentRange.high !== null
-                ? `${formatNumber(target.recentRange.high)} · ${target.recentRange.highDate}`
-                : "暂无"
-            }
-          />
-          <StatusLine
-            label="近低"
-            value={
-              target.recentRange.low !== null
-                ? `${formatNumber(target.recentRange.low)} · ${target.recentRange.lowDate}`
-                : "暂无"
-            }
-          />
-          <StatusLine
-            label="成交量"
-            value={
-              target.volumeChange.percent !== null
-                ? formatSignedPercent(target.volumeChange.percent)
-                : (target.volumeChange.message ?? "暂无")
-            }
-          />
-          <StatusLine label="依据日期" value={target.latestPriceDate ?? "暂无"} />
-        </div>
+            <StatusLine
+              label="近低"
+              value={
+                target.recentRange.low !== null
+                  ? `${formatNumber(target.recentRange.low)} · ${target.recentRange.lowDate}`
+                  : "暂无"
+              }
+            />
+            <StatusLine
+              label="成交量"
+              value={
+                target.volumeChange.percent !== null
+                  ? formatSignedPercent(target.volumeChange.percent)
+                  : (target.volumeChange.message ?? "暂无")
+              }
+            />
+            <StatusLine label="依据日期" value={target.latestPriceDate ?? "暂无"} />
+          </div>
         {target.keyLevels.length > 0 ? (
           <div className="space-y-2">
             {target.keyLevels.slice(0, 3).map((level) => (
               <div
-                className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2 text-sm"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border bg-card px-3 py-2 text-sm"
                 key={level.level.id}
               >
                 <span>{formatLevelType(level.level.levelType)}</span>
@@ -462,8 +582,9 @@ function TargetCard({ target }: { target: DashboardTargetSnapshot }) {
             ))}
           </div>
         ) : null}
-      </CardContent>
-    </Card>
+        </div>
+      </details>
+    </div>
   );
 }
 
@@ -522,7 +643,13 @@ function IndicatorPill({
   );
 }
 
-function ActionDetail({ action }: { action: DashboardActionRecommendation }) {
+function ActionDetail({
+  action,
+  compactEvidence = false
+}: {
+  action: DashboardActionRecommendation;
+  compactEvidence?: boolean;
+}) {
   const trustAction = isTrustAction(action) ? action : null;
 
   return (
@@ -541,7 +668,7 @@ function ActionDetail({ action }: { action: DashboardActionRecommendation }) {
         </span>
       </div>
       {trustAction ? (
-        <EvidenceGrid evidence={trustAction.evidence} />
+        <EvidenceGrid compact={compactEvidence} evidence={trustAction.evidence} />
       ) : (
         <ReasonRiskGrid reasons={action.reasons} risks={action.risks} />
       )}
@@ -590,7 +717,13 @@ function DataSourceGrid({ sources }: { sources: DashboardDataSourceSnapshot[] })
   );
 }
 
-function EvidenceGrid({ evidence }: { evidence: DashboardEvidenceGroups }) {
+function EvidenceGrid({
+  compact = false,
+  evidence
+}: {
+  compact?: boolean;
+  evidence: DashboardEvidenceGroups;
+}) {
   const groups = [
     {
       icon: CheckCircle2,
@@ -619,7 +752,12 @@ function EvidenceGrid({ evidence }: { evidence: DashboardEvidenceGroups }) {
   ];
 
   return (
-    <div className="grid gap-3 text-sm lg:grid-cols-2">
+    <div
+      className={cn(
+        "grid gap-3 text-sm",
+        compact ? "lg:grid-cols-2 xl:grid-cols-3" : "lg:grid-cols-2"
+      )}
+    >
       {groups.map((group) => (
         <EvidenceList
           icon={group.icon}
@@ -713,9 +851,37 @@ function TextList({
 
 function StatusLine({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex min-w-0 items-center justify-between gap-4 rounded-md border border-border px-3 py-2">
+    <div className="flex min-w-0 items-center justify-between gap-4 rounded-md border border-border bg-[#0F0E0C] px-3 py-2">
       <span className="shrink-0 text-muted-foreground">{label}</span>
       <span className="min-w-0 break-words text-right font-medium">{value}</span>
+    </div>
+  );
+}
+
+function SignedStatusLine({
+  label,
+  signedValue,
+  value
+}: {
+  label: string;
+  signedValue: number | null;
+  value: string;
+}) {
+  return (
+    <div className="flex min-w-0 items-center justify-between gap-4 rounded-md border border-border bg-[#0F0E0C] px-3 py-2">
+      <span className="shrink-0 text-muted-foreground">{label}</span>
+      <span
+        className={cn(
+          "min-w-0 break-words text-right font-mono font-medium",
+          signedValue !== null && signedValue < 0
+            ? "text-destructive"
+            : signedValue !== null && signedValue > 0
+              ? "text-positive"
+              : "text-card-foreground"
+        )}
+      >
+        {value}
+      </span>
     </div>
   );
 }
@@ -762,7 +928,7 @@ function DataQualityBadge({
   dataQuality: DashboardTrustActionRecommendation["dataQuality"];
 }) {
   return (
-    <Badge variant={dataQuality === "complete" ? "default" : "secondary"}>
+    <Badge variant={dataQuality === "complete" ? "default" : "warning"}>
       {formatDataQuality(dataQuality)}
     </Badge>
   );
@@ -770,7 +936,7 @@ function DataQualityBadge({
 
 function statusBadgeVariant(status: DashboardStatus) {
   if (status === "ready") {
-    return "default" as const;
+    return "positive" as const;
   }
 
   return status === "stale" ? ("warning" as const) : ("secondary" as const);
@@ -778,7 +944,7 @@ function statusBadgeVariant(status: DashboardStatus) {
 
 function dataSourceStatusVariant(status: DashboardDataSourceSnapshot["status"]) {
   if (status === "ready") {
-    return "default" as const;
+    return "positive" as const;
   }
 
   return status === "stale" || status === "partial"
