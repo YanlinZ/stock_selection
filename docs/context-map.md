@@ -4,14 +4,14 @@ This file routes agents to the smallest useful context for each task. Read this 
 
 ## Active State
 
-- Active state: Phase 3 Dashboard Trust is implemented, merged, migrated, and production-smoked: holdings now include trust tags, source/update metadata, support/opposition/risk/missing evidence groups, confidence/data-quality labels, and lightweight daily decision snapshots. Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production closure QA passed on 2026-05-15; QA-001 through QA-007 are closed. Next phase is Phase 4 Watchlist Opportunity Scan: rules-only, Dashboard-scoped, at most one high-quality holding/watchlist opportunity per day.
+- Active state: Phase 4 Watchlist Opportunity Scan is implemented in the current codebase: Dashboard scans configured holdings/watchlist targets, surfaces at most one rules-only high-quality opportunity, or explicitly stays quiet with trust evidence when no target clears the bar. Phase 3 Dashboard Trust is merged, migrated, and production-smoked; Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production closure QA passed on 2026-05-15; QA-001 through QA-007 are closed.
 - Latest phase plan: `docs/tech/TECH-PLAN-v2026.05.15-phase-4-watchlist-opportunity-scan.md`
 - Latest hardening plan: `docs/tech/TECH-PLAN-v2026.05.14-phase-2.1-hardening.md`
 - Latest completed technical status: `docs/tech/TECH-PLAN-v2026.05.14.md`
 - Phase 1 status: complete; configuration page, provider contracts, ingestion, normalized data, and production smoke are done.
 - Phase 2 result: Dashboard v1 reads normalized data and outputs rule-based, explainable daily guidance with reasons, risks, data dates, macro scoring, technical indicators, and key price level proximity.
 - Phase 3 result: Dashboard Trust for Holdings Decisions strengthens holding action trust with source/update metadata, support/opposition/risk/missing evidence groups, confidence/data-quality tags, and lightweight daily decision snapshots.
-- Phase 4 target: Watchlist Opportunity Scan should surface at most one rules-only high-quality holding/watchlist opportunity, or explicitly stay quiet when no opportunity clears the bar.
+- Phase 4 result: Watchlist Opportunity Scan surfaces at most one rules-only high-quality holding/watchlist opportunity, or explicitly stays quiet when no opportunity clears the bar.
 - Current boundary: do not add AI summaries, news/earnings deep understanding, automatic scheduled jobs, broker sync, real trading, push notifications, high-frequency market data, or full-market recommendations unless explicitly requested.
 
 ## Canonical Entrypoints
@@ -31,6 +31,7 @@ This file routes agents to the smallest useful context for each task. Read this 
 - Current QA regression cases: `docs/qa/ONLINE-QA-REGRESSION-v2026.05.12.md`
 - Current open QA issues: `docs/qa/ONLINE-QA-ISSUES-v2026.05.12.md`
 - Latest production QA run: `docs/qa/runs/QA-RUN-v2026.05.15-production-closure.md`
+- Latest Phase 4 local QA run: `docs/qa/runs/QA-RUN-v2026.05.15-phase-4-local.md`
 - Review protocol: `docs/process/CODE-REVIEW-AGENT.md`
 - Review checklist: `docs/review/code_review.md`
 - Autonomous ship gate: `docs/process/SHIP-GATE.md`

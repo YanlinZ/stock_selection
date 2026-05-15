@@ -91,8 +91,22 @@ describe("createDashboardSnapshot", () => {
       status: "available",
       candidate: expect.objectContaining({
         instrument: expect.objectContaining({ symbol: "TSLA" })
-      })
+      }),
+      action: expect.objectContaining({
+        confidence: "high",
+        dataQuality: "complete",
+        ruleVersion: "dashboard-rules-v4.0.0"
+      }),
+      score: expect.any(Number)
     });
+    expect(snapshot.opportunity.evaluations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          opportunityRank: 1,
+          symbol: "TSLA"
+        })
+      ])
+    );
     expect(snapshot.holdings[0]?.action.dataSources).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -136,7 +150,106 @@ describe("createDashboardSnapshot", () => {
     expect(snapshot.opportunity.candidate?.instrument.symbol).toBe("QQQ");
     expect(snapshot.opportunity.action.label).toContain("今日重点观察：QQQ");
     expect(snapshot.opportunity.evaluatedTargetCount).toBe(2);
+    expect(snapshot.opportunity.evaluations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          opportunityRank: 1,
+          symbol: "QQQ"
+        }),
+        expect.objectContaining({
+          opportunityRank: 2,
+          symbol: "TSLA"
+        })
+      ])
+    );
     expect(snapshot.watchlistItems).toHaveLength(2);
+  });
+
+  it("keeps a high-priority weak single-signal watchlist item quiet", () => {
+    const snapshot = createDashboardSnapshot(
+      createInput({
+        keyPriceLevels: [createKeyLevel("QQQ", 300)],
+        macroObservations: [
+          createObservation("VIXCLS", 16, "2026-05-12"),
+          createObservation("DGS10", 4.1, "2026-05-12")
+        ],
+        marketData: createHistory("instrument_QQQ", 210, 300),
+        watchlistItems: [createWatchlistItem("QQQ", 100)]
+      }),
+      now
+    );
+
+    expect(snapshot.opportunity).toMatchObject({
+      candidate: null,
+      status: "none"
+    });
+    expect(snapshot.opportunity.action).toMatchObject({
+      confidence: "medium",
+      dataQuality: "complete",
+      ruleVersion: "dashboard-rules-v4.0.0"
+    });
+    expect(snapshot.opportunity.disqualifiedReasons.join(" ")).toContain(
+      "只有关键价位单一信号"
+    );
+    expect(snapshot.opportunity.evaluations[0]).toMatchObject({
+      opportunityRank: null,
+      symbol: "QQQ"
+    });
+  });
+
+  it("hard-excludes opportunities when macro risk is elevated and rebound mode is off", () => {
+    const snapshot = createDashboardSnapshot(
+      createInput({
+        keyPriceLevels: [createKeyLevel("TSLA", 280)],
+        macroObservations: [
+          createObservation("VIXCLS", 20, "2026-05-12"),
+          createObservation("DGS10", 4.7, "2026-05-12")
+        ],
+        marketData: [
+          ...createDropHistory("instrument_TSLA", 300, 280),
+          createMarketPoint("instrument_BTC", "2026-05-11", 100),
+          createMarketPoint("instrument_BTC", "2026-05-12", 94)
+        ],
+        watchlistItems: [
+          createWatchlistItem("TSLA", 90),
+          createWatchlistItem("BTC", 1)
+        ]
+      }),
+      now
+    );
+
+    const tslaEvaluation = snapshot.opportunity.evaluations.find(
+      (evaluation) => evaluation.symbol === "TSLA"
+    );
+
+    expect(snapshot.macro.status).toBe("elevated");
+    expect(snapshot.macro.panicReboundMode.state).toBe("off");
+    expect(snapshot.opportunity.status).toBe("none");
+    expect(tslaEvaluation?.disqualifiedReasons.join(" ")).toContain(
+      "宏观风险偏高"
+    );
+  });
+
+  it("keeps both-role targets deduped when selecting an opportunity", () => {
+    const snapshot = createDashboardSnapshot(
+      createInput({
+        holdings: [createHolding("TSLA")],
+        keyPriceLevels: [createKeyLevel("TSLA", 280)],
+        macroObservations: [
+          createObservation("VIXCLS", 28, "2026-05-12"),
+          createObservation("DGS10", 4.6, "2026-05-12")
+        ],
+        marketData: createDropHistory("instrument_TSLA", 300, 280),
+        watchlistItems: [createWatchlistItem("TSLA", 90)]
+      }),
+      now
+    );
+
+    expect(snapshot.targets).toHaveLength(1);
+    expect(snapshot.holdings).toHaveLength(1);
+    expect(snapshot.watchlistItems).toHaveLength(1);
+    expect(snapshot.opportunity.candidate?.role).toBe("both");
+    expect(snapshot.opportunity.evaluations).toHaveLength(1);
   });
 
   it("downgrades confidence and records missing evidence for partial inputs", () => {
@@ -168,6 +281,11 @@ describe("createDashboardSnapshot", () => {
       "宏观"
     );
     expect(snapshot.opportunity).toMatchObject({
+      action: expect.objectContaining({
+        confidence: "medium",
+        dataQuality: "partial",
+        ruleVersion: "dashboard-rules-v4.0.0"
+      }),
       candidate: null,
       status: "none"
     });

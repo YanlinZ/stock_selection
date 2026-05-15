@@ -132,6 +132,11 @@ export function DashboardView({ snapshot }: { snapshot: DashboardSnapshot }) {
 function OpportunitySection({ snapshot }: { snapshot: DashboardSnapshot }) {
   const opportunity = snapshot.opportunity;
   const target = opportunity.candidate;
+  const selectedEvaluation = target
+    ? opportunity.evaluations.find(
+        (evaluation) => evaluation.instrumentId === target.instrument.id
+      ) ?? null
+    : null;
 
   return (
     <section>
@@ -163,6 +168,11 @@ function OpportunitySection({ snapshot }: { snapshot: DashboardSnapshot }) {
             {target ? (
               <Badge variant="secondary">{formatTargetRole(target.role)}</Badge>
             ) : null}
+            {selectedEvaluation?.opportunityRank ? (
+              <Badge variant="secondary">
+                排名 {selectedEvaluation.opportunityRank}
+              </Badge>
+            ) : null}
             <Badge variant={opportunity.status === "available" ? "warning" : "secondary"}>
               {opportunity.score !== null ? `评分 ${opportunity.score}` : "保持安静"}
             </Badge>
@@ -170,6 +180,7 @@ function OpportunitySection({ snapshot }: { snapshot: DashboardSnapshot }) {
         </CardHeader>
         <CardContent className="space-y-4">
           <ActionDetail action={opportunity.action} />
+          <DataSourceGrid sources={opportunity.action.dataSources} />
           {target ? (
             <div className="grid gap-2 text-sm sm:grid-cols-3">
               <StatusLine
