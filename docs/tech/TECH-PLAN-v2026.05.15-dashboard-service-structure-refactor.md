@@ -8,6 +8,15 @@
 
 当前不做大重构。Phase 4 Watchlist Opportunity Scan 已完成、部署并通过生产 smoke；现阶段没有需要暂停产品节奏的大型结构风险。
 
+2026-05-15 更新：本文件记录的小范围结构整理已完成并合入 `main`。
+
+- PR #35：`https://github.com/yanlin-zhou/stock-selection/pull/35`
+- Merge commit：`3df8e1a684086b15dffc41c5ed8f601ce5dff9ec`
+- `src/server/dashboard/service.ts` 已收敛为 public facade / orchestration 入口。
+- Dashboard server 规则已拆入 `snapshot.ts`、`target-decisions.ts`、`opportunity-scan.ts`、`data-sources.ts`、`decision-snapshots.ts` 和 `shared.ts`。
+- 行为口径未改变：没有 UI、schema、migration、规则阈值、`dashboardRuleVersion` 或产品能力变化。
+- 验证已通过：定向 Dashboard 测试、`pnpm check`、Vercel deploy checks、post-merge production deploy status 和 production `/api/health` smoke。
+
 建议在进入新的 Dashboard 复杂能力前，先做一次小而窄的结构整理，目标是降低 `src/server/dashboard/service.ts` 的继续扩展成本，而不是改变产品行为。
 
 这次整理应被视为内部代码组织工作：
