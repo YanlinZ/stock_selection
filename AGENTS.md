@@ -7,7 +7,7 @@ This is the root instruction file for AI coding/product agents working in this r
 - Context router: `docs/context-map.md`
 - Product overview: `docs/prd/PRD-v2026.05.10.md`
 - Current PRD delta: `docs/prd/PRD-v2026.05.11.md`
-- Current phase plan: `docs/tech/TECH-PLAN-v2026.05.14-phase-3-dashboard-trust.md`
+- Current phase plan: `docs/tech/TECH-PLAN-v2026.05.15-phase-4-watchlist-opportunity-scan.md`
 - QA entrypoint: `docs/process/QA-AGENT.md`
 - QA cases and open issues: `docs/qa/`
 - Planner protocol: `docs/process/PLANNER-AGENT.md`
@@ -16,7 +16,7 @@ This is the root instruction file for AI coding/product agents working in this r
 - Harness feedback loop: `docs/harness-engineering.md`
 - Recommended Codex workflow: `docs/workflows/codex-development-flow.md`
 
-Current active state: Phase 3 Dashboard Trust is implemented in the current codebase: holdings now show source/update metadata, support/opposition/risk/missing evidence groups, confidence/data-quality tags, and lightweight daily decision snapshots. Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production targeted QA partially passed: QA-003, QA-004, QA-006, and QA-007 are closed; QA-001, QA-002, and QA-005 remain fixed pending a later production retest for deactivate confirm/cancel and mobile navigation. Scope must stay inside Dashboard plus simple settings; do not start broker sync, real trading, push notifications, high-frequency data, full-market recommendations, or AI summaries unless explicitly requested.
+Current active state: Phase 3 Dashboard Trust is implemented, merged, migrated, and production-smoked: holdings now show source/update metadata, support/opposition/risk/missing evidence groups, confidence/data-quality tags, and lightweight daily decision snapshots. Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production closure QA passed on 2026-05-15; QA-001 through QA-007 are closed. Next phase is Phase 4 Watchlist Opportunity Scan: rules-only, Dashboard-scoped, at most one high-quality holding/watchlist opportunity per day. Scope must stay inside Dashboard plus simple settings; do not start broker sync, real trading, push notifications, high-frequency data, full-market recommendations, or AI summaries unless explicitly requested.
 
 ## Working Rules
 

@@ -41,7 +41,7 @@ export function DashboardView({ snapshot }: { snapshot: DashboardSnapshot }) {
         <div>
           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
             <BarChart3 className="h-4 w-4" aria-hidden="true" />
-            Phase 3
+            Phase 4
           </div>
           <h1 className="mt-2 text-2xl font-semibold">Dashboard Trust</h1>
         </div>
@@ -108,6 +108,8 @@ export function DashboardView({ snapshot }: { snapshot: DashboardSnapshot }) {
 
       <MacroSection macro={snapshot.macro} />
 
+      <OpportunitySection snapshot={snapshot} />
+
       <KeyLevelAlertSection alerts={snapshot.keyLevelAlerts} />
 
       <TargetSection
@@ -124,6 +126,74 @@ export function DashboardView({ snapshot }: { snapshot: DashboardSnapshot }) {
         title="关注列表"
       />
     </div>
+  );
+}
+
+function OpportunitySection({ snapshot }: { snapshot: DashboardSnapshot }) {
+  const opportunity = snapshot.opportunity;
+  const target = opportunity.candidate;
+
+  return (
+    <section>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h2 className="flex items-center gap-2 text-lg font-semibold">
+          <Target className="h-4 w-4" aria-hidden="true" />
+          今日机会
+        </h2>
+        <Badge variant={opportunity.status === "available" ? "warning" : "secondary"}>
+          {opportunity.status === "available" ? "1 个重点" : "无触发"}
+        </Badge>
+      </div>
+      <Card>
+        <CardHeader className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-muted-foreground">
+              已评估 {opportunity.evaluatedTargetCount} 个持仓/关注标的
+            </p>
+            <CardTitle className="mt-2 break-words text-xl">
+              {opportunity.action.label}
+            </CardTitle>
+            {target ? (
+              <p className="mt-1 break-words text-sm text-muted-foreground">
+                {target.instrument.name ?? target.instrument.assetType.toUpperCase()}
+              </p>
+            ) : null}
+          </div>
+          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+            {target ? (
+              <Badge variant="secondary">{formatTargetRole(target.role)}</Badge>
+            ) : null}
+            <Badge variant={opportunity.status === "available" ? "warning" : "secondary"}>
+              {opportunity.score !== null ? `评分 ${opportunity.score}` : "保持安静"}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <ActionDetail action={opportunity.action} />
+          {target ? (
+            <div className="grid gap-2 text-sm sm:grid-cols-3">
+              <StatusLine
+                label="最新价格"
+                value={
+                  target.latestPrice !== null
+                    ? formatCurrency(target.latestPrice, target.instrument.currency)
+                    : "暂无"
+                }
+              />
+              <StatusLine
+                label="日变化"
+                value={
+                  target.changePercent !== null
+                    ? formatSignedPercent(target.changePercent)
+                    : "暂无"
+                }
+              />
+              <StatusLine label="依据日期" value={target.latestPriceDate ?? "暂无"} />
+            </div>
+          ) : null}
+        </CardContent>
+      </Card>
+    </section>
   );
 }
 

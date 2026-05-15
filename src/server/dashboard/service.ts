@@ -22,6 +22,7 @@ import type {
   DashboardInputSnapshot,
   DashboardKeyPriceLevelInput,
   DashboardMarketDataPoint,
+  DashboardOpportunitySummary,
   DashboardSnapshot,
   DashboardStatus,
   DashboardTargetSnapshot,
@@ -134,6 +135,12 @@ export function createDashboardSnapshot(
     dataFreshness,
     marketDataCount: input.marketData.length
   });
+  const opportunity = createOpportunitySummary({
+    dataFreshness,
+    macro,
+    status,
+    targets
+  });
 
   return {
     dataFreshness,
@@ -141,6 +148,7 @@ export function createDashboardSnapshot(
     holdings: targets.filter((target) => target.role !== "watchlist"),
     keyLevelAlerts,
     macro,
+    opportunity,
     status,
     summary: createSummaryAction({
       dataFreshness,
@@ -181,6 +189,11 @@ export function createUnavailableDashboardSnapshot({
     holdings: [],
     keyLevelAlerts: [],
     macro,
+    opportunity: createEmptyOpportunitySummary({
+      basisDate: null,
+      evaluatedTargetCount: 0,
+      reason: message
+    }),
     status: "unavailable",
     summary: {
       basisDate: null,
@@ -192,6 +205,177 @@ export function createUnavailableDashboardSnapshot({
     targets: [],
     watchlistItems: []
   };
+}
+
+function createOpportunitySummary({
+  dataFreshness,
+  macro,
+  status,
+  targets
+}: {
+  dataFreshness: DashboardDataFreshness;
+  macro: DashboardSnapshot["macro"];
+  status: DashboardStatus;
+  targets: DashboardTargetSnapshot[];
+}): DashboardOpportunitySummary {
+  if (targets.length === 0) {
+    return createEmptyOpportunitySummary({
+      basisDate: null,
+      evaluatedTargetCount: 0,
+      reason: "尚未配置 active holdings 或 watchlist_items"
+    });
+  }
+
+  if (status !== "ready") {
+    return createEmptyOpportunitySummary({
+      basisDate: dataFreshness.latestMarketDate ?? macro.basisDate,
+      evaluatedTargetCount: targets.length,
+      reason:
+        status === "stale"
+          ? "数据已过期，今日不输出机会"
+          : "数据不足，今日不输出机会"
+    });
+  }
+
+  const candidates = targets
+    .map((target) => ({
+      score: scoreOpportunityCandidate({ macro, target }),
+      target
+    }))
+    .filter(
+      (
+        candidate
+      ): candidate is { score: number; target: DashboardTargetSnapshot } =>
+        candidate.score !== null
+    )
+    .sort((left, right) => {
+      if (right.score !== left.score) {
+        return right.score - left.score;
+      }
+
+      const rightPriority = right.target.watchlistItem?.priority ?? 0;
+      const leftPriority = left.target.watchlistItem?.priority ?? 0;
+
+      if (rightPriority !== leftPriority) {
+        return rightPriority - leftPriority;
+      }
+
+      return left.target.instrument.symbol.localeCompare(right.target.instrument.symbol);
+    });
+  const best = candidates[0] ?? null;
+
+  if (!best || best.score < 65) {
+    return createEmptyOpportunitySummary({
+      basisDate: dataFreshness.latestMarketDate ?? macro.basisDate,
+      evaluatedTargetCount: targets.length,
+      reason: "没有标的同时满足关键价位、数据质量和宏观过滤"
+    });
+  }
+
+  return {
+    action: {
+      ...best.target.action,
+      label: `今日重点观察：${best.target.instrument.symbol} · ${best.target.action.label}`
+    },
+    candidate: best.target,
+    evaluatedTargetCount: targets.length,
+    score: best.score,
+    status: "available"
+  };
+}
+
+function createEmptyOpportunitySummary({
+  basisDate,
+  evaluatedTargetCount,
+  reason
+}: {
+  basisDate: string | null;
+  evaluatedTargetCount: number;
+  reason: string;
+}): DashboardOpportunitySummary {
+  return {
+    action: {
+      basisDate,
+      kind: "wait",
+      label: "今日无高质量关注机会，保持观察。",
+      reasons: [reason],
+      risks: ["为满足交易冲动而展示次优机会，会降低信噪比"]
+    },
+    candidate: null,
+    evaluatedTargetCount,
+    score: null,
+    status: "none"
+  };
+}
+
+function scoreOpportunityCandidate({
+  macro,
+  target
+}: {
+  macro: DashboardSnapshot["macro"];
+  target: DashboardTargetSnapshot;
+}): number | null {
+  if (target.action.dataQuality !== "complete") {
+    return null;
+  }
+
+  if (
+    target.action.kind !== "consider_small_add" &&
+    target.action.kind !== "watch_key_level"
+  ) {
+    return null;
+  }
+
+  const nearestActionableLevel = target.keyLevels.find(
+    (level) =>
+      level.isNear &&
+      ["long_term_add", "support", "watch"].includes(level.level.levelType)
+  );
+
+  if (!nearestActionableLevel) {
+    return null;
+  }
+
+  if (
+    macro.status === "elevated" &&
+    macro.panicReboundMode.state !== "active" &&
+    macro.panicReboundMode.state !== "watch"
+  ) {
+    return null;
+  }
+
+  const missingPenalty = target.action.evidence.missing.length * 8;
+  const opposingPenalty = target.action.evidence.opposing.length * 6;
+  const riskPenalty = target.action.evidence.risks.length * 4;
+  const watchlistPriority = Math.min(target.watchlistItem?.priority ?? 0, 100) / 10;
+  const dropBonus =
+    target.changePercent !== null && target.changePercent <= -5
+      ? 18
+      : target.changePercent !== null && target.changePercent <= -3
+        ? 12
+        : 0;
+  const macroBonus =
+    macro.panicReboundMode.state === "active"
+      ? 18
+      : macro.panicReboundMode.state === "watch"
+        ? 10
+        : 0;
+  const actionBonus = target.action.kind === "consider_small_add" ? 15 : 8;
+  const distanceBonus = nearestActionableLevel.distancePercent <= 3 ? 12 : 6;
+  const roleBonus = target.role !== "holding" ? 6 : 0;
+
+  return Math.round(
+    30 +
+      actionBonus +
+      distanceBonus +
+      dropBonus +
+      macroBonus +
+      watchlistPriority +
+      roleBonus -
+      missingPenalty -
+      opposingPenalty -
+      riskPenalty
+  );
 }
 
 function createTargetSnapshot({

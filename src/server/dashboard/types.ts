@@ -229,6 +229,16 @@ export type DashboardTargetSnapshot = {
   watchlistItem: DashboardWatchlistInput | null;
 };
 
+export type DashboardOpportunityStatus = "available" | "none";
+
+export type DashboardOpportunitySummary = {
+  action: DashboardActionRecommendation | DashboardTrustActionRecommendation;
+  candidate: DashboardTargetSnapshot | null;
+  evaluatedTargetCount: number;
+  score: number | null;
+  status: DashboardOpportunityStatus;
+};
+
 export type MacroScoreStatus =
   | "calm"
   | "elevated"
@@ -279,6 +289,7 @@ export type DashboardSnapshot = {
   holdings: DashboardTargetSnapshot[];
   keyLevelAlerts: KeyLevelProximitySnapshot[];
   macro: MacroScoreSnapshot;
+  opportunity: DashboardOpportunitySummary;
   status: DashboardStatus;
   summary: DashboardActionRecommendation;
   targets: DashboardTargetSnapshot[];
