@@ -231,10 +231,22 @@ export type DashboardTargetSnapshot = {
 
 export type DashboardOpportunityStatus = "available" | "none";
 
+export type DashboardOpportunityEvaluation = {
+  disqualifiedReasons: string[];
+  instrumentId: string;
+  opportunityRank: number | null;
+  opportunityReasons: string[];
+  opportunityScore: number | null;
+  role: DashboardTargetRole;
+  symbol: string;
+};
+
 export type DashboardOpportunitySummary = {
-  action: DashboardActionRecommendation | DashboardTrustActionRecommendation;
+  action: DashboardTrustActionRecommendation;
   candidate: DashboardTargetSnapshot | null;
+  disqualifiedReasons: string[];
   evaluatedTargetCount: number;
+  evaluations: DashboardOpportunityEvaluation[];
   score: number | null;
   status: DashboardOpportunityStatus;
 };
