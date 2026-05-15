@@ -2,12 +2,14 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-type BadgeVariant = "default" | "secondary" | "warning";
+type BadgeVariant = "default" | "destructive" | "positive" | "secondary" | "warning";
 
 const variantClassName: Record<BadgeVariant, string> = {
-  default: "bg-primary text-primary-foreground",
-  secondary: "bg-muted text-muted-foreground",
-  warning: "bg-accent text-accent-foreground"
+  default: "border-border bg-muted text-card-foreground",
+  destructive: "border-destructive/40 bg-negative-surface text-destructive",
+  positive: "border-positive/40 bg-positive-surface text-positive",
+  secondary: "border-border bg-muted text-muted-foreground",
+  warning: "border-primary/60 bg-primary/15 text-primary"
 };
 
 export function Badge({
@@ -20,7 +22,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex h-6 items-center rounded-md px-2 text-xs font-medium",
+        "inline-flex min-h-6 items-center rounded border px-2 py-0.5 text-xs font-medium leading-tight",
         variantClassName[variant],
         className
       )}

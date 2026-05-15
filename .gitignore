@@ -25,6 +25,8 @@ tsconfig.tsbuildinfo
 coverage/
 test-results/
 playwright-report/
+.playwright-cli/
+output/playwright/
 
 # OS files
 .DS_Store
