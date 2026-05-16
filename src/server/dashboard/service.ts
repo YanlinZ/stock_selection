@@ -8,6 +8,7 @@ export {
   createUnavailableDashboardSnapshot
 } from "./snapshot";
 export { dashboardRuleVersion } from "./shared";
+export { createDashboardHistoryService } from "./history-service";
 
 type Clock = {
   now(): Date;

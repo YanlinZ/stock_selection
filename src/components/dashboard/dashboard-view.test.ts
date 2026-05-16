@@ -37,6 +37,7 @@ describe("DashboardView", () => {
     const html = renderToStaticMarkup(DashboardView({ snapshot }));
 
     expect(html).toContain("今日机会");
+    expect(html).toContain('href="/dashboard/history"');
     expect(html).toContain("今日无高质量关注机会");
     expect(html).toContain("数据不足");
     expect(html).toContain("缺口");

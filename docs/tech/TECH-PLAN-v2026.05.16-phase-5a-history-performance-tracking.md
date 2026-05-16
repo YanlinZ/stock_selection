@@ -2,16 +2,16 @@
 
 版本：v2026.05.16-phase-5a-history-performance-tracking
 
-本文件基于 Phase 4 Watchlist Opportunity Scan 完成态和 Phase 3 Dashboard Trust 的轻量判断快照能力，定义下一阶段进入开发前的技术计划。
+本文件基于 Phase 4 Watchlist Opportunity Scan 完成态和 Phase 3 Dashboard Trust 的轻量判断快照能力，定义 Phase 5A 技术计划和本地完成状态。
 
 ## 当前准备状态
 
-- Phase 5A 已选定为下一阶段开发方向：历史判断与表现追踪基础版。
-- 本文件只完成开发前准备，不代表 Phase 5A 功能已经实现。
+- Phase 5A 已完成本地实现：历史判断与表现追踪基础版。
+- 本文件已从开发前准备更新为 Phase 5A 本地完成状态；merge/deploy 后的 production QA 需另行记录。
 - Phase 4 已完成、合入 `main`、部署并通过 production smoke。
 - Phase 3 已新增 `dashboard_decision_snapshots` 表和 Dashboard 渲染时的轻量快照持久化。
 - 2026-05-15 的 Dashboard service 结构整理已完成，`src/server/dashboard/service.ts` 已收敛为 public facade / orchestration 入口，Dashboard server 规则已拆入 `snapshot.ts`、`target-decisions.ts`、`opportunity-scan.ts`、`data-sources.ts`、`decision-snapshots.ts` 和 `shared.ts`。
-- 当前代码基础足以开始 Phase 5A，但仍缺少历史读取、outcome 计算、历史 UI，以及 Phase 4 opportunity 的可追踪快照覆盖。
+- 当前代码已具备历史读取、outcome 计算、历史 UI，以及 Phase 4 available opportunity 的可追踪快照覆盖。
 
 ## 相对上一阶段的关键变化
 
@@ -381,21 +381,22 @@ pnpm dev
 
 ## 9. 完成定义
 
-Phase 5A 实现完成时应满足：
+当前状态：已完成本地实现和本地 QA。
 
 - 快照契约覆盖 summary、holding、opportunity。
 - 历史读取 service 和 outcome calculator 已实现并有 targeted tests。
 - 历史 UI 已实现并通过本地 smoke。
 - Dashboard 现有用户路径不回退。
 - `pnpm check` 通过。
-- Diff 经 Reviewer gate 通过，无 blocking issue。
-- 需要部署时，PR checks 全部通过并完成 post-merge production smoke。
+- `pnpm build` 通过。
+- 本地 QA 已记录在 `docs/qa/runs/QA-RUN-v2026.05.16-phase-5a-local.md`。
+- Diff 需经 Reviewer gate 通过，无 blocking issue。
+- 合并部署后仍需 PR checks 全部通过并完成 post-merge production smoke。
 
 ## 10. 当前下一步
 
-2026-05-16 准备状态：
+2026-05-16 完成状态：
 
-- Phase 5A 已完成 planning gate 和开发前技术计划。
-- 下一步可以由 Main Agent 按本文件开始实现。
-- 实现前先跑 Dashboard 定向基线测试。
-- 若实现中发现需要新增 schema，例如独立 review task 或 outcome table，应停止并重新过 Planner gate；Phase 5A 默认优先不新增 schema，先用 existing snapshots + normalized market data 计算展示。
+- Phase 5A 已完成本地实现、targeted tests、`pnpm check`、`pnpm build` 和本地 browser smoke。
+- 下一步是 Reviewer gate、PR checks、merge/deploy 和 post-merge production smoke。
+- 若后续发现需要新增 schema，例如独立 review task 或 outcome table，应停止并重新过 Planner gate；Phase 5A 当前实现未新增 schema，使用 existing snapshots + normalized market data 计算展示。

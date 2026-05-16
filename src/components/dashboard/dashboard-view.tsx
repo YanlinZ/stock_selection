@@ -5,6 +5,7 @@ import {
   ChevronDown,
   Database,
   Eye,
+  History,
   RefreshCw,
   Settings,
   ShieldAlert,
@@ -41,13 +42,13 @@ export function DashboardView({ snapshot }: { snapshot: DashboardSnapshot }) {
       <section className="grid gap-4 lg:grid-cols-[1fr_0.7fr] lg:items-start">
         <div>
           <div className="text-sm font-medium text-muted-foreground">
-            Phase 4
+            Phase 5A
           </div>
           <h1 className="mt-2 text-2xl font-semibold leading-tight sm:text-[28px]">
             Dashboard Trust
           </h1>
           <p className="mt-2 text-sm text-[#C6BFAF]">
-            规则化机会扫描与持仓决策证据
+            历史判断追踪与持仓决策证据
           </p>
         </div>
         <StatusStrip snapshot={snapshot} />
@@ -111,13 +112,22 @@ function StatusStrip({ snapshot }: { snapshot: DashboardSnapshot }) {
             ? formatDateTime(snapshot.dataFreshness.latestRefreshStartedAt)
             : "暂无"}
         </span>
-        <a
-          className="inline-flex items-center gap-1.5 text-primary transition hover:text-[#F1D488]"
-          href="/settings"
-        >
-          <Settings className="h-3.5 w-3.5" aria-hidden="true" />
-          Settings
-        </a>
+        <span className="flex flex-wrap items-center gap-3">
+          <a
+            className="inline-flex items-center gap-1.5 text-primary transition hover:text-[#F1D488]"
+            href="/dashboard/history"
+          >
+            <History className="h-3.5 w-3.5" aria-hidden="true" />
+            History
+          </a>
+          <a
+            className="inline-flex items-center gap-1.5 text-primary transition hover:text-[#F1D488]"
+            href="/settings"
+          >
+            <Settings className="h-3.5 w-3.5" aria-hidden="true" />
+            Settings
+          </a>
+        </span>
       </div>
     </section>
   );

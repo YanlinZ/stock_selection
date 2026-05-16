@@ -16,8 +16,17 @@ export function createDailyDecisionSnapshotRecords(
   const generatedAt = new Date(snapshot.generatedAt);
   const snapshotDate = snapshot.generatedAt.slice(0, 10);
   const macroState = createSafeMacroState(snapshot.macro);
+  const opportunityRecord =
+    snapshot.opportunity.status === "available" && snapshot.opportunity.candidate
+      ? createOpportunitySnapshotRecord({
+          generatedAt,
+          macroState,
+          snapshot,
+          snapshotDate
+        })
+      : null;
 
-  return [
+  const records: DashboardDecisionSnapshotRecord[] = [
     {
       actionKind: snapshot.summary.kind,
       actionLabel: snapshot.summary.label,
@@ -57,6 +66,45 @@ export function createDailyDecisionSnapshotRecords(
       })
     )
   ];
+
+  return opportunityRecord ? [...records, opportunityRecord] : records;
+}
+
+function createOpportunitySnapshotRecord({
+  generatedAt,
+  macroState,
+  snapshot,
+  snapshotDate
+}: {
+  generatedAt: Date;
+  macroState: Record<string, unknown>;
+  snapshot: DashboardSnapshot;
+  snapshotDate: string;
+}): DashboardDecisionSnapshotRecord | null {
+  const target = snapshot.opportunity.candidate;
+
+  if (!target) {
+    return null;
+  }
+
+  return {
+    actionKind: snapshot.opportunity.action.kind,
+    actionLabel: snapshot.opportunity.action.label,
+    basisDate: snapshot.opportunity.action.basisDate,
+    confidence: snapshot.opportunity.action.confidence,
+    dataQuality: snapshot.opportunity.action.dataQuality,
+    dataSources: snapshot.opportunity.action.dataSources,
+    evidence: snapshot.opportunity.action.evidence,
+    generatedAt,
+    instrumentId: target.instrument.id,
+    keyLevels: target.keyLevels.slice(0, 10).map(toSafeKeyLevelSnapshot),
+    macroState,
+    ruleVersion: snapshot.opportunity.action.ruleVersion,
+    scope: "opportunity",
+    snapshotDate,
+    subjectKey: target.instrument.id,
+    symbol: target.instrument.symbol
+  };
 }
 
 function createFallbackEvidence(
