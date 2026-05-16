@@ -7,7 +7,7 @@
 ## 当前准备状态
 
 - Phase 5A 已完成本地实现：历史判断与表现追踪基础版。
-- 本文件已从开发前准备更新为 Phase 5A 本地完成状态；merge/deploy 后的 production QA 需另行记录。
+- 本文件已从开发前准备更新为 Phase 5A 完成状态；merge/deploy 后的 production QA 已另行记录。
 - Phase 4 已完成、合入 `main`、部署并通过 production smoke。
 - Phase 3 已新增 `dashboard_decision_snapshots` 表和 Dashboard 渲染时的轻量快照持久化。
 - 2026-05-15 的 Dashboard service 结构整理已完成，`src/server/dashboard/service.ts` 已收敛为 public facade / orchestration 入口，Dashboard server 规则已拆入 `snapshot.ts`、`target-decisions.ts`、`opportunity-scan.ts`、`data-sources.ts`、`decision-snapshots.ts` 和 `shared.ts`。
@@ -381,7 +381,7 @@ pnpm dev
 
 ## 9. 完成定义
 
-当前状态：已完成本地实现和本地 QA。
+当前状态：已完成、合入、部署并通过 production smoke。
 
 - 快照契约覆盖 summary、holding、opportunity。
 - 历史读取 service 和 outcome calculator 已实现并有 targeted tests。
@@ -390,13 +390,13 @@ pnpm dev
 - `pnpm check` 通过。
 - `pnpm build` 通过。
 - 本地 QA 已记录在 `docs/qa/runs/QA-RUN-v2026.05.16-phase-5a-local.md`。
-- Diff 需经 Reviewer gate 通过，无 blocking issue。
-- 合并部署后仍需 PR checks 全部通过并完成 post-merge production smoke。
+- Diff 经 Reviewer gate 通过，无 blocking issue。
+- PR #40 已合并，Vercel production deploy 已完成，post-merge production smoke 已记录在 `docs/qa/runs/QA-RUN-v2026.05.16-phase-5a-production.md`。
 
 ## 10. 当前下一步
 
 2026-05-16 完成状态：
 
-- Phase 5A 已完成本地实现、targeted tests、`pnpm check`、`pnpm build` 和本地 browser smoke。
-- 下一步是 Reviewer gate、PR checks、merge/deploy 和 post-merge production smoke。
+- Phase 5A 已完成本地实现、targeted tests、`pnpm check`、`pnpm build`、本地 browser smoke、PR checks、merge/deploy 和 post-merge production smoke。
+- 当前没有已选定的下一阶段。后续如进入新 phase，应先更新 `AGENTS.md`、`docs/context-map.md` 和新的技术计划，再实施。
 - 若后续发现需要新增 schema，例如独立 review task 或 outcome table，应停止并重新过 Planner gate；Phase 5A 当前实现未新增 schema，使用 existing snapshots + normalized market data 计算展示。
