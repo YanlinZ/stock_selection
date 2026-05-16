@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray } from "drizzle-orm";
 
 import { getDb } from "@/db/client";
 import {
@@ -14,6 +14,8 @@ import {
 
 import type {
   DashboardDecisionSnapshotRecord,
+  DashboardHistoryInputSnapshot,
+  DashboardHistoryQueryOptions,
   DashboardInputSnapshot,
   DashboardInstrument,
   DashboardMarketDataPoint,
@@ -27,6 +29,9 @@ const macroSeriesIds = ["DGS10", "VIXCLS"];
 
 export type DashboardRepository = {
   getDashboardInputs(): Promise<DashboardInputSnapshot>;
+  getDashboardHistoryInputs?(
+    options?: DashboardHistoryQueryOptions
+  ): Promise<DashboardHistoryInputSnapshot>;
   persistDailyDecisionSnapshots?(
     snapshots: DashboardDecisionSnapshotRecord[]
   ): Promise<void>;
@@ -166,6 +171,52 @@ export function createDashboardRepository(db: Db = getDb()): DashboardRepository
       };
     },
 
+    async getDashboardHistoryInputs({ limit = 50, sinceDate } = {}) {
+      const snapshotRows = sinceDate
+        ? await db
+            .select()
+            .from(dashboardDecisionSnapshots)
+            .where(gte(dashboardDecisionSnapshots.snapshotDate, sinceDate))
+            .orderBy(
+              desc(dashboardDecisionSnapshots.snapshotDate),
+              desc(dashboardDecisionSnapshots.generatedAt),
+              asc(dashboardDecisionSnapshots.scope),
+              asc(dashboardDecisionSnapshots.symbol)
+            )
+            .limit(limit)
+        : await db
+            .select()
+            .from(dashboardDecisionSnapshots)
+            .orderBy(
+              desc(dashboardDecisionSnapshots.snapshotDate),
+              desc(dashboardDecisionSnapshots.generatedAt),
+              asc(dashboardDecisionSnapshots.scope),
+              asc(dashboardDecisionSnapshots.symbol)
+            )
+            .limit(limit);
+      const decisionSnapshots = snapshotRows.map(toDecisionSnapshotRecord);
+      const instrumentIds = [
+        ...new Set(
+          decisionSnapshots
+            .map((snapshot) => snapshot.instrumentId)
+            .filter((instrumentId): instrumentId is string => instrumentId !== null)
+        )
+      ];
+      const marketRows =
+        instrumentIds.length > 0
+          ? await db
+              .select()
+              .from(marketDataDaily)
+              .where(inArray(marketDataDaily.instrumentId, instrumentIds))
+              .orderBy(asc(marketDataDaily.instrumentId), asc(marketDataDaily.date))
+          : [];
+
+      return {
+        decisionSnapshots,
+        marketData: marketRows.map(toDashboardMarketDataPoint)
+      };
+    },
+
     async persistDailyDecisionSnapshots(snapshots) {
       const now = new Date();
 
@@ -216,6 +267,48 @@ export function createDashboardRepository(db: Db = getDb()): DashboardRepository
           });
       }
     }
+  };
+}
+
+function toDecisionSnapshotRecord(
+  row: typeof dashboardDecisionSnapshots.$inferSelect
+): DashboardDecisionSnapshotRecord {
+  return {
+    actionKind: row.actionKind as DashboardDecisionSnapshotRecord["actionKind"],
+    actionLabel: row.actionLabel,
+    basisDate: row.basisDate,
+    confidence: row.confidence as DashboardDecisionSnapshotRecord["confidence"],
+    dataQuality: row.dataQuality as DashboardDecisionSnapshotRecord["dataQuality"],
+    dataSources:
+      row.dataSources as DashboardDecisionSnapshotRecord["dataSources"],
+    evidence: row.evidence as DashboardDecisionSnapshotRecord["evidence"],
+    generatedAt: row.generatedAt,
+    instrumentId: row.instrumentId,
+    keyLevels: row.keyLevels,
+    macroState: row.macroState,
+    ruleVersion: row.ruleVersion,
+    scope: row.scope as DashboardDecisionSnapshotRecord["scope"],
+    snapshotDate: row.snapshotDate,
+    subjectKey: row.subjectKey,
+    symbol: row.symbol
+  };
+}
+
+function toDashboardMarketDataPoint(
+  row: typeof marketDataDaily.$inferSelect
+): DashboardMarketDataPoint {
+  return {
+    adjustedClose: toNullableNumber(row.adjustedClose),
+    close: toNumber(row.close),
+    date: row.date,
+    high: toNullableNumber(row.high),
+    ingestionRunId: row.ingestionRunId,
+    instrumentId: row.instrumentId,
+    low: toNullableNumber(row.low),
+    open: toNullableNumber(row.open),
+    provider: row.provider,
+    updatedAt: row.updatedAt,
+    volume: toNullableNumber(row.volume)
   };
 }
 

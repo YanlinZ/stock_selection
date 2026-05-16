@@ -322,6 +322,47 @@ describe("createDashboardSnapshot", () => {
     expect(JSON.stringify(records)).not.toContain("secret");
   });
 
+  it("creates one opportunity decision snapshot record when a Phase 4 opportunity is available", () => {
+    const snapshot = createDashboardSnapshot(
+      createInput({
+        keyPriceLevels: [createKeyLevel("QQQ", 300)],
+        macroObservations: [
+          createObservation("VIXCLS", 28, "2026-05-12"),
+          createObservation("DGS10", 4.6, "2026-05-12")
+        ],
+        marketData: createDropHistory("instrument_QQQ", 330, 300),
+        watchlistItems: [createWatchlistItem("QQQ", 90)]
+      }),
+      now
+    );
+
+    const records = createDailyDecisionSnapshotRecords(snapshot);
+    const opportunityRecords = records.filter(
+      (record) => record.scope === "opportunity"
+    );
+
+    expect(opportunityRecords).toHaveLength(1);
+    expect(opportunityRecords[0]).toMatchObject({
+      actionKind: "consider_small_add",
+      confidence: "high",
+      dataQuality: "complete",
+      instrumentId: "instrument_QQQ",
+      scope: "opportunity",
+      subjectKey: "instrument_QQQ",
+      symbol: "QQQ"
+    });
+    expect(JSON.stringify(opportunityRecords)).not.toContain("rawResponse");
+    expect(JSON.stringify(opportunityRecords)).not.toContain("secret");
+  });
+
+  it("does not create an opportunity decision snapshot record when no opportunity clears the bar", () => {
+    const snapshot = createDashboardSnapshot(createInput(), now);
+
+    const records = createDailyDecisionSnapshotRecords(snapshot);
+
+    expect(records.map((record) => record.scope)).toEqual(["summary"]);
+  });
+
   it("does not fail dashboard rendering when daily snapshot persistence fails", async () => {
     const repository: DashboardRepository = {
       async getDashboardInputs() {

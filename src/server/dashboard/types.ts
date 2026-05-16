@@ -308,7 +308,7 @@ export type DashboardSnapshot = {
   watchlistItems: DashboardTargetSnapshot[];
 };
 
-export type DashboardDecisionSnapshotScope = "holding" | "summary";
+export type DashboardDecisionSnapshotScope = "holding" | "opportunity" | "summary";
 
 export type DashboardDecisionSnapshotRecord = {
   actionKind: DashboardActionKind;
@@ -327,4 +327,58 @@ export type DashboardDecisionSnapshotRecord = {
   snapshotDate: string;
   subjectKey: string;
   symbol: string | null;
+};
+
+export type DashboardHistoryInputSnapshot = {
+  decisionSnapshots: DashboardDecisionSnapshotRecord[];
+  marketData: DashboardMarketDataPoint[];
+};
+
+export type DashboardHistoryStatus = "empty" | "ready";
+
+export type DashboardHistoryOutcomeStatus =
+  | "insufficient_data"
+  | "pending"
+  | "ready";
+
+export type DashboardHistoryOutcomeTradingDays = 1 | 5 | 20;
+
+export type DashboardHistoryOutcomeWindow = {
+  entryClose: number | null;
+  entryDate: string | null;
+  message: string;
+  outcomeClose: number | null;
+  outcomeDate: string | null;
+  returnPercent: number | null;
+  status: DashboardHistoryOutcomeStatus;
+  tradingDays: DashboardHistoryOutcomeTradingDays;
+};
+
+export type DashboardHistoryEntry = {
+  actionKind: DashboardActionKind;
+  actionLabel: string;
+  basisDate: string | null;
+  confidence: DashboardConfidence;
+  dataQuality: DashboardDataQuality;
+  dataSources: DashboardDataSourceSnapshot[];
+  evidence: DashboardEvidenceGroups;
+  generatedAt: string;
+  instrumentId: string | null;
+  outcomes: DashboardHistoryOutcomeWindow[];
+  ruleVersion: string;
+  scope: DashboardDecisionSnapshotScope;
+  snapshotDate: string;
+  subjectKey: string;
+  symbol: string | null;
+};
+
+export type DashboardHistorySnapshot = {
+  entries: DashboardHistoryEntry[];
+  generatedAt: string;
+  status: DashboardHistoryStatus;
+};
+
+export type DashboardHistoryQueryOptions = {
+  limit?: number;
+  sinceDate?: string;
 };

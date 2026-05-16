@@ -6,7 +6,8 @@ import { describe, expect, it } from "vitest";
 const protectedNavigationFiles = [
   "src/components/app-shell.tsx",
   "src/app/(protected)/page.tsx",
-  "src/app/(protected)/dashboard/page.tsx"
+  "src/app/(protected)/dashboard/page.tsx",
+  "src/app/(protected)/dashboard/history/page.tsx"
 ];
 
 describe("protected navigation", () => {

@@ -4,7 +4,7 @@ This file routes agents to the smallest useful context for each task. Read this 
 
 ## Active State
 
-- Active state: Phase 5A History Judgment and Performance Tracking is selected and development-prep is complete as of 2026-05-16; implementation has not started yet. Phase 5A should let users review historical Dashboard judgments and basic 1/5/20 trading-day performance using normalized snapshots and market data, without automatic review conclusions, self-iteration, or rule changes. Phase 4 Watchlist Opportunity Scan is complete, merged, deployed, and production-QA smoked on 2026-05-15. Phase 3 Dashboard Trust is merged, migrated, and production-smoked; Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production closure QA passed on 2026-05-15; QA-001 through QA-007 are closed.
+- Active state: Phase 5A History Judgment and Performance Tracking implementation is complete locally as of 2026-05-16 and ready for merge/deploy QA. Phase 5A lets users review historical Dashboard judgments and basic 1/5/20 trading-day performance using normalized snapshots and market data, without automatic review conclusions, self-iteration, or rule changes. Phase 4 Watchlist Opportunity Scan is complete, merged, deployed, and production-QA smoked on 2026-05-15. Phase 3 Dashboard Trust is merged, migrated, and production-smoked; Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production closure QA passed on 2026-05-15; QA-001 through QA-007 are closed.
 - Latest phase plan: `docs/tech/TECH-PLAN-v2026.05.16-phase-5a-history-performance-tracking.md`
 - Latest completed phase plan: `docs/tech/TECH-PLAN-v2026.05.15-phase-4-watchlist-opportunity-scan.md`
 - Latest hardening plan: `docs/tech/TECH-PLAN-v2026.05.14-phase-2.1-hardening.md`
@@ -14,7 +14,7 @@ This file routes agents to the smallest useful context for each task. Read this 
 - Phase 2 result: Dashboard v1 reads normalized data and outputs rule-based, explainable daily guidance with reasons, risks, data dates, macro scoring, technical indicators, and key price level proximity.
 - Phase 3 result: Dashboard Trust for Holdings Decisions strengthens holding action trust with source/update metadata, support/opposition/risk/missing evidence groups, confidence/data-quality tags, and lightweight daily decision snapshots.
 - Phase 4 result: Watchlist Opportunity Scan surfaces at most one rules-only high-quality holding/watchlist opportunity, or explicitly stays quiet when no opportunity clears the bar.
-- Phase 5A target: History Judgment and Performance Tracking should read persisted Dashboard decision snapshots, include available Phase 4 opportunities in history, calculate basic 1/5/20 trading-day outcomes from normalized daily prices, and show pending/insufficient states when data is not available.
+- Phase 5A result: History Judgment and Performance Tracking reads persisted Dashboard decision snapshots, includes available Phase 4 opportunities in history, calculates basic 1/5/20 trading-day outcomes from normalized daily prices, and shows pending/insufficient states when data is not available.
 - Current boundary: do not add AI summaries, news/earnings deep understanding, automatic scheduled jobs, broker sync, real trading, push notifications, high-frequency market data, full-market recommendations, automatic self-iteration, rule-change proposals, or automatic review conclusions unless explicitly requested.
 
 ## Canonical Entrypoints
