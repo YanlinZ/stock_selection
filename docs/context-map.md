@@ -4,7 +4,7 @@ This file routes agents to the smallest useful context for each task. Read this 
 
 ## Active State
 
-- Active state: Phase 5A History Judgment and Performance Tracking implementation is complete locally as of 2026-05-16 and ready for merge/deploy QA. Phase 5A lets users review historical Dashboard judgments and basic 1/5/20 trading-day performance using normalized snapshots and market data, without automatic review conclusions, self-iteration, or rule changes. Phase 4 Watchlist Opportunity Scan is complete, merged, deployed, and production-QA smoked on 2026-05-15. Phase 3 Dashboard Trust is merged, migrated, and production-smoked; Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production closure QA passed on 2026-05-15; QA-001 through QA-007 are closed.
+- Active state: Phase 5A History Judgment and Performance Tracking is complete, merged, deployed, and production-QA smoked as of 2026-05-16. Phase 5A lets users review historical Dashboard judgments and basic 1/5/20 trading-day performance using normalized snapshots and market data, without automatic review conclusions, self-iteration, or rule changes. Phase 4 Watchlist Opportunity Scan is complete, merged, deployed, and production-QA smoked on 2026-05-15. Phase 3 Dashboard Trust is merged, migrated, and production-smoked; Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production closure QA passed on 2026-05-15; QA-001 through QA-007 are closed.
 - Latest phase plan: `docs/tech/TECH-PLAN-v2026.05.16-phase-5a-history-performance-tracking.md`
 - Latest completed phase plan: `docs/tech/TECH-PLAN-v2026.05.15-phase-4-watchlist-opportunity-scan.md`
 - Latest hardening plan: `docs/tech/TECH-PLAN-v2026.05.14-phase-2.1-hardening.md`
@@ -35,6 +35,7 @@ This file routes agents to the smallest useful context for each task. Read this 
 - Current QA regression cases: `docs/qa/ONLINE-QA-REGRESSION-v2026.05.12.md`
 - Current open QA issues: `docs/qa/ONLINE-QA-ISSUES-v2026.05.12.md`
 - Latest production QA run: `docs/qa/runs/QA-RUN-v2026.05.15-production-closure.md`
+- Latest Phase 5A production QA run: `docs/qa/runs/QA-RUN-v2026.05.16-phase-5a-production.md`
 - Latest Phase 4 local QA run: `docs/qa/runs/QA-RUN-v2026.05.15-phase-4-local.md`
 - Review protocol: `docs/process/CODE-REVIEW-AGENT.md`
 - Review checklist: `docs/review/code_review.md`
