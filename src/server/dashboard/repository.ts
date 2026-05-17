@@ -284,7 +284,7 @@ function toDecisionSnapshotRecord(
     evidence: row.evidence as DashboardDecisionSnapshotRecord["evidence"],
     generatedAt: row.generatedAt,
     instrumentId: row.instrumentId,
-    keyLevels: row.keyLevels,
+    keyLevels: row.keyLevels as DashboardDecisionSnapshotRecord["keyLevels"],
     macroState: row.macroState,
     ruleVersion: row.ruleVersion,
     scope: row.scope as DashboardDecisionSnapshotRecord["scope"],

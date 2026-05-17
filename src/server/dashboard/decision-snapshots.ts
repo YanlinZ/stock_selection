@@ -2,6 +2,7 @@ import { createSummaryDataSources } from "./data-sources";
 import { createEvidenceItem, dashboardRuleVersion } from "./shared";
 import type {
   DashboardActionRecommendation,
+  DashboardDecisionKeyLevelSnapshot,
   DashboardDataQuality,
   DashboardDecisionSnapshotRecord,
   DashboardEvidenceGroups,
@@ -167,7 +168,7 @@ function createSafeMacroState(
 
 function toSafeKeyLevelSnapshot(
   proximity: KeyLevelProximitySnapshot
-): Record<string, unknown> {
+): DashboardDecisionKeyLevelSnapshot {
   return {
     currency: proximity.level.currency,
     distancePercent: proximity.distancePercent,

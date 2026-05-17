@@ -1,4 +1,5 @@
 import { calculateDashboardHistoryOutcomes } from "./history-outcomes";
+import { calculateHistoricalPlanStatus } from "./plan-status";
 import type {
   DashboardDecisionSnapshotRecord,
   DashboardHistoryInputSnapshot,
@@ -38,6 +39,14 @@ export function createDashboardHistorySnapshot(
           asOfDate,
           marketData,
           snapshot: record
+        }),
+        planStatus: calculateHistoricalPlanStatus({
+          actionKind: record.actionKind,
+          asOfDate,
+          basisDate: record.basisDate,
+          instrumentId: record.instrumentId,
+          keyLevels: record.keyLevels,
+          marketData
         }),
         ruleVersion: record.ruleVersion,
         scope: record.scope,

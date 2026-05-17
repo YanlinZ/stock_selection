@@ -30,6 +30,8 @@ describe("DashboardHistoryView", () => {
 
     expect(html).toContain("历史判断");
     expect(html).toContain("今日重点观察：QQQ");
+    expect(html).toContain("计划状态");
+    expect(html).toContain("已触发");
     expect(html).toContain("1D");
     expect(html).toContain("+1.0%");
     expect(html).toContain("等待数据");
@@ -76,6 +78,18 @@ function createHistorySnapshot(): DashboardHistorySnapshot {
         },
         generatedAt: "2026-05-01T13:00:00.000Z",
         instrumentId: "instrument_QQQ",
+        planStatus: {
+          basisDate: "2026-05-01",
+          distancePercent: 1,
+          distanceText: "+1.0%",
+          label: "已触发",
+          latestPrice: 106,
+          latestPriceDate: "2026-05-11",
+          levelPrice: 105,
+          levelType: "long_term_add",
+          message: "最新价格已触发长期加仓关键价位。",
+          status: "triggered"
+        },
         outcomes: [
           {
             entryClose: 100,

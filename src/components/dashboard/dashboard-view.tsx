@@ -27,6 +27,7 @@ import type {
   DashboardDataSourceSnapshot,
   DashboardEvidenceGroups,
   DashboardEvidenceItem,
+  DashboardPlanStatusSnapshot,
   DashboardSnapshot,
   DashboardStatus,
   DashboardTargetSnapshot,
@@ -42,13 +43,13 @@ export function DashboardView({ snapshot }: { snapshot: DashboardSnapshot }) {
       <section className="grid gap-4 lg:grid-cols-[1fr_0.7fr] lg:items-start">
         <div>
           <div className="text-sm font-medium text-muted-foreground">
-            Phase 5A
+            Phase 5B
           </div>
           <h1 className="mt-2 text-2xl font-semibold leading-tight sm:text-[28px]">
             Dashboard Trust
           </h1>
           <p className="mt-2 text-sm text-[#C6BFAF]">
-            历史判断追踪与持仓决策证据
+            计划状态追踪与持仓决策证据
           </p>
         </div>
         <StatusStrip snapshot={snapshot} />
@@ -289,6 +290,10 @@ function OpportunitySection({ snapshot }: { snapshot: DashboardSnapshot }) {
                 signedValue={target.changePercent}
               />
               <StatusLine label="依据日期" value={target.latestPriceDate ?? "暂无"} />
+              <StatusLine
+                label="计划状态"
+                value={`${target.planStatus.label} · ${target.planStatus.message}`}
+              />
             </div>
           ) : (
             <QuietReason reasons={opportunity.disqualifiedReasons} />
@@ -528,6 +533,7 @@ function TargetRow({ target }: { target: DashboardTargetSnapshot }) {
         <div className="flex flex-wrap gap-2">
           <ActionKindBadge action={target.action} />
           <DataQualityBadge dataQuality={target.action.dataQuality} />
+          <PlanStatusBadge planStatus={target.planStatus} />
         </div>
         <div className="font-mono text-xs text-muted-foreground md:text-right">
           依据 {target.latestPriceDate ?? target.action.basisDate ?? "暂无"}
@@ -576,6 +582,10 @@ function TargetRow({ target }: { target: DashboardTargetSnapshot }) {
               }
             />
             <StatusLine label="依据日期" value={target.latestPriceDate ?? "暂无"} />
+            <StatusLine
+              label="计划状态"
+              value={`${target.planStatus.label} · ${target.planStatus.message}`}
+            />
           </div>
         {target.keyLevels.length > 0 ? (
           <div className="space-y-2">
@@ -944,6 +954,14 @@ function DataQualityBadge({
   );
 }
 
+function PlanStatusBadge({
+  planStatus
+}: {
+  planStatus: DashboardPlanStatusSnapshot;
+}) {
+  return <Badge variant={planStatusVariant(planStatus.status)}>{planStatus.label}</Badge>;
+}
+
 function statusBadgeVariant(status: DashboardStatus) {
   if (status === "ready") {
     return "positive" as const;
@@ -960,6 +978,22 @@ function dataSourceStatusVariant(status: DashboardDataSourceSnapshot["status"]) 
   return status === "stale" || status === "partial"
     ? ("warning" as const)
     : ("secondary" as const);
+}
+
+function planStatusVariant(status: DashboardPlanStatusSnapshot["status"]) {
+  if (status === "triggered" || status === "approaching") {
+    return "warning" as const;
+  }
+
+  if (status === "invalidated") {
+    return "destructive" as const;
+  }
+
+  if (status === "still_valid") {
+    return "positive" as const;
+  }
+
+  return "secondary" as const;
 }
 
 function formatDashboardStatus(status: DashboardStatus) {
