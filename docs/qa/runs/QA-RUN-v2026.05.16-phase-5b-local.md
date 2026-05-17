@@ -4,8 +4,8 @@ Date: 2026-05-16
 
 Environment:
 
-- Local branch `codex/phase-5b-plan-status`
-- Local dev server attempted at `http://localhost:3001` because port 3000 was already occupied
+- Local branch `codex/phase-5b-plan-status`, followed by basis-date guard fix branch validation
+- Local dev server at `http://localhost:3000`
 - `pnpm dev`
 - Browser plugin and Playwright CLI smoke attempted
 
@@ -28,21 +28,26 @@ Environment:
 
 ## Passed Cases
 
-- Targeted Phase 5B tests passed: 5 files, 26 tests.
-- Full local check passed: typecheck, lint, and 22 Vitest files / 79 tests.
+- Targeted Phase 5B tests passed after the basis-date guard fix: 5 files, 29 tests.
+- Full local check passed after the basis-date guard fix: typecheck, lint, and 22 Vitest files / 82 tests.
 - Next production build passed and included `/dashboard` and `/dashboard/history`.
 - Static markup tests confirmed Dashboard and History render `计划状态` and `已触发`.
 - History UI test confirmed no `成功`、`失败`、`规则有效`、`规则无效` review conclusions are rendered.
+- Playwright CLI fallback completed 390px local smoke for `/dashboard`.
+- Playwright CLI fallback completed 390px local smoke for `/dashboard/history`.
+- Local 390px smoke confirmed both pages rendered Phase 5B and `计划状态`.
+- Local 390px smoke showed no horizontal overflow on both pages.
+- Local console checks reported 0 warnings and 0 errors on both pages.
 
 ## Failed Or Blocked Cases
 
 - Browser plugin could not open `localhost` or `127.0.0.1` local dev URLs; it reported client-side blocking for the local target.
 - Playwright CLI fallback failed in sandbox because npm registry access was blocked.
 - Escalated Playwright CLI fallback was rejected by the permissions reviewer because it would combine elevated npm-fetched third-party code with local auth secret access.
-- Therefore local browser smoke and 390px overflow checks were not completed in this run.
+- A later local smoke used the already installed Playwright CLI binary, so local browser smoke and 390px overflow checks were completed without npm registry access.
 
 ## Notes
 
-- No product failure was confirmed by browser because browser smoke did not complete.
+- The earlier browser/plugin failures were tooling limitations, not product failures.
 - No secrets, cookies, provider raw payloads, database URLs, or long logs were recorded.
-- Production/browser QA should be run after merge/deploy or with a browser path that does not require elevated third-party code to read local auth secrets.
+- Production/browser QA was recorded separately in `docs/qa/runs/QA-RUN-v2026.05.16-phase-5b-production.md`.
