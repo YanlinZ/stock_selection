@@ -9,8 +9,8 @@
 - Phase 5A 已完成、合入、部署并通过 production smoke。
 - 当前 Dashboard 已能生成规则化判断、可信证据、Phase 4 opportunity，并将 summary、holding、opportunity 快照写入 `dashboard_decision_snapshots`。
 - `/dashboard/history` 已能读取历史判断并基于 normalized daily prices 计算 1 / 5 / 20 个交易日基础表现。
-- Phase 5B 已完成本地实现、targeted tests、`pnpm check` 和 `pnpm build`。
-- 本地 browser smoke 已尝试，但受 browser tooling / escalation safety 限制未完成；merge/deploy 后仍需要 browser 或 production QA。
+- Phase 5B 已完成本地实现、targeted tests、`pnpm check`、`pnpm build`、PR #42/#43 merge、Vercel production deploy 和 production desktop smoke。
+- 本地 browser smoke 已尝试，但受 browser tooling / escalation safety 限制未完成；production desktop smoke 已补充，390px production mobile smoke 仍待补。
 - Phase 5B 补齐 PRD 中进入复盘机制前需要的基本计划状态追踪：接近、触发、失效、仍有效。
 
 ## 0. Planner Gate
@@ -79,7 +79,7 @@ Risks：
 
 ## 2. 完成定义
 
-当前状态：已完成本地实现、targeted tests、`pnpm check` 和 `pnpm build`，等待 reviewer/PR/merge/deploy。浏览器 smoke 未完成，需在 merge/deploy 后补 production/browser QA。
+当前状态：已完成本地实现、targeted tests、`pnpm check`、`pnpm build`、review/PR/merge/deploy 和 production desktop smoke。390px production mobile smoke 仍待补。
 
 - 当前 Dashboard target snapshot 包含 `planStatus`。
 - 历史判断 entry 包含 `planStatus`。
@@ -88,4 +88,5 @@ Risks：
 - 定向 tests 和 `pnpm check` 通过。
 - 本地 browser smoke 已尝试但未完成；原因记录在 `docs/qa/runs/QA-RUN-v2026.05.16-phase-5b-local.md`。
 - 本地 QA/validation 记录在 `docs/qa/runs/QA-RUN-v2026.05.16-phase-5b-local.md`。
-- Diff 经 reviewer gate 通过或无 blocking issue。
+- Production desktop smoke 已完成；390px production mobile smoke 仍待补。
+- Diff 经 reviewer gate 通过，无 blocking issue。
