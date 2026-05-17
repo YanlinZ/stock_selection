@@ -9,7 +9,7 @@
 - Phase 5A 已完成、合入、部署并通过 production smoke。
 - 当前 Dashboard 已能生成规则化判断、可信证据、Phase 4 opportunity，并将 summary、holding、opportunity 快照写入 `dashboard_decision_snapshots`。
 - `/dashboard/history` 已能读取历史判断并基于 normalized daily prices 计算 1 / 5 / 20 个交易日基础表现。
-- Phase 5B 已完成本地实现、targeted tests、`pnpm check`、`pnpm build`、local 390px browser smoke、PR #42/#43 merge、Vercel production deploy 和 production desktop smoke。
+- Phase 5B 已完成本地实现、targeted tests、`pnpm check`、`pnpm build`、local 390px browser smoke、PR #42/#43 implementation/fix merge、PR #44/#45 QA/status docs merge、Vercel production deploy 和 production desktop smoke。
 - 本地 browser smoke 已通过已安装的 Playwright CLI fallback 完成；production desktop smoke 已补充，390px production mobile smoke 仍待补。
 - Phase 5B 补齐 PRD 中进入复盘机制前需要的基本计划状态追踪：接近、触发、失效、仍有效。
 
