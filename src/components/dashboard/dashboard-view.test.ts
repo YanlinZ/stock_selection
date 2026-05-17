@@ -62,6 +62,8 @@ describe("DashboardView", () => {
     expect(html).toContain("1 个重点");
     expect(html).toContain("排名 1");
     expect(html).toContain("今日重点观察：QQQ");
+    expect(html).toContain("计划状态");
+    expect(html).toContain("已触发");
     expect(html).toContain("数据完整");
     expect(html).toContain("支持");
     expect(html).toContain("风险");

@@ -22,7 +22,8 @@ import type {
   DashboardEvidenceItem,
   DashboardHistoryEntry,
   DashboardHistoryOutcomeWindow,
-  DashboardHistorySnapshot
+  DashboardHistorySnapshot,
+  DashboardPlanStatusSnapshot
 } from "@/server/dashboard/types";
 
 export function DashboardHistoryView({
@@ -36,13 +37,13 @@ export function DashboardHistoryView({
         <div className="min-w-0">
           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
             <History className="h-4 w-4" aria-hidden="true" />
-            Phase 5A
+            Phase 5B
           </div>
           <h1 className="mt-2 text-2xl font-semibold leading-tight sm:text-[28px]">
             历史判断
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-[#C6BFAF]">
-            回看已持久化的 Dashboard 规则化判断，以及后续 1 / 5 / 20 个交易日的基础价格表现。
+            回看已持久化的 Dashboard 规则化判断、计划状态，以及后续 1 / 5 / 20 个交易日的基础价格表现。
           </p>
         </div>
         <a
@@ -130,6 +131,8 @@ function HistoryEntryCard({ entry }: { entry: DashboardHistoryEntry }) {
           <MetaLine label="Generated" value={formatDateTime(entry.generatedAt)} />
         </div>
 
+        <PlanStatusBlock planStatus={entry.planStatus} />
+
         <div>
           <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
             <LineChart className="h-4 w-4" aria-hidden="true" />
@@ -196,6 +199,38 @@ function OutcomeBlock({ outcome }: { outcome: DashboardHistoryOutcomeWindow }) {
           Outcome {formatPricePoint(outcome.outcomeDate, outcome.outcomeClose)}
         </p>
         <p className="break-words">{outcome.message}</p>
+      </div>
+    </div>
+  );
+}
+
+function PlanStatusBlock({
+  planStatus
+}: {
+  planStatus: DashboardPlanStatusSnapshot;
+}) {
+  return (
+    <div className="rounded-md border border-border bg-[#0F0E0C] px-3 py-3 text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="font-semibold text-muted-foreground">计划状态</h3>
+        <Badge variant={planStatusVariant(planStatus.status)}>
+          {planStatus.label}
+        </Badge>
+      </div>
+      <p className="mt-2 break-words">{planStatus.message}</p>
+      <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-3">
+        <p className="break-words">
+          最新 {formatPricePoint(planStatus.latestPriceDate, planStatus.latestPrice)}
+        </p>
+        <p className="break-words">
+          价位{" "}
+          {planStatus.levelPrice !== null
+            ? `${formatNumber(planStatus.levelPrice)} · ${formatLevelType(planStatus.levelType)}`
+            : "暂无"}
+        </p>
+        <p className="break-words">
+          距离 {planStatus.distanceText ?? "暂无"}
+        </p>
       </div>
     </div>
   );
@@ -319,6 +354,38 @@ function outcomeStatusVariant(status: DashboardHistoryOutcomeWindow["status"]) {
   }
 
   return status === "pending" ? ("warning" as const) : ("secondary" as const);
+}
+
+function planStatusVariant(status: DashboardPlanStatusSnapshot["status"]) {
+  if (status === "triggered" || status === "approaching") {
+    return "warning" as const;
+  }
+
+  if (status === "invalidated") {
+    return "destructive" as const;
+  }
+
+  if (status === "still_valid") {
+    return "positive" as const;
+  }
+
+  return "secondary" as const;
+}
+
+function formatLevelType(levelType: DashboardPlanStatusSnapshot["levelType"]) {
+  if (!levelType) {
+    return "暂无";
+  }
+
+  const labels: Record<NonNullable<DashboardPlanStatusSnapshot["levelType"]>, string> = {
+    long_term_add: "长期加仓",
+    resistance: "压力",
+    risk: "风险",
+    support: "支撑",
+    watch: "观察"
+  };
+
+  return labels[levelType];
 }
 
 function formatSignedPercent(value: number) {

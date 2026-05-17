@@ -36,6 +36,16 @@ describe("createDashboardHistorySnapshot", () => {
             dataQuality: "complete",
             generatedAt: new Date("2026-05-01T13:00:00.000Z"),
             instrumentId: "instrument_QQQ",
+            keyLevels: [
+              {
+                currency: "USD",
+                distancePercent: 0,
+                levelType: "long_term_add",
+                price: 105,
+                state: "near",
+                thresholdPercent: 3
+              }
+            ],
             scope: "opportunity",
             snapshotDate: "2026-05-01",
             subjectKey: "instrument_QQQ",
@@ -59,7 +69,13 @@ describe("createDashboardHistorySnapshot", () => {
       ruleVersion: "dashboard-rules-v4.0.0",
       scope: "opportunity",
       subjectKey: "instrument_QQQ",
-      symbol: "QQQ"
+      symbol: "QQQ",
+      planStatus: expect.objectContaining({
+        latestPrice: 106,
+        latestPriceDate: "2026-05-11",
+        levelPrice: 105,
+        status: "triggered"
+      })
     });
     expect(history.entries[0]?.outcomes).toEqual(
       expect.arrayContaining([

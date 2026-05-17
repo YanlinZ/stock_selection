@@ -126,6 +126,26 @@ export type KeyLevelProximitySnapshot = {
   thresholdPercent: number;
 };
 
+export type DashboardPlanStatusKind =
+  | "approaching"
+  | "insufficient_data"
+  | "invalidated"
+  | "still_valid"
+  | "triggered";
+
+export type DashboardPlanStatusSnapshot = {
+  basisDate: string | null;
+  distancePercent: number | null;
+  distanceText: string | null;
+  label: string;
+  latestPrice: number | null;
+  latestPriceDate: string | null;
+  levelPrice: number | null;
+  levelType: KeyPriceLevelType | null;
+  message: string;
+  status: DashboardPlanStatusKind;
+};
+
 export type DashboardActionKind =
   | "consider_small_add"
   | "observe"
@@ -223,6 +243,7 @@ export type DashboardTargetSnapshot = {
   latestPrice: number | null;
   latestPriceDate: string | null;
   movingAverages: MovingAverageSnapshot;
+  planStatus: DashboardPlanStatusSnapshot;
   recentRange: RecentRangeSnapshot;
   role: DashboardTargetRole;
   volumeChange: VolumeChangeSnapshot;
@@ -310,6 +331,15 @@ export type DashboardSnapshot = {
 
 export type DashboardDecisionSnapshotScope = "holding" | "opportunity" | "summary";
 
+export type DashboardDecisionKeyLevelSnapshot = {
+  currency: string;
+  distancePercent: number | null;
+  levelType: KeyPriceLevelType;
+  price: number;
+  state: KeyLevelProximitySnapshot["state"] | null;
+  thresholdPercent: number;
+};
+
 export type DashboardDecisionSnapshotRecord = {
   actionKind: DashboardActionKind;
   actionLabel: string;
@@ -320,7 +350,7 @@ export type DashboardDecisionSnapshotRecord = {
   evidence: DashboardEvidenceGroups;
   generatedAt: Date;
   instrumentId: string | null;
-  keyLevels: Array<Record<string, unknown>>;
+  keyLevels: DashboardDecisionKeyLevelSnapshot[];
   macroState: Record<string, unknown>;
   ruleVersion: string;
   scope: DashboardDecisionSnapshotScope;
@@ -365,6 +395,7 @@ export type DashboardHistoryEntry = {
   generatedAt: string;
   instrumentId: string | null;
   outcomes: DashboardHistoryOutcomeWindow[];
+  planStatus: DashboardPlanStatusSnapshot;
   ruleVersion: string;
   scope: DashboardDecisionSnapshotScope;
   snapshotDate: string;

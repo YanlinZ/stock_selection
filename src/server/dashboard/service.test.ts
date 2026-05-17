@@ -84,13 +84,19 @@ describe("createDashboardSnapshot", () => {
       dataQuality: "complete",
       kind: "consider_small_add"
     });
+    expect(snapshot.holdings[0]?.planStatus).toMatchObject({
+      latestPrice: 294,
+      levelPrice: 300,
+      status: "triggered"
+    });
     expect(snapshot.holdings[0]?.action.evidence.supporting.length).toBeGreaterThan(
       0
     );
     expect(snapshot.opportunity).toMatchObject({
       status: "available",
       candidate: expect.objectContaining({
-        instrument: expect.objectContaining({ symbol: "TSLA" })
+        instrument: expect.objectContaining({ symbol: "TSLA" }),
+        planStatus: expect.objectContaining({ status: "triggered" })
       }),
       action: expect.objectContaining({
         confidence: "high",

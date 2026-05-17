@@ -4,8 +4,8 @@ This file routes agents to the smallest useful context for each task. Read this 
 
 ## Active State
 
-- Active state: Phase 5A History Judgment and Performance Tracking is complete, merged, deployed, and production-QA smoked as of 2026-05-16. Phase 5A lets users review historical Dashboard judgments and basic 1/5/20 trading-day performance using normalized snapshots and market data, without automatic review conclusions, self-iteration, or rule changes. Phase 4 Watchlist Opportunity Scan is complete, merged, deployed, and production-QA smoked on 2026-05-15. Phase 3 Dashboard Trust is merged, migrated, and production-smoked; Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production closure QA passed on 2026-05-15; QA-001 through QA-007 are closed.
-- Latest phase plan: `docs/tech/TECH-PLAN-v2026.05.16-phase-5a-history-performance-tracking.md`
+- Active state: Phase 5B Plan Status Tracking is locally implemented as of 2026-05-16, with targeted tests, `pnpm check`, and `pnpm build` passing; browser smoke was attempted but blocked by local browser/security tooling, so production/browser QA remains pending after merge/deploy. Phase 5B adds factual plan status tracking for Dashboard and history judgments: approaching, triggered, invalidated, still valid, or insufficient data. It uses normalized market data plus safe key-level snapshot context and does not output automatic review conclusions, self-iteration, or rule changes. Phase 5A History Judgment and Performance Tracking is complete, merged, deployed, and production-QA smoked as of 2026-05-16. Phase 4 Watchlist Opportunity Scan is complete, merged, deployed, and production-QA smoked on 2026-05-15. Phase 3 Dashboard Trust is merged, migrated, and production-smoked; Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production closure QA passed on 2026-05-15; QA-001 through QA-007 are closed.
+- Latest phase plan: `docs/tech/TECH-PLAN-v2026.05.16-phase-5b-plan-status-tracking.md`
 - Latest completed phase plan: `docs/tech/TECH-PLAN-v2026.05.15-phase-4-watchlist-opportunity-scan.md`
 - Latest hardening plan: `docs/tech/TECH-PLAN-v2026.05.14-phase-2.1-hardening.md`
 - Latest completed technical status: `docs/tech/TECH-PLAN-v2026.05.15-phase-4-watchlist-opportunity-scan.md`
@@ -15,13 +15,14 @@ This file routes agents to the smallest useful context for each task. Read this 
 - Phase 3 result: Dashboard Trust for Holdings Decisions strengthens holding action trust with source/update metadata, support/opposition/risk/missing evidence groups, confidence/data-quality tags, and lightweight daily decision snapshots.
 - Phase 4 result: Watchlist Opportunity Scan surfaces at most one rules-only high-quality holding/watchlist opportunity, or explicitly stays quiet when no opportunity clears the bar.
 - Phase 5A result: History Judgment and Performance Tracking reads persisted Dashboard decision snapshots, includes available Phase 4 opportunities in history, calculates basic 1/5/20 trading-day outcomes from normalized daily prices, and shows pending/insufficient states when data is not available.
+- Phase 5B local result: Plan Status Tracking shows factual approaching/triggered/invalidated/still-valid/insufficient states for current Dashboard targets and historical judgment entries; browser/production QA remains pending.
 - Current boundary: do not add AI summaries, news/earnings deep understanding, automatic scheduled jobs, broker sync, real trading, push notifications, high-frequency market data, full-market recommendations, automatic self-iteration, rule-change proposals, or automatic review conclusions unless explicitly requested.
 
 ## Canonical Entrypoints
 
 - Product overview: `docs/prd/PRD-v2026.05.10.md`
 - Product delta and future replay/self-improvement notes: `docs/prd/PRD-v2026.05.11.md`
-- Latest phase plan and acceptance criteria: `docs/tech/TECH-PLAN-v2026.05.16-phase-5a-history-performance-tracking.md`
+- Latest phase plan and acceptance criteria: `docs/tech/TECH-PLAN-v2026.05.16-phase-5b-plan-status-tracking.md`
 - Latest completed phase plan and completion status: `docs/tech/TECH-PLAN-v2026.05.15-phase-4-watchlist-opportunity-scan.md`
 - Phase 3 completion plan and acceptance criteria: `docs/tech/TECH-PLAN-v2026.05.14-phase-3-dashboard-trust.md`
 - Phase 2.1 hardening plan and acceptance criteria: `docs/tech/TECH-PLAN-v2026.05.14-phase-2.1-hardening.md`
@@ -97,6 +98,7 @@ For Phase 1 fixes, read the directly relevant Phase 1 sections from `docs/tech/T
 | Task type | Read by default | Read only if needed |
 | --- | --- | --- |
 | Quick code fix | `AGENTS.md`, this file, directly relevant source/tests | PRD/tech section for phase boundary questions |
+| Phase 5B Plan Status Tracking implementation/follow-up | Phase 5B plan, directly relevant Dashboard target/history source/tests, `src/server/dashboard/types.ts`, `src/server/dashboard/target-decisions.ts`, `src/server/dashboard/history.ts` | PRD v2026.05.11 replay/self-improvement sections only when phase boundary is unclear; Phase 5A plan only when history behavior is unclear |
 | Phase 5A History Judgment and Performance Tracking implementation/follow-up | Phase 5A plan, directly relevant Dashboard snapshot/history source/tests, `src/db/schema.ts` and `src/server/dashboard/repository.ts` when history reads are touched | PRD v2026.05.11 review/self-improvement sections only when phase boundary is unclear; Phase 4 plan only when opportunity history behavior is unclear |
 | Phase 4 Watchlist Opportunity Scan maintenance/follow-up | Phase 4 plan, latest production QA closure run, directly relevant Dashboard source/tests | PRD v2026.05.10 opportunity model sections only when rule scope is unclear |
 | Phase 2.1 hardening / QA issue reconciliation | Phase 2.1 hardening plan, current QA open issues, local smoke matrix, directly relevant auth/settings/Dashboard source/tests | Older phase plans only when a fix depends on their implementation details |

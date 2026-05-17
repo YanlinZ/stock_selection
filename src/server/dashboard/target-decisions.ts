@@ -22,6 +22,7 @@ import {
   formatSignedPercent,
   isDateStale
 } from "./shared";
+import { calculateCurrentPlanStatus } from "./plan-status";
 import type {
   DashboardDataFreshness,
   DashboardDataQuality,
@@ -118,6 +119,13 @@ export function createTargetSnapshot({
       latestPrice: null,
       latestPriceDate: null,
       movingAverages: createUnavailableMovingAverages(),
+      planStatus: calculateCurrentPlanStatus({
+        actionKind: unavailableAction.kind,
+        basisDate: unavailableAction.basisDate,
+        keyLevels: [],
+        latestPrice: null,
+        latestPriceDate: null
+      }),
       recentRange: {
         high: null,
         highDate: null,
@@ -181,20 +189,21 @@ export function createTargetSnapshot({
     configurationDataSource,
     ...(ingestionDataSource ? [ingestionDataSource] : [])
   ];
+  const action = createTargetAction({
+    changePercent,
+    dataQuality,
+    dataSources,
+    instrumentSymbol: instrument.symbol,
+    keyLevelProximities,
+    latest,
+    macro,
+    movingAverages,
+    recentRange,
+    volumeChange
+  });
 
   return {
-    action: createTargetAction({
-      changePercent,
-      dataQuality,
-      dataSources,
-      instrumentSymbol: instrument.symbol,
-      keyLevelProximities,
-      latest,
-      macro,
-      movingAverages,
-      recentRange,
-      volumeChange
-    }),
+    action,
     changePercent,
     dataStatus,
     holding,
@@ -203,6 +212,13 @@ export function createTargetSnapshot({
     latestPrice: latest.close,
     latestPriceDate: latest.date,
     movingAverages,
+    planStatus: calculateCurrentPlanStatus({
+      actionKind: action.kind,
+      basisDate: action.basisDate,
+      keyLevels: keyLevelProximities,
+      latestPrice: latest.close,
+      latestPriceDate: latest.date
+    }),
     recentRange,
     role,
     volumeChange,
