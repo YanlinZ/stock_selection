@@ -37,9 +37,9 @@ Environment:
 
 ## Failed Or Blocked Cases
 
-- 390px production mobile smoke was not completed because the available browser wrapper did not expose viewport resizing.
+- 390px production mobile smoke was not completed in this run because the available browser wrapper did not expose viewport resizing. It was later completed on 2026-05-17 and recorded in `docs/qa/runs/QA-RUN-v2026.05.17-phase-5b-production-mobile.md`.
 
 ## Notes
 
 - No secrets, cookies, provider raw payloads, database URLs, or long logs were recorded.
-- 390px mobile production smoke remains a targeted follow-up when a suitable browser path is available.
+- 390px mobile production smoke follow-up is closed by `docs/qa/runs/QA-RUN-v2026.05.17-phase-5b-production-mobile.md`.
