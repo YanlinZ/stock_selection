@@ -4,11 +4,11 @@ This file routes agents to the smallest useful context for each task. Read this 
 
 ## Active State
 
-- Active state: Phase 5B Plan Status Tracking is complete, merged through PR #42 and PR #43, deployed, local 390px-smoked, and production desktop-smoked as of 2026-05-16; 390px production mobile smoke remains pending because the available browser wrapper did not expose viewport resizing. Phase 5B adds factual plan status tracking for Dashboard and history judgments: approaching, triggered, invalidated, still valid, or insufficient data. It uses normalized market data plus safe key-level snapshot context and does not output automatic review conclusions, self-iteration, or rule changes. Phase 5A History Judgment and Performance Tracking is complete, merged, deployed, and production-QA smoked as of 2026-05-16. Phase 4 Watchlist Opportunity Scan is complete, merged, deployed, and production-QA smoked on 2026-05-15. Phase 3 Dashboard Trust is merged, migrated, and production-smoked; Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production closure QA passed on 2026-05-15; QA-001 through QA-007 are closed.
+- Active state: Phase 5B Plan Status Tracking is complete, implemented through PR #42 and PR #43, QA/status-documented through PR #44 and PR #45, deployed, local 390px-smoked, and production desktop-smoked as of 2026-05-16; 390px production mobile smoke remains pending because the available browser wrapper did not expose viewport resizing. Phase 5B adds factual plan status tracking for Dashboard and history judgments: approaching, triggered, invalidated, still valid, or insufficient data. It uses normalized market data plus safe key-level snapshot context and does not output automatic review conclusions, self-iteration, or rule changes. Phase 5A History Judgment and Performance Tracking is complete, merged, deployed, and production-QA smoked as of 2026-05-16. Phase 4 Watchlist Opportunity Scan is complete, merged, deployed, and production-QA smoked on 2026-05-15. Phase 3 Dashboard Trust is merged, migrated, and production-smoked; Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production closure QA passed on 2026-05-15; QA-001 through QA-007 are closed.
 - Latest phase plan: `docs/tech/TECH-PLAN-v2026.05.16-phase-5b-plan-status-tracking.md`
-- Latest completed phase plan: `docs/tech/TECH-PLAN-v2026.05.15-phase-4-watchlist-opportunity-scan.md`
+- Latest completed phase plan: `docs/tech/TECH-PLAN-v2026.05.16-phase-5b-plan-status-tracking.md`
 - Latest hardening plan: `docs/tech/TECH-PLAN-v2026.05.14-phase-2.1-hardening.md`
-- Latest completed technical status: `docs/tech/TECH-PLAN-v2026.05.15-phase-4-watchlist-opportunity-scan.md`
+- Latest completed technical status: `docs/tech/TECH-PLAN-v2026.05.16-phase-5b-plan-status-tracking.md`
 - Phase 2 completed technical status: `docs/tech/TECH-PLAN-v2026.05.14.md`
 - Phase 1 status: complete; configuration page, provider contracts, ingestion, normalized data, and production smoke are done.
 - Phase 2 result: Dashboard v1 reads normalized data and outputs rule-based, explainable daily guidance with reasons, risks, data dates, macro scoring, technical indicators, and key price level proximity.
@@ -23,7 +23,7 @@ This file routes agents to the smallest useful context for each task. Read this 
 - Product overview: `docs/prd/PRD-v2026.05.10.md`
 - Product delta and future replay/self-improvement notes: `docs/prd/PRD-v2026.05.11.md`
 - Latest phase plan and acceptance criteria: `docs/tech/TECH-PLAN-v2026.05.16-phase-5b-plan-status-tracking.md`
-- Latest completed phase plan and completion status: `docs/tech/TECH-PLAN-v2026.05.15-phase-4-watchlist-opportunity-scan.md`
+- Latest completed phase plan and completion status: `docs/tech/TECH-PLAN-v2026.05.16-phase-5b-plan-status-tracking.md`
 - Phase 3 completion plan and acceptance criteria: `docs/tech/TECH-PLAN-v2026.05.14-phase-3-dashboard-trust.md`
 - Phase 2.1 hardening plan and acceptance criteria: `docs/tech/TECH-PLAN-v2026.05.14-phase-2.1-hardening.md`
 - Phase 2 completed technical status: `docs/tech/TECH-PLAN-v2026.05.14.md`
@@ -35,7 +35,9 @@ This file routes agents to the smallest useful context for each task. Read this 
 - Local smoke matrix: `docs/qa/LOCAL-SMOKE.md`
 - Current QA regression cases: `docs/qa/ONLINE-QA-REGRESSION-v2026.05.12.md`
 - Current open QA issues: `docs/qa/ONLINE-QA-ISSUES-v2026.05.12.md`
-- Latest production QA run: `docs/qa/runs/QA-RUN-v2026.05.15-production-closure.md`
+- Latest production QA run: `docs/qa/runs/QA-RUN-v2026.05.16-phase-5b-production.md`
+- Latest Phase 5B production QA run: `docs/qa/runs/QA-RUN-v2026.05.16-phase-5b-production.md`
+- Latest Phase 5B local QA run: `docs/qa/runs/QA-RUN-v2026.05.16-phase-5b-local.md`
 - Latest Phase 5A production QA run: `docs/qa/runs/QA-RUN-v2026.05.16-phase-5a-production.md`
 - Latest Phase 4 local QA run: `docs/qa/runs/QA-RUN-v2026.05.15-phase-4-local.md`
 - Review protocol: `docs/process/CODE-REVIEW-AGENT.md`
