@@ -131,6 +131,43 @@ describe("createDashboardHistorySnapshot", () => {
     expect(history.entries.map((entry) => `${entry.snapshotDate}:${entry.scope}`))
       .toEqual(["2026-05-02:summary", "2026-05-01:opportunity", "2026-05-01:holding"]);
   });
+
+  it("keeps history plan status insufficient when a persisted snapshot lacks basis date", () => {
+    const history = createDashboardHistorySnapshot(
+      {
+        decisionSnapshots: [
+          createRecord({
+            basisDate: null,
+            instrumentId: "instrument_QQQ",
+            keyLevels: [
+              {
+                currency: "USD",
+                distancePercent: 0,
+                levelType: "long_term_add",
+                price: 105,
+                state: "near",
+                thresholdPercent: 3
+              }
+            ],
+            scope: "opportunity",
+            symbol: "QQQ"
+          })
+        ],
+        marketData: createMarketHistory("instrument_QQQ", "2026-05-01", 7, 100)
+      },
+      {
+        asOfDate: "2026-05-12",
+        generatedAt: new Date("2026-05-16T12:00:00.000Z")
+      }
+    );
+
+    expect(history.entries[0]?.planStatus).toMatchObject({
+      latestPrice: 106,
+      latestPriceDate: "2026-05-11",
+      levelPrice: null,
+      status: "insufficient_data"
+    });
+  });
 });
 
 function createRecord(
