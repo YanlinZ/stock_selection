@@ -2,15 +2,18 @@
 
 版本：v2026.05.17-phase-6a-review-task-queue
 
-本文件基于 Phase 5B Plan Status Tracking 完成态，定义 Phase 6A：Review Task Queue / 待人工复盘队列。Phase 6A 是进入复盘机制前的最小可用步骤：只把已经到观察窗口的历史判断整理成“该人工复盘”的事项，不输出自动复盘结论、判断质量评价或规则修改建议。
+本文件基于 Phase 5B Plan Status Tracking 完成态，定义并记录 Phase 6A：Review Task Queue / 待人工复盘队列。Phase 6A 是进入复盘机制前的最小可用步骤：只把已经到观察窗口的历史判断整理成“该人工复盘”的事项，不输出自动复盘结论、判断质量评价或规则修改建议。
 
-## 当前准备状态
+## 当前完成状态
 
+- Phase 6A 已完成、合入 PR #48、部署并通过 production desktop 和 390px mobile targeted QA。
+- Phase 6A 本地 QA 记录：`docs/qa/runs/QA-RUN-v2026.05.17-phase-6a-local.md`。
+- Phase 6A production QA 记录：`docs/qa/runs/QA-RUN-v2026.05.17-phase-6a-production.md`。
 - Phase 5B 已完成、合入、部署并通过 production desktop 和 390px mobile smoke。
 - Dashboard 已能生成规则化判断、可信证据、Phase 4 opportunity，并将 summary、holding、opportunity 快照写入 `dashboard_decision_snapshots`。
-- `/dashboard/history` 已能读取历史判断，基于 normalized daily prices 计算 1 / 5 / 20 个交易日基础表现，并展示计划状态。
+- `/dashboard/history` 已能读取历史判断，基于 normalized daily prices 计算 1 / 5 / 20 个交易日基础表现，展示计划状态，并派生轻量“待人工复盘”队列。
 - PRD v2026.05.11 要求进入复盘与自我迭代前具备可追溯决策快照、历史表现、计划状态、复盘触发策略和用户确认边界。
-- Phase 6A 不新增 schema；复盘队列先从已有 history snapshot 派生，验证产品形态和边界后再决定是否进入 Phase 6B 的 review outcome 持久化。
+- Phase 6A 未新增 schema；复盘队列从已有 history snapshot 派生，后续如进入 Phase 6B 的 review outcome 持久化，必须重新过 Planner gate。
 
 ## 0. Planner Gate
 
@@ -209,4 +212,4 @@ Post-merge targeted QA 覆盖：
 
 ## 10. 当前下一步
 
-Phase 6A 已完成开发前准备。下一步由 Main Agent 按本计划执行实现，先从 `src/server/dashboard/review-tasks.test.ts` 的 failing tests 开始。
+Phase 6A 已完成本地实现、targeted tests、`pnpm check`、`pnpm build`、local desktop/390px smoke、review/PR/merge/deploy、production desktop/390px targeted QA 和状态文档同步。
