@@ -4,11 +4,11 @@ This file routes agents to the smallest useful context for each task. Read this 
 
 ## Active State
 
-- Active state: Phase 6A Review Task Queue is planned and ready for development as of 2026-05-17. Phase 6A should derive a lightweight "待人工复盘" queue on `/dashboard/history` from existing decision snapshots, normalized daily price outcomes, and plan status; it must not add automatic review conclusions, rule-change proposals, AI summaries, or schema unless a new Planner gate explicitly approves it. Phase 5B Plan Status Tracking is complete, implemented through PR #42 and PR #43, QA/status-documented through PR #44 and PR #45, deployed, local 390px-smoked, production desktop-smoked, and production 390px mobile-smoked as of 2026-05-17. Phase 5B adds factual plan status tracking for Dashboard and history judgments: approaching, triggered, invalidated, still valid, or insufficient data. It uses normalized market data plus safe key-level snapshot context and does not output automatic review conclusions, self-iteration, or rule changes. Phase 5A History Judgment and Performance Tracking is complete, merged, deployed, and production-QA smoked as of 2026-05-16. Phase 4 Watchlist Opportunity Scan is complete, merged, deployed, and production-QA smoked on 2026-05-15. Phase 3 Dashboard Trust is merged, migrated, and production-smoked; Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production closure QA passed on 2026-05-15; QA-001 through QA-007 are closed.
+- Active state: Phase 6A Review Task Queue is complete as of 2026-05-17, implemented and merged through PR #48, deployed, local-smoked, and production-smoked on desktop and 390px mobile. Phase 6A derives a lightweight "待人工复盘" queue on `/dashboard/history` from existing decision snapshots, normalized daily price outcomes, and plan status; it does not add automatic review conclusions, rule-change proposals, AI summaries, or schema. Phase 5B Plan Status Tracking is complete, implemented through PR #42 and PR #43, QA/status-documented through PR #44 and PR #45, deployed, local 390px-smoked, production desktop-smoked, and production 390px mobile-smoked as of 2026-05-17. Phase 5B adds factual plan status tracking for Dashboard and history judgments: approaching, triggered, invalidated, still valid, or insufficient data. It uses normalized market data plus safe key-level snapshot context and does not output automatic review conclusions, self-iteration, or rule changes. Phase 5A History Judgment and Performance Tracking is complete, merged, deployed, and production-QA smoked as of 2026-05-16. Phase 4 Watchlist Opportunity Scan is complete, merged, deployed, and production-QA smoked on 2026-05-15. Phase 3 Dashboard Trust is merged, migrated, and production-smoked; Phase 2 Dashboard v1 and Phase 2.1 local hardening are complete and merged. Production closure QA passed on 2026-05-15; QA-001 through QA-007 are closed.
 - Latest phase plan: `docs/tech/TECH-PLAN-v2026.05.17-phase-6a-review-task-queue.md`
-- Latest completed phase plan: `docs/tech/TECH-PLAN-v2026.05.16-phase-5b-plan-status-tracking.md`
+- Latest completed phase plan: `docs/tech/TECH-PLAN-v2026.05.17-phase-6a-review-task-queue.md`
 - Latest hardening plan: `docs/tech/TECH-PLAN-v2026.05.14-phase-2.1-hardening.md`
-- Latest completed technical status: `docs/tech/TECH-PLAN-v2026.05.16-phase-5b-plan-status-tracking.md`
+- Latest completed technical status: `docs/tech/TECH-PLAN-v2026.05.17-phase-6a-review-task-queue.md`
 - Phase 2 completed technical status: `docs/tech/TECH-PLAN-v2026.05.14.md`
 - Phase 1 status: complete; configuration page, provider contracts, ingestion, normalized data, and production smoke are done.
 - Phase 2 result: Dashboard v1 reads normalized data and outputs rule-based, explainable daily guidance with reasons, risks, data dates, macro scoring, technical indicators, and key price level proximity.
@@ -16,15 +16,15 @@ This file routes agents to the smallest useful context for each task. Read this 
 - Phase 4 result: Watchlist Opportunity Scan surfaces at most one rules-only high-quality holding/watchlist opportunity, or explicitly stays quiet when no opportunity clears the bar.
 - Phase 5A result: History Judgment and Performance Tracking reads persisted Dashboard decision snapshots, includes available Phase 4 opportunities in history, calculates basic 1/5/20 trading-day outcomes from normalized daily prices, and shows pending/insufficient states when data is not available.
 - Phase 5B result: Plan Status Tracking shows factual approaching/triggered/invalidated/still-valid/insufficient states for current Dashboard targets and historical judgment entries; local 390px smoke, production desktop smoke, and production 390px mobile smoke passed.
-- Phase 6A planned result: Review Task Queue should show factual ready/pending/insufficient 人工复盘事项 on `/dashboard/history`, derived from existing history outcomes and plan status, without automatic review conclusions or rule-change proposals.
-- Current boundary: do not add AI summaries, news/earnings deep understanding, automatic scheduled jobs, broker sync, real trading, push notifications, high-frequency market data, full-market recommendations, automatic self-iteration, rule-change proposals, automatic review conclusions, or Phase 6A schema changes unless explicitly requested and re-planned.
+- Phase 6A result: Review Task Queue shows factual ready/pending/insufficient 人工复盘事项 on `/dashboard/history`, derived from existing history outcomes and plan status, without automatic review conclusions, rule-change proposals, or schema changes.
+- Current boundary: do not add AI summaries, news/earnings deep understanding, automatic scheduled jobs, broker sync, real trading, push notifications, high-frequency market data, full-market recommendations, automatic self-iteration, rule-change proposals, automatic review conclusions, or review/outcome schema changes unless explicitly requested and re-planned.
 
 ## Canonical Entrypoints
 
 - Product overview: `docs/prd/PRD-v2026.05.10.md`
 - Product delta and future replay/self-improvement notes: `docs/prd/PRD-v2026.05.11.md`
 - Latest phase plan and acceptance criteria: `docs/tech/TECH-PLAN-v2026.05.17-phase-6a-review-task-queue.md`
-- Latest completed phase plan and completion status: `docs/tech/TECH-PLAN-v2026.05.16-phase-5b-plan-status-tracking.md`
+- Latest completed phase plan and completion status: `docs/tech/TECH-PLAN-v2026.05.17-phase-6a-review-task-queue.md`
 - Phase 3 completion plan and acceptance criteria: `docs/tech/TECH-PLAN-v2026.05.14-phase-3-dashboard-trust.md`
 - Phase 2.1 hardening plan and acceptance criteria: `docs/tech/TECH-PLAN-v2026.05.14-phase-2.1-hardening.md`
 - Phase 2 completed technical status: `docs/tech/TECH-PLAN-v2026.05.14.md`
@@ -36,7 +36,9 @@ This file routes agents to the smallest useful context for each task. Read this 
 - Local smoke matrix: `docs/qa/LOCAL-SMOKE.md`
 - Current QA regression cases: `docs/qa/ONLINE-QA-REGRESSION-v2026.05.12.md`
 - Current open QA issues: `docs/qa/ONLINE-QA-ISSUES-v2026.05.12.md`
-- Latest production QA run: `docs/qa/runs/QA-RUN-v2026.05.17-phase-5b-production-mobile.md`
+- Latest production QA run: `docs/qa/runs/QA-RUN-v2026.05.17-phase-6a-production.md`
+- Latest Phase 6A production QA run: `docs/qa/runs/QA-RUN-v2026.05.17-phase-6a-production.md`
+- Latest Phase 6A local QA run: `docs/qa/runs/QA-RUN-v2026.05.17-phase-6a-local.md`
 - Latest Phase 5B production QA run: `docs/qa/runs/QA-RUN-v2026.05.17-phase-5b-production-mobile.md`
 - Latest Phase 5B local QA run: `docs/qa/runs/QA-RUN-v2026.05.16-phase-5b-local.md`
 - Latest Phase 5A production QA run: `docs/qa/runs/QA-RUN-v2026.05.16-phase-5a-production.md`
