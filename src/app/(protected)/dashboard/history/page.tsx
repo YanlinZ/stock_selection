@@ -20,6 +20,7 @@ async function getDashboardHistorySnapshot(): Promise<DashboardHistorySnapshot> 
     return {
       entries: [],
       generatedAt: new Date().toISOString(),
+      reviewTasks: [],
       status: "empty"
     };
   }

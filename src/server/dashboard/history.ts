@@ -1,5 +1,6 @@
 import { calculateDashboardHistoryOutcomes } from "./history-outcomes";
 import { calculateHistoricalPlanStatus } from "./plan-status";
+import { createDashboardReviewTasks } from "./review-tasks";
 import type {
   DashboardDecisionSnapshotRecord,
   DashboardHistoryInputSnapshot,
@@ -59,6 +60,7 @@ export function createDashboardHistorySnapshot(
   return {
     entries,
     generatedAt: generatedAt.toISOString(),
+    reviewTasks: createDashboardReviewTasks(entries),
     status: entries.length > 0 ? "ready" : "empty"
   };
 }

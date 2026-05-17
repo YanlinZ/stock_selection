@@ -3,6 +3,7 @@ import {
   Database,
   History,
   LineChart,
+  ListChecks,
   ShieldAlert
 } from "lucide-react";
 
@@ -23,7 +24,8 @@ import type {
   DashboardHistoryEntry,
   DashboardHistoryOutcomeWindow,
   DashboardHistorySnapshot,
-  DashboardPlanStatusSnapshot
+  DashboardPlanStatusSnapshot,
+  DashboardReviewTaskSnapshot
 } from "@/server/dashboard/types";
 
 export function DashboardHistoryView({
@@ -37,13 +39,13 @@ export function DashboardHistoryView({
         <div className="min-w-0">
           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
             <History className="h-4 w-4" aria-hidden="true" />
-            Phase 5B
+            Phase 6A
           </div>
           <h1 className="mt-2 text-2xl font-semibold leading-tight sm:text-[28px]">
             历史判断
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-[#C6BFAF]">
-            回看已持久化的 Dashboard 规则化判断、计划状态，以及后续 1 / 5 / 20 个交易日的基础价格表现。
+            回看已持久化的 Dashboard 规则化判断、计划状态、待人工复盘事项，以及后续 1 / 5 / 20 个交易日的基础价格表现。
           </p>
         </div>
         <a
@@ -61,6 +63,9 @@ export function DashboardHistoryView({
             <Badge variant={history.status === "ready" ? "positive" : "secondary"}>
               {history.entries.length} 条记录
             </Badge>
+            <Badge variant={history.reviewTasks.length > 0 ? "warning" : "secondary"}>
+              {history.reviewTasks.length} 项待复盘
+            </Badge>
             <Badge variant="secondary">1D / 5D / 20D</Badge>
           </div>
           <span className="font-mono text-xs text-muted-foreground">
@@ -68,6 +73,8 @@ export function DashboardHistoryView({
           </span>
         </div>
       </section>
+
+      <ReviewTaskQueue tasks={history.reviewTasks} />
 
       {history.entries.length > 0 ? (
         <section className="space-y-4">
@@ -94,6 +101,100 @@ export function DashboardHistoryView({
         </Card>
       )}
     </div>
+  );
+}
+
+function ReviewTaskQueue({ tasks }: { tasks: DashboardReviewTaskSnapshot[] }) {
+  return (
+    <section className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="flex items-center gap-2 text-lg font-semibold">
+          <ListChecks className="h-5 w-5 text-primary" aria-hidden="true" />
+          待人工复盘
+        </h2>
+        <Badge variant={tasks.length > 0 ? "warning" : "secondary"}>
+          {tasks.length} 项
+        </Badge>
+      </div>
+
+      {tasks.length > 0 ? (
+        <div className="grid gap-3 xl:grid-cols-2">
+          {tasks.map((task) => (
+            <ReviewTaskCard key={task.id} task={task} />
+          ))}
+        </div>
+      ) : (
+        <Card>
+          <CardContent className="py-6">
+            <p className="text-sm text-muted-foreground">
+              暂无待人工复盘事项。
+            </p>
+          </CardContent>
+        </Card>
+      )}
+    </section>
+  );
+}
+
+function ReviewTaskCard({ task }: { task: DashboardReviewTaskSnapshot }) {
+  return (
+    <Card>
+      <CardContent className="space-y-4 py-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant={reviewTaskStatusVariant(task.status)}>
+            {formatReviewTaskStatus(task.status)}
+          </Badge>
+          <Badge variant="secondary">{task.tradingDays}D</Badge>
+          <Badge variant={planStatusVariant(task.planStatus.status)}>
+            {task.planStatus.label}
+          </Badge>
+          <Badge variant="secondary">{formatScope(task.scope)}</Badge>
+          <Badge variant={dataQualityVariant(task.dataQuality)}>
+            {formatDataQuality(task.dataQuality)}
+          </Badge>
+        </div>
+
+        <div className="min-w-0">
+          <h3 className="break-words text-base font-semibold leading-tight">
+            {task.symbol ? `${task.symbol} · ` : ""}
+            {task.actionLabel}
+          </h3>
+          <p className="mt-2 break-words text-sm text-muted-foreground">
+            {task.message}
+          </p>
+        </div>
+
+        <div className="grid gap-2 text-sm sm:grid-cols-2">
+          <MetaLine
+            label="Return"
+            value={
+              task.returnPercent !== null
+                ? formatSignedPercent(task.returnPercent)
+                : "N/A"
+            }
+          />
+          <MetaLine
+            label="Entry"
+            value={formatPricePoint(task.entryDate, task.entryClose)}
+          />
+          <MetaLine
+            label="Outcome"
+            value={formatPricePoint(task.outcomeDate, task.outcomeClose)}
+          />
+          <MetaLine label="依据日" value={task.basisDate ?? "暂无"} />
+          <MetaLine label="Rule" value={task.ruleVersion} />
+          <MetaLine label="Subject" value={task.subjectKey} />
+        </div>
+
+        <div className="rounded-md border border-border bg-[#0F0E0C] px-3 py-2 text-xs text-muted-foreground">
+          <p className="break-words">
+            支持 {task.evidenceCounts.supporting} · 反对{" "}
+            {task.evidenceCounts.opposing} · 风险 {task.evidenceCounts.risks} ·
+            缺口 {task.evidenceCounts.missing}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -354,6 +455,24 @@ function outcomeStatusVariant(status: DashboardHistoryOutcomeWindow["status"]) {
   }
 
   return status === "pending" ? ("warning" as const) : ("secondary" as const);
+}
+
+function reviewTaskStatusVariant(status: DashboardReviewTaskSnapshot["status"]) {
+  if (status === "ready") {
+    return "positive" as const;
+  }
+
+  return status === "pending" ? ("warning" as const) : ("secondary" as const);
+}
+
+function formatReviewTaskStatus(status: DashboardReviewTaskSnapshot["status"]) {
+  const labels: Record<DashboardReviewTaskSnapshot["status"], string> = {
+    insufficient_data: "复盘数据不足",
+    pending: "等待复盘数据",
+    ready: "已到观察窗口"
+  };
+
+  return labels[status];
 }
 
 function planStatusVariant(status: DashboardPlanStatusSnapshot["status"]) {

@@ -22,6 +22,7 @@ describe("createDashboardHistorySnapshot", () => {
     expect(history).toEqual({
       entries: [],
       generatedAt: "2026-05-16T12:00:00.000Z",
+      reviewTasks: [],
       status: "empty"
     });
   });
@@ -89,6 +90,24 @@ describe("createDashboardHistorySnapshot", () => {
           tradingDays: 5
         }),
         expect.objectContaining({
+          status: "pending",
+          tradingDays: 20
+        })
+      ])
+    );
+    expect(history.reviewTasks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          actionLabel: "今日重点观察：QQQ",
+          message: "已到 1D 观察窗口，可人工复盘。",
+          planStatus: expect.objectContaining({
+            status: "triggered"
+          }),
+          status: "ready",
+          tradingDays: 1
+        }),
+        expect.objectContaining({
+          message: "等待 20 个交易日后的 normalized price，再进行人工复盘。",
           status: "pending",
           tradingDays: 20
         })

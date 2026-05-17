@@ -384,6 +384,43 @@ export type DashboardHistoryOutcomeWindow = {
   tradingDays: DashboardHistoryOutcomeTradingDays;
 };
 
+export type DashboardReviewTaskStatus = DashboardHistoryOutcomeStatus;
+
+export type DashboardReviewTaskWindow = DashboardHistoryOutcomeTradingDays;
+
+export type DashboardReviewTaskEvidenceCounts = {
+  missing: number;
+  opposing: number;
+  risks: number;
+  supporting: number;
+};
+
+export type DashboardReviewTaskSnapshot = {
+  actionKind: DashboardActionKind;
+  actionLabel: string;
+  basisDate: string | null;
+  confidence: DashboardConfidence;
+  dataQuality: DashboardDataQuality;
+  entryClose: number | null;
+  entryDate: string | null;
+  evidenceCounts: DashboardReviewTaskEvidenceCounts;
+  id: string;
+  instrumentId: string | null;
+  message: string;
+  outcomeClose: number | null;
+  outcomeDate: string | null;
+  planStatus: DashboardPlanStatusSnapshot;
+  priority: number;
+  returnPercent: number | null;
+  ruleVersion: string;
+  scope: DashboardDecisionSnapshotScope;
+  snapshotDate: string;
+  status: DashboardReviewTaskStatus;
+  subjectKey: string;
+  symbol: string | null;
+  tradingDays: DashboardReviewTaskWindow;
+};
+
 export type DashboardHistoryEntry = {
   actionKind: DashboardActionKind;
   actionLabel: string;
@@ -406,6 +443,7 @@ export type DashboardHistoryEntry = {
 export type DashboardHistorySnapshot = {
   entries: DashboardHistoryEntry[];
   generatedAt: string;
+  reviewTasks: DashboardReviewTaskSnapshot[];
   status: DashboardHistoryStatus;
 };
 
