@@ -101,6 +101,32 @@ describe("plan status tracking", () => {
     });
   });
 
+  it("marks missing basis date as insufficient even when price and key levels are available", () => {
+    const status = calculateCurrentPlanStatus({
+      actionKind: "consider_small_add",
+      basisDate: null,
+      keyLevels: [
+        createProximity({
+          distancePercent: -2,
+          levelType: "long_term_add",
+          price: 300,
+          state: "near",
+          thresholdPercent: 3
+        })
+      ],
+      latestPrice: 294,
+      latestPriceDate: "2026-05-12"
+    });
+
+    expect(status).toMatchObject({
+      latestPrice: 294,
+      latestPriceDate: "2026-05-12",
+      levelPrice: null,
+      status: "insufficient_data"
+    });
+    expect(status.message).toContain("basis date");
+  });
+
   it("calculates historical plan status from persisted key levels and normalized prices", () => {
     const status = calculateHistoricalPlanStatus({
       actionKind: "consider_small_add",
@@ -125,6 +151,30 @@ describe("plan status tracking", () => {
     });
     expect(status.message).not.toContain("成功");
     expect(status.message).not.toContain("失败");
+  });
+
+  it("marks historical plan status as insufficient when basis date is missing", () => {
+    const status = calculateHistoricalPlanStatus({
+      actionKind: "consider_small_add",
+      asOfDate: "2026-05-12",
+      basisDate: null,
+      instrumentId: "instrument_QQQ",
+      keyLevels: [
+        createHistoricalLevel({
+          levelType: "long_term_add",
+          price: 105,
+          thresholdPercent: 3
+        })
+      ],
+      marketData: createMarketHistory("instrument_QQQ", "2026-05-01", 7, 100)
+    });
+
+    expect(status).toMatchObject({
+      latestPrice: 106,
+      latestPriceDate: "2026-05-11",
+      levelPrice: null,
+      status: "insufficient_data"
+    });
   });
 });
 

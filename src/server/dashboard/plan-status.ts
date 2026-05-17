@@ -114,6 +114,15 @@ function calculatePlanStatus({
   latestPriceDate: string | null;
   levels: PlanStatusLevel[];
 }): DashboardPlanStatusSnapshot {
+  if (!basisDate) {
+    return createInsufficientPlanStatus({
+      basisDate,
+      latestPrice,
+      latestPriceDate,
+      message: "缺少 basis date，无法追踪计划状态。"
+    });
+  }
+
   if (latestPrice === null || !latestPriceDate) {
     return createInsufficientPlanStatus({
       basisDate,
