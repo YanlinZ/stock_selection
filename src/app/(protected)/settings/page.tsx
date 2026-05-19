@@ -253,15 +253,28 @@ function DataStatusSection({
         ) : null}
 
         {snapshot?.batchRun ? (
-          <div className="flex flex-col gap-2 rounded-md border border-border bg-[#0F0E0C] px-3 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2">
-              <BatchIcon className="h-4 w-4" aria-hidden="true" />
-              <span>最近一次刷新</span>
+          <div className="space-y-2">
+            <div className="flex flex-col gap-2 rounded-md border border-border bg-[#0F0E0C] px-3 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-2">
+                <BatchIcon className="h-4 w-4" aria-hidden="true" />
+                <span>最近一次刷新</span>
+              </div>
+              <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                <span>{formatDateTime(snapshot.batchRun.startedAt)}</span>
+                <span>{formatRefreshSummary(snapshot.batchRun.summary)}</span>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-              <span>{formatDateTime(snapshot.batchRun.startedAt)}</span>
-              <span>{formatRefreshSummary(snapshot.batchRun.summary)}</span>
-            </div>
+            {snapshot.batchRun.errorMessage ? (
+              <div className="flex items-start gap-2 rounded-md border border-border bg-[#0F0E0C] px-3 py-2 text-xs text-muted-foreground">
+                <AlertTriangle
+                  className="mt-0.5 h-3.5 w-3.5 shrink-0"
+                  aria-hidden="true"
+                />
+                <span className="min-w-0 break-words">
+                  {snapshot.batchRun.errorMessage}
+                </span>
+              </div>
+            ) : null}
           </div>
         ) : null}
 

@@ -99,7 +99,7 @@ export function createIngestionService({
       });
       const status = resolveBatchStatus(summary);
       const errorMessage =
-        status === "success" ? null : `${summary.failedTargets} refresh target(s) failed.`;
+        status === "success" ? null : createBatchErrorMessage(summary);
 
       await repository.finishRun({
         errorMessage,
@@ -121,6 +121,7 @@ export function createIngestionService({
     } catch (error) {
       const errorMessage = normalizeErrorMessage(error);
       const summary: RefreshSummary = {
+        failedTargetDetails: [],
         failedTargets: 1,
         macroTargets: 0,
         marketTargets: 0,
@@ -349,19 +350,52 @@ function createRefreshSummary(input: {
   marketTargets: number;
   results: RefreshTargetResult[];
 }): RefreshSummary {
-  const failedTargets = input.results.filter(
-    (result) => result.status === "failed"
-  ).length;
+  const failedTargetDetails = input.results
+    .filter((result) => result.status === "failed")
+    .map((result) => ({
+      errorMessage: result.errorMessage ?? "Unknown ingestion error.",
+      provider: result.provider,
+      targetKind: result.targetKind,
+      targetSymbol: result.targetSymbol
+    }));
 
   return {
-    failedTargets,
+    failedTargetDetails,
+    failedTargets: failedTargetDetails.length,
     macroTargets: input.macroTargets,
     marketTargets: input.marketTargets,
     pointsReceived: sum(input.results, (result) => result.pointsReceived),
     pointsWritten: sum(input.results, (result) => result.pointsWritten),
-    successfulTargets: input.results.length - failedTargets,
+    successfulTargets: input.results.length - failedTargetDetails.length,
     totalTargets: input.results.length
   };
+}
+
+function createBatchErrorMessage(summary: RefreshSummary) {
+  const detailText = summary.failedTargetDetails
+    .slice(0, 3)
+    .map(formatFailedTargetDetail)
+    .join("; ");
+  const remainingCount = Math.max(summary.failedTargets - 3, 0);
+  const remainingText =
+    remainingCount > 0 ? `; ${remainingCount} more target(s) failed` : "";
+
+  if (!detailText) {
+    return `${summary.failedTargets} refresh target(s) failed.`;
+  }
+
+  const message = `${summary.failedTargets} refresh target(s) failed: ${detailText}${remainingText}`;
+
+  return /[.!?]$/.test(message) ? message : `${message}.`;
+}
+
+function formatFailedTargetDetail(
+  detail: RefreshSummary["failedTargetDetails"][number]
+) {
+  const provider = detail.provider.toUpperCase();
+  const target = detail.targetSymbol ? ` ${detail.targetSymbol}` : "";
+
+  return `${provider} ${detail.targetKind}${target}: ${detail.errorMessage}`;
 }
 
 function resolveBatchStatus(summary: RefreshSummary): IngestionStatus {
