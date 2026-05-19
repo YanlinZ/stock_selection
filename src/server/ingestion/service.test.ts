@@ -131,11 +131,20 @@ describe("createIngestionService", () => {
     expect(result.status).toBe("partial_success");
     expect(result.summary).toMatchObject({
       failedTargets: 1,
+      failedTargetDetails: [
+        {
+          errorMessage: "FRED test outage.",
+          provider: "fred",
+          targetKind: "macro_observation",
+          targetSymbol: "DGS10"
+        }
+      ],
       successfulTargets: 1,
       totalTargets: 2
     });
     expect(fake.runs.find((run) => run.provider === "manual")).toMatchObject({
-      errorMessage: "1 refresh target(s) failed.",
+      errorMessage:
+        "1 refresh target(s) failed: FRED macro_observation DGS10: FRED test outage.",
       status: "partial_success"
     });
   });

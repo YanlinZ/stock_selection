@@ -5,6 +5,7 @@ import {
   holdings,
   ingestionRuns,
   instruments,
+  keyPriceLevels,
   macroObservations,
   marketDataDaily,
   providerRawResponses,
@@ -96,7 +97,7 @@ export function createIngestionRepository(db: Db = getDb()): IngestionRepository
     },
 
     async getRefreshPlan() {
-      const [holdingRows, watchlistRows] = await Promise.all([
+      const [holdingRows, watchlistRows, keyPriceLevelRows] = await Promise.all([
         db
           .select({
             instrument: instruments
@@ -117,6 +118,16 @@ export function createIngestionRepository(db: Db = getDb()): IngestionRepository
           .where(
             and(eq(watchlistItems.isActive, true), eq(instruments.isActive, true))
           )
+          .orderBy(asc(instruments.symbol)),
+        db
+          .select({
+            instrument: instruments
+          })
+          .from(keyPriceLevels)
+          .innerJoin(instruments, eq(keyPriceLevels.instrumentId, instruments.id))
+          .where(
+            and(eq(keyPriceLevels.isActive, true), eq(instruments.isActive, true))
+          )
           .orderBy(asc(instruments.symbol))
       ]);
 
@@ -126,7 +137,11 @@ export function createIngestionRepository(db: Db = getDb()): IngestionRepository
       >();
       const macroTargetsBySeriesId = new Map<string, MacroObservationIngestionTarget>();
 
-      for (const { instrument } of [...holdingRows, ...watchlistRows]) {
+      for (const { instrument } of [
+        ...holdingRows,
+        ...watchlistRows,
+        ...keyPriceLevelRows
+      ]) {
         const provider = resolveMarketProvider(instrument.assetType);
 
         if (provider) {

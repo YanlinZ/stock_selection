@@ -100,7 +100,15 @@ export type RefreshAllResult = {
   summary: RefreshSummary;
 };
 
+export type RefreshFailedTargetDetail = {
+  errorMessage: string;
+  provider: ExternalProviderName;
+  targetKind: ProviderTargetKind;
+  targetSymbol: string | null;
+};
+
 export type RefreshSummary = {
+  failedTargetDetails: RefreshFailedTargetDetail[];
   failedTargets: number;
   macroTargets: number;
   marketTargets: number;
