@@ -164,25 +164,8 @@ function DataFreshnessPanel({ snapshot }: { snapshot: DashboardSnapshot }) {
           数据状态
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3 text-sm">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-          <StatusLine
-            label="市场数据"
-            value={snapshot.dataFreshness.latestMarketDate ?? "暂无"}
-          />
-          <StatusLine
-            label="宏观数据"
-            value={snapshot.dataFreshness.latestMacroDate ?? "暂无"}
-          />
-        </div>
-        <StatusLine
-          label="最近刷新"
-          value={
-            snapshot.dataFreshness.latestRefreshStartedAt
-              ? formatDateTime(snapshot.dataFreshness.latestRefreshStartedAt)
-              : "暂无"
-          }
-        />
+      <CardContent className="space-y-4 text-sm">
+        <DataSourceGrid sources={snapshot.dataSources} />
         {snapshot.dataFreshness.warnings.length > 0 ? (
           <div className="rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-xs text-[#C6BFAF]">
             {snapshot.dataFreshness.warnings[0]}

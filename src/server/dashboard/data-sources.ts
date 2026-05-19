@@ -32,17 +32,21 @@ export function createPriceDataSource({
 export function createTechnicalDataSource({
   latest,
   pointCount,
+  recentRangeStatus,
   readyCount,
-  status
+  status,
+  volumeStatus
 }: {
   latest: DashboardMarketDataPoint | null;
   pointCount: number;
+  recentRangeStatus: "ready" | "unavailable";
   readyCount: number;
   status: DashboardDataSourceSnapshot["status"];
+  volumeStatus: "ready" | "unavailable";
 }): DashboardDataSourceSnapshot {
   return {
     basisDate: latest?.date ?? null,
-    detail: `均线 ready ${readyCount}/4，样本 ${pointCount} 日`,
+    detail: `均线 ready ${readyCount}/4，近高/近低 ${formatTechnicalPartStatus(recentRangeStatus)}，成交量 ${formatTechnicalPartStatus(volumeStatus)}，样本 ${pointCount} 日`,
     kind: "technical",
     label: "技术指标",
     provider: latest ? formatProviderLabel(latest.provider) : null,
@@ -50,6 +54,57 @@ export function createTechnicalDataSource({
     status,
     updatedAt: latest?.updatedAt.toISOString() ?? null
   };
+}
+
+export function createDashboardDataSources({
+  dataFreshness,
+  latestBatchRun,
+  macroObservations,
+  macroStatus,
+  now,
+  status
+}: {
+  dataFreshness: DashboardDataFreshness;
+  latestBatchRun: DashboardInputSnapshot["latestBatchRun"];
+  macroObservations: DashboardInputSnapshot["macroObservations"];
+  macroStatus: DashboardSnapshot["macro"]["status"];
+  now: Date;
+  status: DashboardStatus;
+}): DashboardDataSourceSnapshot[] {
+  return [
+    {
+      basisDate: dataFreshness.latestMarketDate,
+      detail: dataFreshness.latestMarketDate
+        ? "Dashboard normalized market data"
+        : "缺少 market_data_daily",
+      kind: "price",
+      label: "市场数据",
+      provider: null,
+      source: "market_data_daily",
+      status:
+        status === "unavailable"
+          ? "unavailable"
+          : status === "stale"
+            ? "stale"
+            : "ready",
+      updatedAt: null
+    },
+    createMacroDataSource({
+      macroObservations,
+      macroStatus,
+      now
+    }),
+    createIngestionDataSource(latestBatchRun) ?? {
+      basisDate: null,
+      detail: "暂无刷新记录",
+      kind: "ingestion",
+      label: "最近刷新",
+      provider: "Manual",
+      source: "ingestion_runs",
+      status: "unavailable",
+      updatedAt: null
+    }
+  ];
 }
 
 export function createMacroDataSource({
@@ -226,51 +281,7 @@ export function createOpportunityDataSources({
 export function createSummaryDataSources(
   snapshot: DashboardSnapshot
 ): DashboardDataSourceSnapshot[] {
-  return [
-    {
-      basisDate: snapshot.dataFreshness.latestMarketDate,
-      detail: snapshot.dataFreshness.latestMarketDate
-        ? "Dashboard normalized market data"
-        : "缺少 market_data_daily",
-      kind: "price",
-      label: "市场数据",
-      provider: null,
-      source: "market_data_daily",
-      status:
-        snapshot.status === "unavailable"
-          ? "unavailable"
-          : snapshot.status === "stale"
-            ? "stale"
-            : "ready",
-      updatedAt: null
-    },
-    {
-      basisDate: snapshot.dataFreshness.latestMacroDate,
-      detail: snapshot.dataFreshness.latestMacroDate
-        ? "Dashboard normalized macro observations"
-        : "缺少 macro_observations",
-      kind: "macro",
-      label: "宏观数据",
-      provider: null,
-      source: "macro_observations",
-      status: snapshot.dataFreshness.latestMacroDate ? "ready" : "unavailable",
-      updatedAt: null
-    },
-    {
-      basisDate: null,
-      detail: snapshot.dataFreshness.latestRefreshStatus ?? "暂无刷新记录",
-      kind: "ingestion",
-      label: "最近刷新",
-      provider: "Manual",
-      source: "ingestion_runs",
-      status: snapshot.dataFreshness.latestRefreshStatus
-        ? snapshot.dataFreshness.latestRefreshStatus === "success"
-          ? "ready"
-          : "partial"
-        : "unavailable",
-      updatedAt: snapshot.dataFreshness.latestRefreshStartedAt
-    }
-  ];
+  return snapshot.dataSources;
 }
 
 function formatRunSummary(summary: Record<string, unknown>) {
@@ -300,4 +311,8 @@ function formatProviderLabel(provider: string) {
   };
 
   return labels[provider] ?? provider;
+}
+
+function formatTechnicalPartStatus(status: "ready" | "unavailable") {
+  return status === "ready" ? "ready" : "unavailable";
 }

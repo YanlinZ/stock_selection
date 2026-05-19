@@ -3,8 +3,7 @@ import {
   getLatestMarketPoint
 } from "./indicators";
 import {
-  createIngestionDataSource,
-  createMacroDataSource,
+  createDashboardDataSources,
   createOpportunityDataSources
 } from "./data-sources";
 import {
@@ -53,6 +52,11 @@ export function createDashboardSnapshot(
     ).values()
   ].sort((left, right) => left.symbol.localeCompare(right.symbol));
   const dataFreshness = createDataFreshness(input, now);
+  const status = resolveDashboardStatus({
+    configuredTargetCount: activeInstruments.length,
+    dataFreshness,
+    marketDataCount: input.marketData.length
+  });
   const macro = scoreMacroEnvironment({
     macroObservations: input.macroObservations,
     marketSeries: activeInstruments
@@ -62,12 +66,14 @@ export function createDashboardSnapshot(
         symbol: instrument.symbol
       }))
   });
-  const macroDataSource = createMacroDataSource({
+  const dataSources = createDashboardDataSources({
+    dataFreshness,
+    latestBatchRun: input.latestBatchRun,
     macroObservations: input.macroObservations,
     macroStatus: macro.status,
-    now
+    now,
+    status
   });
-  const ingestionDataSource = createIngestionDataSource(input.latestBatchRun);
 
   const targets = activeInstruments.map((instrument) => {
     const holding = holdingByInstrumentId.get(instrument.id) ?? null;
@@ -79,10 +85,8 @@ export function createDashboardSnapshot(
     return createTargetSnapshot({
       dataFreshness,
       holding,
-      ingestionDataSource,
       keyLevels,
       macro,
-      macroDataSource,
       points,
       role,
       watchlistItem
@@ -92,11 +96,6 @@ export function createDashboardSnapshot(
     keyPriceLevels: input.keyPriceLevels,
     marketDataByInstrumentId
   });
-  const status = resolveDashboardStatus({
-    configuredTargetCount: activeInstruments.length,
-    dataFreshness,
-    marketDataCount: input.marketData.length
-  });
   const opportunity = createOpportunitySummary({
     dataFreshness,
     macro,
@@ -105,6 +104,7 @@ export function createDashboardSnapshot(
   });
 
   return {
+    dataSources,
     dataFreshness,
     generatedAt: now.toISOString(),
     holdings: targets.filter((target) => target.role !== "watchlist"),
@@ -145,8 +145,17 @@ export function createUnavailableDashboardSnapshot({
     macroObservations: [],
     marketSeries: []
   });
+  const dataSources = createDashboardDataSources({
+    dataFreshness,
+    latestBatchRun: null,
+    macroObservations: [],
+    macroStatus: macro.status,
+    now,
+    status: "unavailable"
+  });
 
   return {
+    dataSources,
     dataFreshness,
     generatedAt,
     holdings: [],
