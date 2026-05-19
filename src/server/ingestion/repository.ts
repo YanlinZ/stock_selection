@@ -287,13 +287,20 @@ export function createIngestionRepository(db: Db = getDb()): IngestionRepository
     },
 
     async upsertMarketDataPoints(input) {
-      let written = 0;
+      if (input.points.length === 0) {
+        return 0;
+      }
+
+      const now = new Date();
+      const valuesByConflictKey = new Map<
+        string,
+        (typeof marketDataDaily.$inferInsert)
+      >();
 
       for (const point of input.points) {
-        const now = new Date();
-        await db
-          .insert(marketDataDaily)
-          .values({
+        valuesByConflictKey.set(
+          `${input.instrumentId}:${point.sourceProvider}:${point.date}`,
+          {
             adjustedClose: toNumericInsertValue(point.adjustedClose),
             close: String(point.close),
             date: point.date,
@@ -306,39 +313,52 @@ export function createIngestionRepository(db: Db = getDb()): IngestionRepository
             rawResponseId: input.rawResponseId,
             updatedAt: now,
             volume: toNumericInsertValue(point.volume)
-          })
-          .onConflictDoUpdate({
-            target: [
-              marketDataDaily.instrumentId,
-              marketDataDaily.provider,
-              marketDataDaily.date
-            ],
-            set: {
-              adjustedClose: toNumericUpdateValue(point.adjustedClose),
-              close: String(point.close),
-              high: toNumericUpdateValue(point.high),
-              ingestionRunId: input.ingestionRunId,
-              low: toNumericUpdateValue(point.low),
-              open: toNumericUpdateValue(point.open),
-              rawResponseId: input.rawResponseId,
-              updatedAt: now,
-              volume: toNumericUpdateValue(point.volume)
-            }
-          });
-        written += 1;
+          }
+        );
       }
 
-      return written;
+      const values = [...valuesByConflictKey.values()];
+
+      await db
+        .insert(marketDataDaily)
+        .values(values)
+        .onConflictDoUpdate({
+          target: [
+            marketDataDaily.instrumentId,
+            marketDataDaily.provider,
+            marketDataDaily.date
+          ],
+          set: {
+            adjustedClose: sql`excluded.adjusted_close`,
+            close: sql`excluded.close`,
+            high: sql`excluded.high`,
+            ingestionRunId: sql`excluded.ingestion_run_id`,
+            low: sql`excluded.low`,
+            open: sql`excluded.open`,
+            rawResponseId: sql`excluded.raw_response_id`,
+            updatedAt: sql`excluded.updated_at`,
+            volume: sql`excluded.volume`
+          }
+        });
+
+      return input.points.length;
     },
 
     async upsertMacroObservationPoints(input) {
-      let written = 0;
+      if (input.points.length === 0) {
+        return 0;
+      }
+
+      const now = new Date();
+      const valuesByConflictKey = new Map<
+        string,
+        (typeof macroObservations.$inferInsert)
+      >();
 
       for (const point of input.points) {
-        const now = new Date();
-        await db
-          .insert(macroObservations)
-          .values({
+        valuesByConflictKey.set(
+          `${point.seriesId}:${point.sourceProvider}:${point.date}`,
+          {
             date: point.date,
             ingestionRunId: input.ingestionRunId,
             provider: point.sourceProvider,
@@ -347,25 +367,31 @@ export function createIngestionRepository(db: Db = getDb()): IngestionRepository
             unit: point.unit ?? undefined,
             updatedAt: now,
             value: String(point.value)
-          })
-          .onConflictDoUpdate({
-            target: [
-              macroObservations.seriesId,
-              macroObservations.provider,
-              macroObservations.date
-            ],
-            set: {
-              ingestionRunId: input.ingestionRunId,
-              rawResponseId: input.rawResponseId,
-              unit: point.unit ?? sql`null`,
-              updatedAt: now,
-              value: String(point.value)
-            }
-          });
-        written += 1;
+          }
+        );
       }
 
-      return written;
+      const values = [...valuesByConflictKey.values()];
+
+      await db
+        .insert(macroObservations)
+        .values(values)
+        .onConflictDoUpdate({
+          target: [
+            macroObservations.seriesId,
+            macroObservations.provider,
+            macroObservations.date
+          ],
+          set: {
+            ingestionRunId: sql`excluded.ingestion_run_id`,
+            rawResponseId: sql`excluded.raw_response_id`,
+            unit: sql`excluded.unit`,
+            updatedAt: sql`excluded.updated_at`,
+            value: sql`excluded.value`
+          }
+        });
+
+      return input.points.length;
     }
   };
 }
@@ -433,10 +459,6 @@ function toRunSnapshot(run: IngestionRunRecord) {
 
 function toNumericInsertValue(value: number | null) {
   return value === null ? undefined : String(value);
-}
-
-function toNumericUpdateValue(value: number | null) {
-  return value === null ? sql`null` : String(value);
 }
 
 function requireRow<T>(row: T | undefined, message: string): T {

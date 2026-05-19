@@ -148,6 +148,50 @@ describe("createIngestionService", () => {
       status: "partial_success"
     });
   });
+
+  it("requests enough default history for MA200 calculations", async () => {
+    const requests: Array<{ endDate?: string; startDate?: string }> = [];
+    const fake = createFakeIngestionRepository({
+      macroObservations: [],
+      marketData: [createMarketTarget("instrument_googl", "GOOGL", "fmp")]
+    });
+    const providers = createProviders({
+      fmp: {
+        provider: "fmp",
+        async getDailyPrices(input) {
+          requests.push({
+            endDate: input.endDate,
+            startDate: input.startDate
+          });
+
+          return createFmpHistoricalPricesResponse({
+            payload: [
+              {
+                close: 100,
+                date: input.endDate ?? "2026-05-11",
+                volume: 1000
+              }
+            ],
+            symbol: input.symbol
+          });
+        }
+      }
+    });
+    const service = createIngestionService({
+      clock: createFixedClock(),
+      providers,
+      repository: fake.repository
+    });
+
+    await service.refreshAll({ requestedBy: "test" });
+
+    expect(requests).toEqual([
+      {
+        endDate: "2026-05-11",
+        startDate: "2025-05-11"
+      }
+    ]);
+  });
 });
 
 function createProviders(

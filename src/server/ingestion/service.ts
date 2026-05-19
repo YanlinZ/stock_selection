@@ -42,7 +42,7 @@ const defaultClock: Clock = {
   now: () => new Date()
 };
 
-const defaultLookbackDays = 45;
+const defaultLookbackDays = 365;
 
 export function createIngestionService({
   clock = defaultClock,
