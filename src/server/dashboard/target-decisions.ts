@@ -42,20 +42,16 @@ import type {
 export function createTargetSnapshot({
   dataFreshness,
   holding,
-  ingestionDataSource,
   keyLevels,
   macro,
-  macroDataSource,
   points,
   role,
   watchlistItem
 }: {
   dataFreshness: DashboardDataFreshness;
   holding: DashboardTargetSnapshot["holding"];
-  ingestionDataSource: DashboardDataSourceSnapshot | null;
   keyLevels: DashboardKeyPriceLevelInput[];
   macro: DashboardSnapshot["macro"];
-  macroDataSource: DashboardDataSourceSnapshot;
   points: DashboardMarketDataPoint[];
   role: DashboardTargetRole;
   watchlistItem: DashboardTargetSnapshot["watchlistItem"];
@@ -83,12 +79,12 @@ export function createTargetSnapshot({
       createTechnicalDataSource({
         latest: null,
         pointCount: sortedPoints.length,
+        recentRangeStatus: "unavailable",
         readyCount: 0,
-        status: "unavailable"
+        status: "unavailable",
+        volumeStatus: "unavailable"
       }),
-      macroDataSource,
-      configurationDataSource,
-      ...(ingestionDataSource ? [ingestionDataSource] : [])
+      configurationDataSource
     ];
     const evidence = createUnavailableEvidence({
       instrumentSymbol: instrument.symbol,
@@ -175,19 +171,19 @@ export function createTargetSnapshot({
     createTechnicalDataSource({
       latest,
       pointCount: sortedPoints.length,
+      recentRangeStatus: recentRange.status,
       readyCount: Object.values(movingAverages).filter(
         (indicator) => indicator.status === "ready"
       ).length,
-      status:
-        dataQuality === "stale"
-          ? "stale"
-          : dataQuality === "complete"
-            ? "ready"
-            : "partial"
+      status: resolveTechnicalDataSourceStatus({
+        dataStatus,
+        movingAverages,
+        recentRange,
+        volumeChange
+      }),
+      volumeStatus: volumeChange.status
     }),
-    macroDataSource,
-    configurationDataSource,
-    ...(ingestionDataSource ? [ingestionDataSource] : [])
+    configurationDataSource
   ];
   const action = createTargetAction({
     changePercent,
@@ -624,4 +620,34 @@ function resolveTargetDataQuality({
     keyLevels.length > 0;
 
   return hasCompleteInputs ? "complete" : "partial";
+}
+
+function resolveTechnicalDataSourceStatus({
+  dataStatus,
+  movingAverages,
+  recentRange,
+  volumeChange
+}: {
+  dataStatus: DashboardStatus;
+  movingAverages: DashboardTargetSnapshot["movingAverages"];
+  recentRange: DashboardTargetSnapshot["recentRange"];
+  volumeChange: DashboardTargetSnapshot["volumeChange"];
+}): DashboardDataSourceSnapshot["status"] {
+  if (dataStatus === "unavailable") {
+    return "unavailable";
+  }
+
+  if (dataStatus === "stale") {
+    return "stale";
+  }
+
+  const movingAveragesReady = Object.values(movingAverages).every(
+    (indicator) => indicator.status === "ready"
+  );
+  const technicalInputsReady =
+    movingAveragesReady &&
+    recentRange.status === "ready" &&
+    volumeChange.status === "ready";
+
+  return technicalInputsReady ? "ready" : "partial";
 }

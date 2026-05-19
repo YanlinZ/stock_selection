@@ -317,6 +317,7 @@ export type DashboardDataFreshness = {
 };
 
 export type DashboardSnapshot = {
+  dataSources: DashboardDataSourceSnapshot[];
   dataFreshness: DashboardDataFreshness;
   generatedAt: string;
   holdings: DashboardTargetSnapshot[];

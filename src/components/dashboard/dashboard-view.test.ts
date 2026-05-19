@@ -99,6 +99,34 @@ describe("DashboardView", () => {
     expect(html).toContain("查看证据");
     expect(html).not.toContain("持仓状态");
   });
+
+  it("renders refresh run status in the global data status panel", () => {
+    const snapshot = createDashboardSnapshot(
+      createInput({
+        holdings: [createHolding("TSLA")],
+        latestBatchRun: createLatestBatchRun({
+          failedTargets: 1,
+          pointsWritten: 1993,
+          successfulTargets: 7,
+          totalTargets: 8
+        }),
+        macroObservations: [
+          createObservation("VIXCLS", 17, "2026-05-12"),
+          createObservation("DGS10", 4.1, "2026-05-12")
+        ],
+        marketData: createHistory("instrument_TSLA", 252, 294)
+      }),
+      now
+    );
+    const html = renderToStaticMarkup(DashboardView({ snapshot }));
+
+    expect(html).toContain("数据状态");
+    expect(html).toContain("最近刷新");
+    expect(html).toContain(
+      "totalTargets 8 · successfulTargets 7 · failedTargets 1 · pointsWritten 1993"
+    );
+    expect(html.match(/totalTargets 8/g)).toHaveLength(1);
+  });
 });
 
 function createInput(
@@ -227,5 +255,18 @@ function createObservation(
     unit: seriesId === "DGS10" ? "percent" : "index",
     updatedAt: new Date(`${date}T22:00:00.000Z`),
     value
+  };
+}
+
+function createLatestBatchRun(summary: Record<string, unknown>) {
+  return {
+    errorMessage: null,
+    finishedAt: new Date("2026-05-13T12:05:00.000Z"),
+    id: "run_latest",
+    startedAt: new Date("2026-05-13T12:00:00.000Z"),
+    status: "partial_success" as const,
+    summary,
+    targetKind: "refresh_all" as const,
+    targetSymbol: null
   };
 }

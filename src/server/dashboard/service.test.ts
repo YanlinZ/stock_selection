@@ -119,7 +119,16 @@ describe("createDashboardSnapshot", () => {
           basisDate: "2026-05-12",
           kind: "price",
           provider: "FMP"
-        }),
+        })
+      ])
+    );
+    expect(snapshot.holdings[0]?.action.dataSources.map((source) => source.kind)).toEqual([
+      "price",
+      "technical",
+      "configuration"
+    ]);
+    expect(snapshot.dataSources).toEqual(
+      expect.arrayContaining([
         expect.objectContaining({
           kind: "macro",
           provider: "FRED"
@@ -294,6 +303,60 @@ describe("createDashboardSnapshot", () => {
       }),
       candidate: null,
       status: "none"
+    });
+  });
+
+  it("keeps global refresh status out of target data sources", () => {
+    const snapshot = createDashboardSnapshot(
+      createInput({
+        holdings: [createHolding("TSLA")],
+        latestBatchRun: createLatestBatchRun({
+          failedTargets: 1,
+          pointsWritten: 1993,
+          successfulTargets: 7,
+          totalTargets: 8
+        }),
+        macroObservations: [
+          createObservation("VIXCLS", 17, "2026-05-12"),
+          createObservation("DGS10", 4.1, "2026-05-12")
+        ],
+        marketData: createHistory("instrument_TSLA", 252, 294)
+      }),
+      now
+    );
+
+    expect(snapshot.dataSources).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          detail:
+            "totalTargets 8 · successfulTargets 7 · failedTargets 1 · pointsWritten 1993",
+          kind: "ingestion",
+          label: "最近刷新",
+          status: "partial"
+        })
+      ])
+    );
+    expect(snapshot.holdings[0]?.action.dataQuality).toBe("partial");
+    expect(snapshot.holdings[0]?.action.dataSources.map((source) => source.kind)).toEqual([
+      "price",
+      "technical",
+      "configuration"
+    ]);
+    expect(
+      snapshot.holdings[0]?.action.dataSources.find(
+        (source) => source.kind === "technical"
+      )
+    ).toMatchObject({
+      detail: "均线 ready 4/4，近高/近低 ready，成交量 ready，样本 252 日",
+      status: "ready"
+    });
+    expect(
+      snapshot.holdings[0]?.action.dataSources.find(
+        (source) => source.kind === "configuration"
+      )
+    ).toMatchObject({
+      detail: "持仓 medium · 0 个关键价位",
+      status: "partial"
     });
   });
 
@@ -519,5 +582,18 @@ function createObservation(
     unit: seriesId === "DGS10" ? "percent" : "index",
     updatedAt: new Date(`${date}T22:00:00.000Z`),
     value
+  };
+}
+
+function createLatestBatchRun(summary: Record<string, unknown>) {
+  return {
+    errorMessage: null,
+    finishedAt: new Date("2026-05-13T12:05:00.000Z"),
+    id: "run_latest",
+    startedAt: new Date("2026-05-13T12:00:00.000Z"),
+    status: "partial_success" as const,
+    summary,
+    targetKind: "refresh_all" as const,
+    targetSymbol: null
   };
 }
