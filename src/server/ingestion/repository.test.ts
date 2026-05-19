@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { holdings, keyPriceLevels, watchlistItems } from "@/db/schema";
+import {
+  holdings,
+  keyPriceLevels,
+  macroObservations,
+  marketDataDaily,
+  watchlistItems
+} from "@/db/schema";
 
 import { createIngestionRepository } from "./repository";
 
@@ -60,6 +66,213 @@ describe("createIngestionRepository", () => {
       "VIXCLS"
     ]);
   });
+
+  it("bulk upserts market data points in one database statement", async () => {
+    const db = createRecordingInsertDb();
+    const repository = createIngestionRepository(db as never);
+
+    const written = await repository.upsertMarketDataPoints({
+      ingestionRunId: "run_market",
+      instrumentId: "instrument_googl",
+      rawResponseId: "raw_market",
+      points: [
+        {
+          adjustedClose: 100,
+          close: 101,
+          currency: "USD",
+          date: "2026-05-18",
+          high: 105,
+          low: 99,
+          open: 100,
+          sourceProvider: "fmp",
+          symbol: "GOOGL",
+          volume: 12345
+        },
+        {
+          adjustedClose: null,
+          close: 102,
+          currency: "USD",
+          date: "2026-05-19",
+          high: null,
+          low: null,
+          open: null,
+          sourceProvider: "fmp",
+          symbol: "GOOGL",
+          volume: null
+        }
+      ]
+    });
+
+    expect(written).toBe(2);
+    expect(db.insertCalls).toHaveLength(1);
+    expect(db.insertCalls[0]).toMatchObject({
+      table: marketDataDaily
+    });
+    expect(db.insertCalls[0]?.values).toEqual([
+      expect.objectContaining({
+        adjustedClose: "100",
+        close: "101",
+        date: "2026-05-18",
+        high: "105",
+        ingestionRunId: "run_market",
+        instrumentId: "instrument_googl",
+        low: "99",
+        open: "100",
+        provider: "fmp",
+        rawResponseId: "raw_market",
+        updatedAt: expect.any(Date),
+        volume: "12345"
+      }),
+      expect.objectContaining({
+        adjustedClose: undefined,
+        close: "102",
+        date: "2026-05-19",
+        high: undefined,
+        low: undefined,
+        open: undefined,
+        provider: "fmp",
+        volume: undefined
+      })
+    ]);
+    expect(db.insertCalls[0]?.conflict).toBeDefined();
+  });
+
+  it("deduplicates market data conflicts within the same bulk upsert", async () => {
+    const db = createRecordingInsertDb();
+    const repository = createIngestionRepository(db as never);
+
+    const written = await repository.upsertMarketDataPoints({
+      ingestionRunId: "run_market",
+      instrumentId: "instrument_googl",
+      rawResponseId: "raw_market",
+      points: [
+        {
+          adjustedClose: null,
+          close: 101,
+          currency: "USD",
+          date: "2026-05-19",
+          high: null,
+          low: null,
+          open: null,
+          sourceProvider: "fmp",
+          symbol: "GOOGL",
+          volume: null
+        },
+        {
+          adjustedClose: null,
+          close: 102,
+          currency: "USD",
+          date: "2026-05-19",
+          high: null,
+          low: null,
+          open: null,
+          sourceProvider: "fmp",
+          symbol: "GOOGL",
+          volume: null
+        }
+      ]
+    });
+
+    expect(written).toBe(2);
+    expect(db.insertCalls).toHaveLength(1);
+    expect(db.insertCalls[0]?.values).toEqual([
+      expect.objectContaining({
+        close: "102",
+        date: "2026-05-19",
+        instrumentId: "instrument_googl",
+        provider: "fmp"
+      })
+    ]);
+  });
+
+  it("bulk upserts macro observation points in one database statement", async () => {
+    const db = createRecordingInsertDb();
+    const repository = createIngestionRepository(db as never);
+
+    const written = await repository.upsertMacroObservationPoints({
+      ingestionRunId: "run_macro",
+      rawResponseId: "raw_macro",
+      points: [
+        {
+          date: "2026-05-18",
+          seriesId: "DGS10",
+          sourceProvider: "fred",
+          unit: "percent",
+          value: 4.45
+        },
+        {
+          date: "2026-05-19",
+          seriesId: "DGS10",
+          sourceProvider: "fred",
+          unit: null,
+          value: 4.5
+        }
+      ]
+    });
+
+    expect(written).toBe(2);
+    expect(db.insertCalls).toHaveLength(1);
+    expect(db.insertCalls[0]).toMatchObject({
+      table: macroObservations
+    });
+    expect(db.insertCalls[0]?.values).toEqual([
+      expect.objectContaining({
+        date: "2026-05-18",
+        ingestionRunId: "run_macro",
+        provider: "fred",
+        rawResponseId: "raw_macro",
+        seriesId: "DGS10",
+        unit: "percent",
+        updatedAt: expect.any(Date),
+        value: "4.45"
+      }),
+      expect.objectContaining({
+        date: "2026-05-19",
+        provider: "fred",
+        seriesId: "DGS10",
+        unit: undefined,
+        value: "4.5"
+      })
+    ]);
+    expect(db.insertCalls[0]?.conflict).toBeDefined();
+  });
+
+  it("deduplicates macro observation conflicts within the same bulk upsert", async () => {
+    const db = createRecordingInsertDb();
+    const repository = createIngestionRepository(db as never);
+
+    const written = await repository.upsertMacroObservationPoints({
+      ingestionRunId: "run_macro",
+      rawResponseId: "raw_macro",
+      points: [
+        {
+          date: "2026-05-19",
+          seriesId: "DGS10",
+          sourceProvider: "fred",
+          unit: "percent",
+          value: 4.45
+        },
+        {
+          date: "2026-05-19",
+          seriesId: "DGS10",
+          sourceProvider: "fred",
+          unit: "percent",
+          value: 4.5
+        }
+      ]
+    });
+
+    expect(written).toBe(2);
+    expect(db.insertCalls).toHaveLength(1);
+    expect(db.insertCalls[0]?.values).toEqual([
+      expect.objectContaining({
+        date: "2026-05-19",
+        provider: "fred",
+        seriesId: "DGS10",
+        value: "4.5"
+      })
+    ]);
+  });
 });
 
 type FakeInstrument = {
@@ -79,6 +292,41 @@ function createFakeDb(input: {
     select() {
       return createFakeSelect(input);
     }
+  };
+}
+
+type InsertCall = {
+  conflict: unknown;
+  table: unknown;
+  values: unknown;
+};
+
+function createRecordingInsertDb() {
+  const insertCalls: InsertCall[] = [];
+
+  return {
+    insert(table: unknown) {
+      const call: InsertCall = {
+        conflict: null,
+        table,
+        values: null
+      };
+      insertCalls.push(call);
+
+      return {
+        values(values: unknown) {
+          call.values = values;
+
+          return {
+            onConflictDoUpdate(conflict: unknown) {
+              call.conflict = conflict;
+              return Promise.resolve();
+            }
+          };
+        }
+      };
+    },
+    insertCalls
   };
 }
 
